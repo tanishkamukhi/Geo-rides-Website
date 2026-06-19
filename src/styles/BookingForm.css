@@ -1,0 +1,44 @@
+.booking-form {
+  width: 90%;
+  max-width: 1100px;
+  margin: 30px auto;
+
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.input-group label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color:  #000000;
+}
+
+.input-group input {
+  width: 220px;
+  padding: 12px;
+
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  font-size: 15px;
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color:#000000;
+}

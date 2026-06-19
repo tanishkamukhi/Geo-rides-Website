@@ -1,0 +1,149 @@
+.filter-container {
+  width: 90%;
+  margin: 40px auto;
+  text-align: center;
+}
+
+.filter-container h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+  color: #DC2626;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Individual Filter Box */
+.filter-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+
+  padding: 12px 15px;
+  min-width: 220px;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Icons */
+.filter-icon {
+  font-size: 20px;
+  color:#DC2626;
+  pointer-events: none;
+}
+
+/* Dropdown */
+.filter-box select {
+  border: none;
+  outline: none;
+  width: 100%;
+  font-size: 15px;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* Find Drivers Button */
+.driver-btn {
+  margin-top: 30px;
+  background:#DC2626;
+  color: white;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+.driver-btn:hover {
+  background: #DC2626;
+  transform: translateY(-2px);
+}
+
+.driver-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filter-box {
+    width: 90%;
+    max-width: 350px;
+  }
+
+  .driver-btn {
+    width: 90%;
+    max-width: 350px;
+  }
+}
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+
+  margin-top: 35px;
+  margin-bottom: 30px;
+}
+
+.vehicle-card {
+  background: white;
+  border-radius: 15px;
+
+  padding: 20px;
+
+  text-align: center;
+
+  cursor: pointer;
+
+  border: 2px solid transparent;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+  transition: all 0.3s ease;
+}
+
+.vehicle-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+.vehicle-card.selected {
+  border: 2px solid#DC2626;
+}
+
+.vehicle-icon {
+  font-size: 40px;
+  color: #DC2626;
+
+  margin-bottom: 10px;
+}
+
+.vehicle-card h3 {
+  color: #000000;;
+  margin-bottom: 8px;
+}
+
+.vehicle-card p {
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.vehicle-card span {
+  font-weight: bold;
+  color: #DC2626;
+}
