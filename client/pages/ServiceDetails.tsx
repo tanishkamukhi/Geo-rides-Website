@@ -837,7 +837,7 @@ function CabBooking({ type }: CabBookingProps) {
     };
 
     const recentDestinations = [
-        "CN Tower, Toronto, ON", "Union Station, Toronto", "Indira Gandhi International Airport",
+        "CN Tower, Toronto, ON", "Union Station, Toronto", "Toronto Pearson International Airport",
         "Pacific Mall, Subhash Nagar", "Sector 15, Mississauga"
     ];
 
