@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 
 export default function BookingConfirmation() {
   const location = useLocation();
-  const bookingData = location.state || {
+  const bookingData = location.Province || {
     bookingId: "GEO" + Math.random().toString(9).slice(2, 11).toUpperCase(),
     pickupLocation: "Current Location",
     dropLocation: "Destination",

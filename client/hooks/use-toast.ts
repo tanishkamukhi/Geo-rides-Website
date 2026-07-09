@@ -46,7 +46,7 @@ type Action =
       toastId?: ToasterToast["id"];
     };
 
-interface State {
+interface Province {
   toasts: ToasterToast[];
 }
 
@@ -68,18 +68,18 @@ const addToRemoveQueue = (toastId: string) => {
   toastTimeouts.set(toastId, timeout);
 };
 
-export const reducer = (state: State, action: Action): State => {
+export const reducer = (Province: Province, action: Action): Province => {
   switch (action.type) {
     case "ADD_TOAST":
       return {
-        ...state,
-        toasts: [action.toast, ...state.toasts].slice(0, TOAST_LIMIT),
+        ...Province,
+        toasts: [action.toast, ...Province.toasts].slice(0, TOAST_LIMIT),
       };
 
     case "UPDATE_TOAST":
       return {
-        ...state,
-        toasts: state.toasts.map((t) =>
+        ...Province,
+        toasts: Province.toasts.map((t) =>
           t.id === action.toast.id ? { ...t, ...action.toast } : t,
         ),
       };
@@ -90,14 +90,14 @@ export const reducer = (state: State, action: Action): State => {
       if (toastId) {
         addToRemoveQueue(toastId);
       } else {
-        state.toasts.forEach((toast) => {
+        Province.toasts.forEach((toast) => {
           addToRemoveQueue(toast.id);
         });
       }
 
       return {
-        ...state,
-        toasts: state.toasts.map((t) =>
+        ...Province,
+        toasts: Province.toasts.map((t) =>
           t.id === toastId || toastId === undefined
             ? {
                 ...t,
@@ -111,19 +111,19 @@ export const reducer = (state: State, action: Action): State => {
     case "REMOVE_TOAST":
       if (action.toastId === undefined) {
         return {
-          ...state,
+          ...Province,
           toasts: [],
         };
       }
 
       return {
-        ...state,
-        toasts: state.toasts.filter((t) => t.id !== action.toastId),
+        ...Province,
+        toasts: Province.toasts.filter((t) => t.id !== action.toastId),
       };
   }
 };
 
-const listeners: Array<(state: State) => void> = [];
+const listeners: Array<(Province: Province) => void> = [];
 
 let memoryState: State = { toasts: [] };
 
@@ -172,13 +172,13 @@ function toast({ ...props }: Toast) {
 }
 
 function useToast() {
-  const [state, setState] = React.useState<State>(memoryState);
+  const [Province, setProvince] = React.useState<Province>(memoryState);
 
   React.useEffect(() => {
-    listeners.push(setState);
+    listeners.push(setProvince);
 
     return () => {
-      const index = listeners.indexOf(setState);
+      const index = listeners.indexOf(setProvince);
 
       if (index > -1) {
         listeners.splice(index, 1);
@@ -187,7 +187,7 @@ function useToast() {
   }, []);
 
   return {
-    ...state,
+    ...Province,
     toast,
     dismiss: (toastId?: string) =>
       dispatch({

@@ -149,7 +149,7 @@ server/
 ⚠️ **Important:** The current PHP files are basic implementations. For production, implement:
 
 1. **Input Validation:** More strict validation and sanitization
-2. **SQL Injection Prevention:** Use prepared statements (already implemented)
+2. **SQL Injection Prevention:** Use prepared Provincements (already implemented)
 3. **CORS Protection:** Configure properly for your domain
 4. **HTTPS:** Always use HTTPS in production
 5. **Password Hashing:** Using bcrypt (already implemented)

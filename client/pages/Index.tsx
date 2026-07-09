@@ -102,7 +102,7 @@ export default function Index() {
 
     // Navigate to booking confirmation with booking data
     navigate("/booking-confirmation", {
-      state: {
+      Province: {
         pickupLocation: formData.pickup,
         dropLocation: formData.dropoff,
         vehicleType: formData.vehicle,

@@ -19,8 +19,7 @@ export default function Contact() {
 
     const countries = [
         { code: "CA", name: "Canada" },
-        { code: "IN", name: "India" },
-        { code: "US", name: "United States" },
+        { code: "US", name: "United Provinces" },
         { code: "GB", name: "United Kingdom" },
     ];
 

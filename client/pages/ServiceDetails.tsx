@@ -441,7 +441,7 @@ function TravelAndStay() {
     const handleBookHotel = (hotel: typeof hotelData[0], roomType: string, price: number) => {
         if (!isLoggedIn) { navigate("/login"); return; }
         navigate("/booking-success", {
-            state: { pickup: hotel.name, dropoff: hotel.address, type: "travel", fare: price }
+            Province: { pickup: hotel.name, dropoff: hotel.address, type: "travel", fare: price }
         });
     };
 
@@ -468,7 +468,7 @@ function TravelAndStay() {
                             <h1 className="text-4xl font-black uppercase tracking-tighter">Travel & Stay</h1>
                         </div>
                         <p className="text-white/70 text-lg max-w-xl">
-                            Book premium hotels across India with real pricing, availability, and direct contact — all in one place.
+                            Book premium hotels across Canada with real pricing, availability, and direct contact — all in one place.
                         </p>
                     </div>
                 </div>
@@ -668,7 +668,7 @@ function ParcelService() {
         setTimeout(() => {
             setIsBooking(false);
             navigate("/booking-success", {
-                state: { pickup: form.pickup, dropoff: form.dropoff, type: "parcel", fare: totalPrice }
+                Province: { pickup: form.pickup, dropoff: form.dropoff, type: "parcel", fare: totalPrice }
             });
         }, 2500);
     };
@@ -831,7 +831,7 @@ function CabBooking({ type }: CabBookingProps) {
         setTimeout(() => {
             setIsBooking(false);
             navigate("/booking-success", {
-                state: { pickup: locations.pickup, dropoff: locations.dropoff, type, fare: fareEstimate }
+                Province: { pickup: locations.pickup, dropoff: locations.dropoff, type, fare: fareEstimate }
             });
         }, 3000);
     };

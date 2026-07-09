@@ -16,7 +16,7 @@ import Footer from "@/components/Footer";
 
 export default function BookingSuccess() {
     const location = useLocation();
-    const bookingData = location.state || { pickup: "Current Location", dropoff: "Destination", type: "cab", fare: 250 };
+    const bookingData = location.Province || { pickup: "Current Location", dropoff: "Destination", type: "cab", fare: 250 };
 
     const driver = {
         name: "Ramesh Kumar",
