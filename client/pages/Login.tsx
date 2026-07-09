@@ -38,7 +38,7 @@ export default function Login() {
         const data = await response.json();
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.userId);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Login failed. Please try again.");
@@ -53,7 +53,7 @@ export default function Login() {
   const handleGoogleLogin = () => {
     localStorage.setItem("authToken", "mock-google-token-12345");
     localStorage.setItem("userId", "google-user-999");
-    navigate("/");
+    navigate("/dashboard");
   };
 
   return (

@@ -124,6 +124,25 @@ const hotelData = [
             { type: "Suite", price: 18000, available: true },
         ],
     },
+    {
+        id: 7,
+        name: "Fairmont Royal York",
+        city: "Toronto",
+        stars: 5,
+        pricePerNight: 28000,
+        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=350&fit=crop",
+        address: "100 Front St W, Toronto, ON M5J 1E3, Canada",
+        phone: "+1 416 368 2511",
+        email: "ryh.reservations@fairmont.com",
+        lat: 43.6453,
+        lng: -79.3814,
+        amenities: ["Free WiFi", "Pool", "Spa", "Gym"],
+        roomTypes: [
+            { type: "Fairmont Room", price: 28000, available: true },
+            { type: "Signature Room", price: 35000, available: true },
+            { type: "Suite", price: 55000, available: false },
+        ],
+    },
 ];
 
 // ── AVAILABILITY LOGIC ────────────────────────────────────────────────────────
@@ -196,7 +215,7 @@ function TravelAndStay() {
                             <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                             <input type="date" min={today} value={checkIn}
                                 onChange={e => setCheckIn(e.target.value)}
-                                className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none" />
+                                className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
                         </div>
                     </div>
                     <div className="flex-1 min-w-[160px]">
@@ -205,13 +224,13 @@ function TravelAndStay() {
                             <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                             <input type="date" min={checkIn || today} value={checkOut}
                                 onChange={e => setCheckOut(e.target.value)}
-                                className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none" />
+                                className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
                         </div>
                     </div>
                     <div className="flex-1 min-w-[160px]">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">City</label>
                         <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)}
-                            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none">
+                            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none text-gray-900">
                             {cities.map(c => <option key={c}>{c}</option>)}
                         </select>
                     </div>
@@ -422,13 +441,13 @@ function ParcelService() {
                             <MapPin className="absolute left-3 top-3.5 w-5 h-5 text-geo-red" />
                             <input type="text" placeholder="Pickup address"
                                 value={form.pickup} onChange={e => setForm({ ...form, pickup: e.target.value })}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-geo-red outline-none" />
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
                         </div>
                         <div className="relative">
                             <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                             <input type="text" placeholder="Delivery address"
                                 value={form.dropoff} onChange={e => setForm({ ...form, dropoff: e.target.value })}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-geo-red outline-none" />
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
                         </div>
 
                         <div>
@@ -552,7 +571,7 @@ function CabBooking({ type }: CabBookingProps) {
     };
 
     const recentDestinations = [
-        "Connaught Place, Delhi", "Indira Gandhi International Airport",
+        "CN Tower, Toronto, ON", "Connaught Place, Delhi", "Indira Gandhi International Airport",
         "Pacific Mall, Subhash Nagar", "Sector 15, Rohini"
     ];
 
@@ -573,14 +592,14 @@ function CabBooking({ type }: CabBookingProps) {
                                     <input type="text" placeholder="Enter pickup location"
                                         value={locations.pickup}
                                         onChange={e => setLocations({ ...locations, pickup: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition" />
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition text-gray-900" />
                                 </div>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                                     <input type="text" placeholder="Where to?"
                                         value={locations.dropoff}
                                         onChange={e => setLocations({ ...locations, dropoff: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition" />
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition text-gray-900" />
                                 </div>
                             </div>
 

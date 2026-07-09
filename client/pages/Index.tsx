@@ -306,7 +306,7 @@ export default function Index() {
                       value={formData.pickup}
                       onChange={handleFormChange}
                       placeholder="Enter pickup location"
-                      className="w-full pl-10 pr-4 py-3 bg-white/90 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition"
+                      className="w-full pl-10 pr-4 py-3 bg-white/90 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition text-gray-900"
                       required
                     />
                   </div>
@@ -757,17 +757,17 @@ export default function Index() {
                 <input
                   type="text"
                   placeholder={t('contact.nameLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 text-gray-900"
                 />
                 <input
                   type="email"
                   placeholder={t('contact.emailLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 text-gray-900"
                 />
                 <textarea
                   rows={4}
                   placeholder={t('contact.messageLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 resize-none"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 resize-none text-gray-900"
                 />
                 <button
                   type="submit"
