@@ -1,5 +1,14 @@
 {
   "users": {
+    "tanishkamukhi12@gmail.com": {
+      "id": "8i69iu",
+      "password": "tani0099",
+      "fullName": "Tanishka Mukhi",
+      "email": "tanishkamukhi12@gmail.com",
+      "phone": "8950057229"
+    }
   },
-  "tokens": {}
+  "tokens": {
+    "9uv65s1783589873918": "8i69iu"
+  }
 }
