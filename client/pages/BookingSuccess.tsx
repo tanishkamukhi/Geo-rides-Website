@@ -16,7 +16,7 @@ import Footer from "@/components/Footer";
 
 export default function BookingSuccess() {
     const location = useLocation();
-    const bookingData = location.Province || { pickup: "Current Location", dropoff: "Destination", type: "cab", fare: 250 };
+    const bookingData = location.state || { pickup: "Current Location", dropoff: "Destination", type: "cab", fare: 250 };
 
     const driver = {
         name: "Ramesh Kumar",
@@ -49,7 +49,7 @@ export default function BookingSuccess() {
                             <span className="font-bold uppercase tracking-wider text-sm">Reward Unlocked</span>
                         </div>
                         <h2 className="text-2xl font-bold mb-1">Congratulations!</h2>
-                        <p className="text-red-100 text-sm">You earned <span className="font-bold text-white">50 Reward Points</span> and <span className="font-bold text-white">CAD $25 Cashback</span> for this ride.</p>
+                        <p className="text-red-100 text-sm">You earned <span className="font-bold text-white">50 Reward Points</span> and <span className="font-bold text-white">₹25 Cashback</span> for this ride.</p>
                     </div>
                 </div>
 
@@ -124,6 +124,3 @@ export default function BookingSuccess() {
         </div>
     );
 }
-
-
-

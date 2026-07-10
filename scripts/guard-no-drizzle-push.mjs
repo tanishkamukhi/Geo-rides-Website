@@ -67,7 +67,7 @@ const offenders = scannedFiles.filter((filePath) =>
   bannedCommandPattern.test(readFileSync(filePath, "utf8")),
 );
 
-if (offendeCADlength > 0) {
-  console.error(`Banned Drizzle command found in:\n${offendeCADjoin("\n")}`);
+if (offenders.length > 0) {
+  console.error(`Banned Drizzle command found in:\n${offenders.join("\n")}`);
   process.exit(1);
 }

@@ -53,9 +53,9 @@ export default function ForgotPassword() {
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}
                                         transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                                        className="w-16 h-16 bg-gradient-to-br from-geo-red to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/30"
+                                        className="w-16 h-16 bg-white overflow-hidden rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/30 border border-white/20"
                                     >
-                                        <Mail className="w-8 h-8 text-white" />
+                                        <img src="/logo.png" alt="Geo Rides Logo" className="w-full h-full object-cover" />
                                     </motion.div>
                                     <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Forgot Password?</h1>
                                     <p className="text-gray-300 text-sm">
@@ -127,6 +127,3 @@ export default function ForgotPassword() {
         </div>
     );
 }
-
-
-

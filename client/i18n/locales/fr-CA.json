@@ -1,0 +1,171 @@
+{
+    "nav": {
+        "home": "Accueil",
+        "services": "Services",
+        "whyUs": "Pourquoi Geo Rides",
+        "faq": "Foire aux questions",
+        "contact": "Contact",
+        "login": "Connexion",
+        "logout": "Déconnexion"
+    },
+    "hero": {
+        "headline": "Réservez votre trajet n'importe où, n'importe quand",
+        "subheadline": "Transport rapide, sécurisé et abordable avec Geo Rides",
+        "description": "Déplacez-vous du point A au point B en toute simplicité. Choisissez entre vélos, autos, taxis ou véhicules de location et profitez d'une expérience fluide.",
+        "pickupLabel": "Lieu de prise en charge",
+        "dropoffLabel": "Destination",
+        "vehicleLabel": "Type de véhicule",
+        "bookBtn": "Réserver votre trajet"
+    },
+    "services": {
+        "title": "Nos Services",
+        "subtitle": "Choisissez le service qui répond à vos besoins",
+        "bikeTaxi": "Moto-taxis",
+        "bikeTaxiDesc": "Trajets rapides et abordables sur deux roues",
+        "autoRide": "Auto Ride",
+        "autoRideDesc": "Auto-pousse confortable pour les courtes distances",
+        "cabBooking": "Réservation de taxi",
+        "cabBookingDesc": "Berline haut de gamme pour des trajets confortables",
+        "vehicleRental": "Location de véhicule",
+        "vehicleRentalDesc": "Voitures autonomes pour de longs trajets",
+        "parcelDelivery": "Livraison de colis",
+        "parcelDeliveryDesc": "Livraison rapide et sécuritaire de colis à travers le Canada",
+        "learnMore": "En savoir plus"
+    },
+    "whyChoose": {
+        "title": "Pourquoi choisir Geo Rides",
+        "subtitle": "Expérimentez la différence avec notre engagement envers la sécurité et la qualité (CAD)",
+        "affordablePricing": "Tarification abordable",
+        "affordablePricingDesc": "Des tarifs compétitifs avec une tarification transparente en CAD",
+        "verifiedDrivers": "Chauffeurs vérifiés",
+        "verifiedDriversDesc": "Partenaires vérifiés par antécédents pour votre sécurité",
+        "realTimeTracking": "Suivi en temps réel",
+        "realTimeTrackingDesc": "Suivez votre trajet en temps réel grâce au GPS",
+        "availability24": "Disponibilité 24/7",
+        "availability24Desc": "Disponible à tout moment de la journée ou de la nuit dans les villes canadiennes"
+    },
+    "howItWorks": {
+        "title": "Comment ça fonctionne",
+        "subtitle": "Trois étapes faciles pour votre prochain trajet",
+        "step1": "Entrez le point de départ & la destination",
+        "step1Desc": "Dites-nous où vous êtes et où vous voulez aller en quelques touches",
+        "step2": "Choisissez votre véhicule",
+        "step2Desc": "Sélectionnez parmi les motos, autos, taxis ou véhicules de location selon vos besoins",
+        "step3": "Confirmez et roulez",
+        "step3Desc": "Confirmez votre réservation et observez votre chauffeur arriver en temps réel"
+    },
+    "studentPlans": {
+        "title": "Forfaits spéciaux pour étudiants",
+        "description": "Nous croyons qu'il faut rendre le transport abordable pour les étudiants. Profitez de rabais exclusifs et de forfaits spéciaux conçus juste pour vous.",
+        "monthlyPass": "Pass mensuel de transport",
+        "monthlyPassDesc": "Obtenez un rabais de 30 % sur tous les trajets avec un pass mensuel illimité",
+        "collegeCommute": "Forfaits trajet d'études",
+        "collegeCommuteDesc": "Tarifs spéciaux pour les trajets réguliers entre le campus et le domicile",
+        "cashback": "Récompenses en argent remis",
+        "cashbackDesc": "Obtenez 5 % d'argent remis sur chaque trajet utilisable pour vos prochaines réservations",
+        "getPass": "Obtenir la carte étudiante",
+        "joinStudents": "Rejoignez plus de 50 000 étudiants canadiens"
+    },
+    "safety": {
+        "title": "Votre sécurité, notre priorité",
+        "subtitle": "Fonctions de sécurité avancées pour votre tranquillité d'esprit",
+        "emergencySOS": "SOS d'urgence",
+        "emergencySOSDesc": "Un bouton d'urgence en un clic pour alerter le service 911",
+        "liveSharing": "Partage de trajet en direct",
+        "liveSharingDesc": "Partagez votre position en temps réel avec vos contacts d'urgence",
+        "driverVerification": "Vérification des chauffeurs",
+        "driverVerificationDesc": "Tous nos chauffeurs font l'objet d'une vérification d'antécédents rigoureuse",
+        "tripMonitoring": "Surveillance des trajets",
+        "focusCanada": "Normes de sécurité canadiennes",
+        "tripMonitoringDesc": "Chaque trajet est surveillé pour garantir la qualité et la sécurité"
+    },
+    "driverPartner": {
+        "title": "Devenez chauffeur partenaire",
+        "description": "Rejoignez des milliers de chauffeurs qui gagnent leur vie avec Geo Rides. Fixez vos propres horaires et maximisez vos gains.",
+        "flexibleHours": "Horaires de travail flexibles",
+        "weeklyEarnings": "Gains hebdomadaires",
+        "easyRegistration": "Inscription facile",
+        "support24": "Soutien aux chauffeurs 24/7",
+        "registerBtn": "S'inscrire maintenant",
+        "earnIncome": "Gagner un revenu d'appoint"
+    },
+    "testimonials": {
+        "title": "Témoignages de nos clients",
+        "subtitle": "Rejoignez des milliers de passagers satisfaits"
+    },
+    "mobileApp": {
+        "title": "Télécharger notre application",
+        "description": "Réservez vos trajets en déplacement avec notre application intuitive. Disponible pour iOS et Android avec des fonctionnalités avancées.",
+        "appStore": "App Store",
+        "googlePlay": "Google Play",
+        "downloadOn": "Télécharger sur l'un des",
+        "getItOn": "Disponible sur"
+    },
+    "faq": {
+        "title": "Foire aux questions",
+        "subtitle": "Trouvez des réponses aux questions courantes",
+        "q1": "Comment puis-je réserver un trajet?",
+        "a1": "Il suffit d'ouvrir l'application, de saisir votre lieu de départ et votre destination, de choisir votre véhicule et d'appuyer sur Réserver. Notre chauffeur arrivera dans quelques minutes.",
+        "q2": "Les chauffeurs sont-ils vérifiés?",
+        "a2": "Oui, tous nos chauffeurs subissent des vérifications rigoureuses de leurs antécédents. Votre sécurité est notre priorité absolue.",
+        "q3": "Quels modes de paiement sont acceptés?",
+        "a3": "Nous acceptons les cartes de crédit/débit, les portefeuilles numériques principaux, ainsi qu'Apple Pay ou Google Pay.",
+        "q4": "Puis-je planifier un trajet à l'avance?",
+        "a4": "Oui, vous pouvez planifier des trajets jusqu'à 30 jours à l'avance sans frais supplémentaires. Sélectionnez simplement l'option de trajet planifié lors de la réservation.",
+        "q5": "Que faire si je dois annuler mon trajet?",
+        "a5": "L'annulation est gratuite dans les 2 minutes suivant la réservation. Par la suite, de légers frais d'annulation peuvent s'appliquer."
+    },
+    "contact": {
+        "title": "Entrer en contact",
+        "subtitle": "Vous avez des questions? Nous sommes là pour vous aider",
+        "nameLabel": "Votre nom",
+        "emailLabel": "Votre adresse courriel",
+        "messageLabel": "Votre message",
+        "sendBtn": "Envoyer le message",
+        "emailContact": "Courriel",
+        "emailAddress": "support@georides.ca",
+        "phoneContact": "Téléphone",
+        "phoneNumber": "+1 (800) 555-0199",
+        "locationContact": "Siège social",
+        "locationText": "Disponible dans les principales villes du Canada",
+        "support24": "Soutien 24/7",
+        "supportDesc": "Notre équipe d'assistance client est toujours là pour vous aider"
+    },
+    "footer": {
+        "about": "À propos de nous",
+        "services": "Services",
+        "privacy": "Politique de confidentialité",
+        "terms": "Conditions d'utilisation",
+        "cancellation": "Politique d'annulation",
+        "copyright": "© 2026 Geo Rides Canada. Tous droits réservés.",
+        "quickLinks": "Liens rapides",
+        "legal": "Légal",
+        "contactInfo": "Coordonnées"
+    },
+    "login": {
+        "title": "Se connecter",
+        "subtitle": "Bon retour chez Geo Rides",
+        "email": "Adresse courriel",
+        "password": "Mot de passe",
+        "signIn": "Se connecter",
+        "signUp": "S'inscrire",
+        "forgotPassword": "Mot de passe oublié?",
+        "orSignInWith": "Ou connectez-vous avec",
+        "google": "Google",
+        "github": "GitHub",
+        "noAccount": "Vous n'avez pas de compte?",
+        "createOne": "Créer un compte"
+    },
+    "register": {
+        "title": "Créer un compte",
+        "subtitle": "Rejoignez Geo Rides Canada dès aujourd'hui",
+        "name": "Nom complet",
+        "email": "Adresse courriel",
+        "password": "Mot de passe",
+        "confirmPassword": "Confirmer le mot de passe",
+        "phone": "Numéro de téléphone",
+        "signUp": "S'inscrire",
+        "alreadyAccount": "Vous avez déjà un compte?",
+        "signIn": "Se connecter"
+    }
+}

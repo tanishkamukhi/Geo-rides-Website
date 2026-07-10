@@ -5,15 +5,15 @@ import Footer from "@/components/Footer";
 
 export default function BookingConfirmation() {
   const location = useLocation();
-  const bookingData = location.Province || {
+  const bookingData = location.state || {
     bookingId: "GEO" + Math.random().toString(9).slice(2, 11).toUpperCase(),
     pickupLocation: "Current Location",
     dropLocation: "Destination",
     vehicleType: "Cab",
-    estimatedFare: "CAD $250",
+    estimatedFare: "₹250",
     estimatedTime: "5 mins",
     driverName: "Ramesh Kumar",
-    driverPhone: "+1 98765 43210",
+    driverPhone: "+91 98765 43210",
     vehicleNumber: "DL-01-AB-1234",
   };
 
@@ -200,6 +200,3 @@ export default function BookingConfirmation() {
     </div>
   );
 }
-
-
-

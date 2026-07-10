@@ -101,7 +101,7 @@ pnpm test          # Run Vitest tests
 
 ### Add new colors to the theme
 
-Open `client/global.css` and `tailwind.config.ts` and add new tailwind coloCAD
+Open `client/global.css` and `tailwind.config.ts` and add new tailwind colors.
 
 ### New API Route
 1. **Optional**: Create a shared interface in `shared/api.ts`:
@@ -162,4 +162,3 @@ const data: MyRouteResponse = await response.json();
 - Production-ready with multiple deployment options
 - Comprehensive UI component library included
 - Type-safe API communication via shared interfaces
-

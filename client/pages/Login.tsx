@@ -38,7 +38,15 @@ export default function Login() {
         const data = await response.json();
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.userId);
-        navigate("/dashboard");
+        localStorage.setItem("userRole", data.role || "user");
+
+        if (data.role === "driver") {
+          navigate("/driver-dashboard");
+        } else if (data.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Login failed. Please try again.");
@@ -53,7 +61,7 @@ export default function Login() {
   const handleGoogleLogin = () => {
     localStorage.setItem("authToken", "mock-google-token-12345");
     localStorage.setItem("userId", "google-user-999");
-    navigate("/dashboard");
+    navigate("/");
   };
 
   return (
@@ -85,9 +93,9 @@ export default function Login() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                className="w-16 h-16 bg-gradient-to-br from-geo-red to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/30"
+                className="w-16 h-16 bg-white overflow-hidden rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/30 border border-white/20"
               >
-                <MapPin className="text-white w-8 h-8" />
+                <img src="/logo.png" alt="Geo Rides Logo" className="w-full h-full object-cover" />
               </motion.div>
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
                 {t("login.title", "Welcome Back")}
@@ -201,6 +209,3 @@ export default function Login() {
     </div>
   );
 }
-
-
-

@@ -1,13 +1,13 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import en from './locales/en.json';
-import hi from './locales/hi.json';
-import es from './locales/es.json';
+import enCA from './locales/en-CA.json';
+import frCA from './locales/fr-CA.json';
 
 const resources = {
   en: { translation: en },
-  hi: { translation: hi },
-  es: { translation: es },
+  'en-CA': { translation: enCA },
+  'fr-CA': { translation: frCA },
 };
 
 i18n
@@ -22,6 +22,4 @@ i18n
   });
 
 export default i18n;
-
-
 

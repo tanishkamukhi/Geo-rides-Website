@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo json_encode([
             'message' => 'Ride booked successfully',
             'bookingId' => $bookingId,
-            'estimatedFare' => 'CAD $' . $estimatedFare,
+            'estimatedFare' => '₹' . $estimatedFare,
             'estimatedTime' => rand(3, 8) . ' mins'
         ]);
     } catch (PDOException $e) {

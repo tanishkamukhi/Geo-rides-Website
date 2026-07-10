@@ -1,0 +1,171 @@
+{
+    "nav": {
+        "home": "Home",
+        "services": "Services",
+        "whyUs": "Why Us",
+        "faq": "FAQ",
+        "contact": "Contact",
+        "login": "Login",
+        "logout": "Logout"
+    },
+    "hero": {
+        "headline": "Book Your Ride Anytime, Anywhere",
+        "subheadline": "Fast, Safe, and Affordable Transportation with Geo Rides",
+        "description": "Get from point A to point B with ease. Choose from bikes, autos, cabs, or rental vehicles and enjoy a seamless ride experience.",
+        "pickupLabel": "Pickup Location",
+        "dropoffLabel": "Drop Location",
+        "vehicleLabel": "Vehicle Type",
+        "bookBtn": "Book Your Ride"
+    },
+    "services": {
+        "title": "Our Services",
+        "subtitle": "Choose the service that fits your needs",
+        "bikeTaxi": "Bike Taxi",
+        "bikeTaxiDesc": "Quick and affordable rides on two wheels",
+        "autoRide": "Auto Ride",
+        "autoRideDesc": "Comfortable auto-rickshaw for short distances",
+        "cabBooking": "Cab Booking",
+        "cabBookingDesc": "Premium sedan for comfortable commute",
+        "vehicleRental": "Vehicle Rental",
+        "vehicleRentalDesc": "Self-drive cars for long journeys",
+        "parcelDelivery": "Parcel/Courier Delivery",
+        "parcelDeliveryDesc": "Fast and secure package delivery across Canada",
+        "learnMore": "Learn More"
+    },
+    "whyChoose": {
+        "title": "Why Choose Geo Rides",
+        "subtitle": "Experience the difference with our commitment to safety and quality",
+        "affordablePricing": "Affordable Pricing",
+        "affordablePricingDesc": "Competitive rates with transparent pricing in CAD",
+        "verifiedDrivers": "Verified Drivers",
+        "verifiedDriversDesc": "Background-checked partners for your safety",
+        "realTimeTracking": "Real-Time Tracking",
+        "realTimeTrackingDesc": "Track your ride in real-time with GPS",
+        "availability24": "24/7 Availability",
+        "availability24Desc": "Available any time, day or night across cities"
+    },
+    "howItWorks": {
+        "title": "How It Works",
+        "subtitle": "Three simple steps to your next ride",
+        "step1": "Enter Pickup & Destination",
+        "step1Desc": "Tell us where you are and where you want to go with just a few taps",
+        "step2": "Choose Your Vehicle",
+        "step2Desc": "Select from bikes, autos, cabs, or rentals based on your need",
+        "step3": "Confirm and Ride",
+        "step3Desc": "Confirm your booking and watch your driver arrive in real-time"
+    },
+    "studentPlans": {
+        "title": "Student Special Plans",
+        "description": "We believe in making transportation affordable for students. Enjoy exclusive discounts and special plans designed just for you.",
+        "monthlyPass": "Monthly Ride Pass",
+        "monthlyPassDesc": "Get 30% discount on all rides with an unlimited monthly pass",
+        "collegeCommute": "College Commute Plans",
+        "collegeCommuteDesc": "Special pricing for regular commutes between campus and home",
+        "cashback": "Cashback Rewards",
+        "cashbackDesc": "Earn 5% cashback on every ride that you can use for future bookings",
+        "getPass": "Get Student Pass",
+        "joinStudents": "Join 50,000+ Canadian Students"
+    },
+    "safety": {
+        "title": "Your Safety is Our Priority",
+        "subtitle": "Advanced safety features for peace of mind",
+        "emergencySOS": "Emergency SOS",
+        "emergencySOSDesc": "One-tap emergency button to alert 911 services",
+        "liveSharing": "Live Ride Sharing",
+        "liveSharingDesc": "Share your live location with emergency contacts",
+        "driverVerification": "Driver Verification",
+        "driverVerificationDesc": "All drivers are background verified and certified",
+        "focusCanada": "Canadian Safety Standards",
+        "tripMonitoring": "Trip Monitoring",
+        "tripMonitoringDesc": "Every trip is monitored for quality and safety"
+    },
+    "driverPartner": {
+        "title": "Become a Driver Partner",
+        "description": "Join thousands of drivers earning with Geo Rides. Set your own hours and maximize your earnings.",
+        "flexibleHours": "Flexible Working Hours",
+        "weeklyEarnings": "Weekly Earnings",
+        "easyRegistration": "Easy Registration",
+        "support24": "24/7 Driver Support",
+        "registerBtn": "Register Now",
+        "earnIncome": "Earn Extra Income"
+    },
+    "testimonials": {
+        "title": "What Our Customers Say",
+        "subtitle": "Join thousands of satisfied riders"
+    },
+    "mobileApp": {
+        "title": "Download Our App",
+        "description": "Book rides on the go with our intuitive mobile app. Available for both iOS and Android with advanced features.",
+        "appStore": "App Store",
+        "googlePlay": "Google Play",
+        "downloadOn": "Download on the",
+        "getItOn": "Get it on"
+    },
+    "faq": {
+        "title": "Frequently Asked Questions",
+        "subtitle": "Find answers to common questions",
+        "q1": "How do I book a ride?",
+        "a1": "Simply open the app, enter your pickup location and destination, choose your preferred vehicle, and tap Book Ride. Our driver will arrive within minutes.",
+        "q2": "Are the drivers verified?",
+        "a2": "Yes, all our drivers undergo thorough background checks and verification. Your safety is our top priority.",
+        "q3": "What payment methods are accepted?",
+        "a3": "We accept credit/debit cards, digital wallets, and Apple Pay or Google Pay. You can also link your wallet for prepaid credits.",
+        "q4": "Can I schedule a ride in advance?",
+        "a4": "Yes, you can schedule rides up to 30 days in advance at no additional cost. Just select the scheduled ride option when booking.",
+        "q5": "What if I need to cancel my ride?",
+        "a5": "You can cancel free of charge if you cancel within 2 minutes of booking. After that, a small cancellation fee may apply."
+    },
+    "contact": {
+        "title": "Get In Touch",
+        "subtitle": "Have questions? We're here to help",
+        "nameLabel": "Your Name",
+        "emailLabel": "Your Email",
+        "messageLabel": "Your Message",
+        "sendBtn": "Send Message",
+        "emailContact": "Email",
+        "emailAddress": "support@georides.ca",
+        "phoneContact": "Phone",
+        "phoneNumber": "+1 (800) 555-0199",
+        "locationContact": "Headquarters",
+        "locationText": "Available in major cities across Canada",
+        "support24": "24/7 Support",
+        "supportDesc": "Our customer support team is always available to help"
+    },
+    "footer": {
+        "about": "About Us",
+        "services": "Services",
+        "privacy": "Privacy Policy",
+        "terms": "Terms & Conditions",
+        "cancellation": "Cancellation Policy",
+        "copyright": "© 2026 Geo Rides Canada. All rights reserved.",
+        "quickLinks": "Quick Links",
+        "legal": "Legal",
+        "contactInfo": "Contact Info"
+    },
+    "login": {
+        "title": "Sign In",
+        "subtitle": "Welcome back to Geo Rides",
+        "email": "Email",
+        "password": "Password",
+        "signIn": "Sign In",
+        "signUp": "Sign Up",
+        "forgotPassword": "Forgot Password?",
+        "orSignInWith": "Or sign in with",
+        "google": "Google",
+        "github": "GitHub",
+        "noAccount": "Don't have an account?",
+        "createOne": "Create one"
+    },
+    "register": {
+        "title": "Create Account",
+        "subtitle": "Join Geo Rides Canada today",
+        "name": "Full Name",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm Password",
+        "phone": "Phone Number",
+        "signUp": "Sign Up",
+        "alreadyAccount": "Already have an account?",
+        "signIn": "Sign In"
+    }
+}

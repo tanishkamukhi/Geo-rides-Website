@@ -60,7 +60,7 @@ The following endpoints are available:
 {
   "fullName": "John Doe",
   "email": "john@example.com",
-  "phone": "+1 98765 43210",
+  "phone": "+91 98765 43210",
   "password": "password123",
   "confirmPassword": "password123"
 }
@@ -99,8 +99,8 @@ The following endpoints are available:
 - **Body:**
 ```json
 {
-  "pickupLocation": "123 Main St, Toronto",
-  "dropLocation": "456 Park Ave, Toronto",
+  "pickupLocation": "123 Main St, Delhi",
+  "dropLocation": "456 Park Ave, Delhi",
   "vehicleType": "cab"
 }
 ```
@@ -109,7 +109,7 @@ The following endpoints are available:
 {
   "message": "Ride booked successfully",
   "bookingId": "GEO123ABC",
-  "estimatedFare": "CAD $250",
+  "estimatedFare": "₹250",
   "estimatedTime": "5 mins"
 }
 ```
@@ -149,7 +149,7 @@ server/
 ⚠️ **Important:** The current PHP files are basic implementations. For production, implement:
 
 1. **Input Validation:** More strict validation and sanitization
-2. **SQL Injection Prevention:** Use prepared Provincements (already implemented)
+2. **SQL Injection Prevention:** Use prepared statements (already implemented)
 3. **CORS Protection:** Configure properly for your domain
 4. **HTTPS:** Always use HTTPS in production
 5. **Password Hashing:** Using bcrypt (already implemented)
@@ -168,7 +168,7 @@ curl -X POST http://localhost:8000/api/register.php \
   -d '{
     "fullName": "John Doe",
     "email": "john@example.com",
-    "phone": "+1 98765 43210",
+    "phone": "+91 98765 43210",
     "password": "password123",
     "confirmPassword": "password123"
   }'
@@ -227,4 +227,3 @@ For production deployment:
 7. Add push notifications
 
 For questions or issues, refer to the inline comments in the PHP files.
-

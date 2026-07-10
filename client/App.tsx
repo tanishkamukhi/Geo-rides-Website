@@ -24,6 +24,9 @@ import Safety from "./pages/Safety";
 import FAQ from "./pages/FAQ";
 import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
+import PartnerWithUs from "./pages/PartnerWithUs";
+import DriverDashboard from "./pages/DriverDashboard";
+import AdminPanel from "./pages/AdminPanel";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +50,9 @@ const App = () => (
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/history" element={<History />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/partner" element={<PartnerWithUs />} />
+            <Route path="/driver-dashboard" element={<DriverDashboard />} />
+            <Route path="/admin" element={<AdminPanel />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/booking-confirmation" element={<BookingConfirmation />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
@@ -59,6 +65,3 @@ const App = () => (
 );
 
 createRoot(document.getElementById("root")!).render(<App />);
-
-
-

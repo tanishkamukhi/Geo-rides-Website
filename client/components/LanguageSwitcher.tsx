@@ -8,8 +8,8 @@ export default function LanguageSwitcher() {
 
   const languages = [
     { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'en-CA', name: 'English (Canada)', flag: '🇨🇦' },
+    { code: 'fr-CA', name: 'Français (Canada)', flag: '🇨🇦' },
   ];
 
   const handleLanguageChange = (code: string) => {
@@ -37,11 +37,10 @@ export default function LanguageSwitcher() {
             <button
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
-              className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition flex items-center space-x-3 ${
-                i18n.language === lang.code
+              className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition flex items-center space-x-3 ${i18n.language === lang.code
                   ? 'bg-geo-red bg-opacity-10 text-geo-red'
                   : 'text-gray-700'
-              } first:rounded-t-lg last:rounded-b-lg`}
+                } first:rounded-t-lg last:rounded-b-lg`}
             >
               <span className="text-xl">{lang.flag}</span>
               <span className="font-medium">{lang.name}</span>
@@ -55,6 +54,3 @@ export default function LanguageSwitcher() {
     </div>
   );
 }
-
-
-

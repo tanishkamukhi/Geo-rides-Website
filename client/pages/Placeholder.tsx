@@ -29,6 +29,3 @@ export default function Placeholder({ title, description }: PlaceholderProps) {
     </div>
   );
 }
-
-
-

@@ -131,6 +131,6 @@ CREATE INDEX idx_drivers_created_at ON drivers(created_at);
 
 -- Insert sample drivers
 INSERT INTO drivers (full_name, email, phone, password, vehicle_type, vehicle_number, license_number, is_verified, rating) VALUES
-('Ramesh Kumar', 'ramesh@example.com', '+19876543210', '$2y$10$example', 'cab', 'DL-01-AB-1234', 'DL123456789', TRUE, 4.9),
-('Priya Singh', 'priya@example.com', '+19876543211', '$2y$10$example', 'bike', 'DL-01-CD-5678', 'DL987654321', TRUE, 4.8),
-('Aditya Patel', 'aditya@example.com', '+19876543212', '$2y$10$example', 'auto', 'DL-01-EF-9012', 'DL456789012', TRUE, 4.7);
+('Ramesh Kumar', 'ramesh@example.com', '+919876543210', '$2y$10$example', 'cab', 'DL-01-AB-1234', 'DL123456789', TRUE, 4.9),
+('Priya Singh', 'priya@example.com', '+919876543211', '$2y$10$example', 'bike', 'DL-01-CD-5678', 'DL987654321', TRUE, 4.8),
+('Aditya Patel', 'aditya@example.com', '+919876543212', '$2y$10$example', 'auto', 'DL-01-EF-9012', 'DL456789012', TRUE, 4.7);

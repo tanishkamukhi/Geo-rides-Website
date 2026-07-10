@@ -102,7 +102,7 @@ export default function Index() {
 
     // Navigate to booking confirmation with booking data
     navigate("/booking-confirmation", {
-      Province: {
+      state: {
         pickupLocation: formData.pickup,
         dropLocation: formData.dropoff,
         vehicleType: formData.vehicle,
@@ -306,7 +306,7 @@ export default function Index() {
                       value={formData.pickup}
                       onChange={handleFormChange}
                       placeholder="Enter pickup location"
-                      className="w-full pl-10 pr-4 py-3 bg-white/90 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition text-gray-900"
+                      className="w-full pl-10 pr-4 py-3 bg-white/90 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition"
                       required
                     />
                   </div>
@@ -415,80 +415,6 @@ export default function Index() {
                 )}
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Student Plans Section */}
-      <section className="py-16 md:py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-geo-dark mb-6">
-                {t('studentPlans.title')}
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                {t('studentPlans.description')}
-              </p>
-
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-geo-red rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white font-bold">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg text-geo-dark">
-                      {t('studentPlans.monthlyPass')}
-                    </h4>
-                    <p className="text-gray-600">
-                      {t('studentPlans.monthlyPassDesc')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-geo-red rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white font-bold">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg text-geo-dark">
-                      {t('studentPlans.collegeCommute')}
-                    </h4>
-                    <p className="text-gray-600">
-                      {t('studentPlans.collegeCommuteDesc')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="w-8 h-8 bg-geo-red rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white font-bold">✓</span>
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-lg text-geo-dark">
-                      {t('studentPlans.cashback')}
-                    </h4>
-                    <p className="text-gray-600">
-                      {t('studentPlans.cashbackDesc')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <button className="mt-8 px-8 py-3 bg-geo-red text-white font-bold rounded-lg hover:bg-red-600 transition">
-                {t('studentPlans.getPass')}
-              </button>
-            </div>
-
-            <div className="relative h-96 bg-cover bg-center rounded-2xl overflow-hidden shadow-xl"
-              style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1523438097926-512b08d91e36?w=600&h=400&fit=crop")' }}>
-              <div className="absolute inset-0 bg-geo-red bg-opacity-60 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <Users className="w-20 h-20 mx-auto mb-4 opacity-90" />
-                  <p className="text-2xl font-bold">{t('studentPlans.joinStudents')}</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -757,17 +683,17 @@ export default function Index() {
                 <input
                   type="text"
                   placeholder={t('contact.nameLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 text-gray-900"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20"
                 />
                 <input
                   type="email"
                   placeholder={t('contact.emailLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 text-gray-900"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20"
                 />
                 <textarea
                   rows={4}
                   placeholder={t('contact.messageLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 resize-none text-gray-900"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 resize-none"
                 />
                 <button
                   type="submit"
@@ -801,7 +727,7 @@ export default function Index() {
                     {t('contact.phoneContact')}
                   </h4>
                   <a
-                    href="tel:+19876543210"
+                    href="tel:+919876543210"
                     className="text-gray-600 hover:text-geo-red transition"
                   >
                     {t('contact.phoneNumber')}
@@ -843,6 +769,3 @@ export default function Index() {
     </div>
   );
 }
-
-
-

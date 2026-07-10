@@ -30,6 +30,3 @@ describe("cn function", () => {
     );
   });
 });
-
-
-

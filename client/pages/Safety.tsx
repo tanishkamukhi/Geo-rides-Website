@@ -39,7 +39,7 @@ export default function Safety() {
                     clearInterval(interval);
                     setSosActive(false);
                     setCountdown(null);
-                    window.location.href = "tel:100";
+                    window.location.href = "tel:911";
                 }
             }, 1000);
         });
@@ -47,19 +47,19 @@ export default function Safety() {
 
     const handleCallAmbulance = () => {
         requireLogin(() => {
-            window.location.href = "tel:108";
+            window.location.href = "tel:911";
         });
     };
 
     const handleCallFire = () => {
         requireLogin(() => {
-            window.location.href = "tel:101";
+            window.location.href = "tel:911";
         });
     };
 
     const handleCallPolice = () => {
         requireLogin(() => {
-            window.location.href = "tel:100";
+            window.location.href = "tel:911";
         });
     };
 
@@ -155,13 +155,13 @@ export default function Safety() {
                                 <span className="text-2xl">SOS</span>
                             )}
                             <span className="text-xs font-semibold opacity-80">
-                                {sosActive ? "Calling Police…" : "Tap to Call Police"}
+                                {sosActive ? "Calling Emergency…" : "Tap to Call 911"}
                             </span>
                         </button>
                     </div>
                 </div>
                 <p className="text-center text-gray-400 text-sm mb-16">
-                    {sosActive ? "⚠️ Dialing 100 in {countdown}s…" : "Pressing SOS will call India Emergency Police (100) from your mobile"}
+                    {sosActive ? "⚠️ Dialing 911 in {countdown}s…" : "Pressing SOS will call Canadian Emergency Services (911) from your mobile"}
                 </p>
 
                 {/* Emergency Call Buttons */}
@@ -173,12 +173,12 @@ export default function Safety() {
                             <Phone className="w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-black text-black mb-1">Police</h3>
-                        <p className="text-gray-500 text-sm mb-5">Emergency Police Helpline — Available 24/7</p>
+                        <p className="text-gray-500 text-sm mb-5">Emergency Police Helpline (911) — Available 24/7</p>
                         <button
                             onClick={handleCallPolice}
                             className="w-full bg-geo-red text-white font-bold py-3 rounded-2xl hover:bg-red-600 active:scale-95 transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2 text-lg"
                         >
-                            <Phone className="w-5 h-5" /> Call 100
+                            <Phone className="w-5 h-5" /> Call 911
                         </button>
                         {!isLoggedIn && <AuthGuard label="call" />}
                     </div>
@@ -189,12 +189,12 @@ export default function Safety() {
                             <Ambulance className="w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-black text-black mb-1">Ambulance</h3>
-                        <p className="text-gray-500 text-sm mb-5">Medical Emergency — Reach in minutes</p>
+                        <p className="text-gray-500 text-sm mb-5">Medical Emergency (911) — Reach in minutes</p>
                         <button
                             onClick={handleCallAmbulance}
                             className="w-full bg-blue-600 text-white font-bold py-3 rounded-2xl hover:bg-blue-700 active:scale-95 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 text-lg"
                         >
-                            <Phone className="w-5 h-5" /> Call 108
+                            <Phone className="w-5 h-5" /> Call 911
                         </button>
                         {!isLoggedIn && <AuthGuard label="call" />}
                     </div>
@@ -205,12 +205,12 @@ export default function Safety() {
                             <Flame className="w-8 h-8" />
                         </div>
                         <h3 className="text-xl font-black text-black mb-1">Fire Brigade</h3>
-                        <p className="text-gray-500 text-sm mb-5">Fire & Disaster Emergency Helpline</p>
+                        <p className="text-gray-500 text-sm mb-5">Fire & Disaster Emergency (911) Helpline</p>
                         <button
                             onClick={handleCallFire}
                             className="w-full bg-orange-500 text-white font-bold py-3 rounded-2xl hover:bg-orange-600 active:scale-95 transition-all shadow-lg shadow-orange-200 flex items-center justify-center gap-2 text-lg"
                         >
-                            <Phone className="w-5 h-5" /> Call 101
+                            <Phone className="w-5 h-5" /> Call 911
                         </button>
                         {!isLoggedIn && <AuthGuard label="call" />}
                     </div>
@@ -335,25 +335,25 @@ export default function Safety() {
 
                 {/* Quick Reference */}
                 <div className="mt-14 bg-gray-900 text-white rounded-[40px] p-10">
-                    <h3 className="text-xl font-black mb-6 uppercase tracking-wider text-center">📞 India Emergency Numbers — Quick Reference</h3>
+                    <h3 className="text-xl font-black mb-6 uppercase tracking-wider text-center">📞 Canadian Emergency & Support Numbers — Quick Reference</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[
-                            { label: "Police", number: "100", color: "bg-red-600" },
-                            { label: "Ambulance", number: "108", color: "bg-blue-600" },
-                            { label: "Fire Brigade", number: "101", color: "bg-orange-500" },
-                            { label: "Women Helpline", number: "1091", color: "bg-purple-600" },
-                            { label: "Child Helpline", number: "1098", color: "bg-pink-500" },
-                            { label: "Road Accident", number: "1073", color: "bg-yellow-500" },
-                            { label: "Disaster Mgmt", number: "1070", color: "bg-teal-500" },
-                            { label: "National Emergency", number: "112", color: "bg-geo-red" },
+                            { label: "Emergency Services", number: "911", color: "bg-red-650" },
+                            { label: "Telehealth Advice", number: "811", color: "bg-blue-600" },
+                            { label: "Community Services", number: "211", color: "bg-emerald-600" },
+                            { label: "Municipal Services", number: "311", color: "bg-orange-500" },
+                            { label: "Suicide Crisis", number: "988", color: "bg-purple-600" },
+                            { label: "Travel & Road Link", number: "511", color: "bg-yellow-500" },
+                            { label: "Kids Help Phone", number: "1-800-668-6868", color: "bg-pink-700" },
+                            { label: "Directory Assistance", number: "411", color: "bg-teal-500" },
                         ].map(({ label, number, color }) => (
                             <a
                                 key={number}
                                 href={`tel:${number}`}
-                                className={`${color} rounded-2xl p-4 text-center hover:opacity-90 active:scale-95 transition-all`}
+                                className={`${color} rounded-2xl p-4 text-center hover:opacity-90 active:scale-95 transition-all flex flex-col justify-center items-center`}
                             >
-                                <div className="text-2xl font-black">{number}</div>
-                                <div className="text-xs font-semibold opacity-80 mt-1">{label}</div>
+                                <div className="text-xl font-black">{number}</div>
+                                <div className="text-[11px] font-semibold opacity-90 mt-1">{label}</div>
                             </a>
                         ))}
                     </div>
@@ -365,6 +365,3 @@ export default function Safety() {
         </div>
     );
 }
-
-
-

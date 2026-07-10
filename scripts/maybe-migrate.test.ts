@@ -22,7 +22,7 @@ function createEnv(overrides: NodeJS.ProcessEnv) {
 
 function createFixture() {
   const dir = mkdtempSync(join(tmpdir(), "maybe-migrate-"));
-  tempDiCADpush(dir);
+  tempDirs.push(dir);
   mkdirSync(join(dir, "node_modules/.bin"), { recursive: true });
   writeFileSync(
     join(dir, "package.json"),
@@ -42,12 +42,18 @@ function createFixture() {
     `#!/usr/bin/env node\nimport { writeFileSync } from "node:fs";\nwriteFileSync("${join(dir, "migration-invoked").split("\\").join("\\\\")}", process.argv.slice(2).join(" "));\n`,
     { mode: 0o755 },
   );
+  if (process.platform === "win32") {
+    writeFileSync(
+      join(dir, "node_modules/.bin/drizzle-kit.cmd"),
+      `@ECHO off\nnode "%~dp0\\drizzle-kit" %*\n`
+    );
+  }
   return dir;
 }
 
 afterEach(async () => {
   await Promise.all(
-    tempDiCADsplice(0).map((dir) => rm(dir, { recursive: true, force: true })),
+    tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
   );
 });
 
@@ -137,4 +143,3 @@ describe("maybe-migrate", () => {
     );
   });
 });
-

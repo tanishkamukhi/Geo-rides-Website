@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useTranslation } from "react-i18next";
-import { Bike, Car, Truck, Clock, Shield, canadaRupee } from "lucide-react";
+import { Bike, Car, Truck, Clock, Shield, IndianRupee } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Services() {
@@ -78,6 +78,3 @@ export default function Services() {
     </div>
   );
 }
-
-
-

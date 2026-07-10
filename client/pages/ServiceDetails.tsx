@@ -12,403 +12,118 @@ import Footer from "@/components/Footer";
 const hotelData = [
     {
         id: 1,
-        name: "The Oberoi New Toronto",
-        city: "New Toronto",
+        name: "Fairmont Royal York",
+        city: "Toronto",
         stars: 5,
-        pricePerNight: 12500,
+        pricePerNight: 399,
         image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=600&h=350&fit=crop",
-        address: "Dr. Zakir Hussain Marg, New Toronto 110003",
-        phone: "+1 11 2436 3030",
-        email: "reservations.newToronto@oberoihotels.com",
-        lat: 28.5987,
-        lng: 77.2431,
+        address: "100 Front St W, Toronto, ON M5J 1E3",
+        phone: "+1 (416) 368-2511",
+        email: "royalyork@fairmont.com",
+        lat: 43.6459,
+        lng: -79.3810,
         amenities: ["Free WiFi", "Pool", "Breakfast", "Spa"],
         roomTypes: [
-            { type: "Deluxe Room", price: 12500, available: true },
-            { type: "Premier Room", price: 18000, available: true },
-            { type: "Suite", price: 35000, available: false },
+            { type: "Deluxe Room", price: 399, available: true },
+            { type: "Premier Room", price: 549, available: true },
+            { type: "Suite", price: 999, available: false },
         ],
     },
     {
         id: 2,
-        name: "Taj Mahal Palace, Vancouver",
+        name: "Fairmont Hotel Vancouver",
         city: "Vancouver",
         stars: 5,
-        pricePerNight: 15000,
+        pricePerNight: 349,
         image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=600&h=350&fit=crop",
-        address: "Apollo Bunder, Colaba, Vancouver 400001",
-        phone: "+1 22 6665 3366",
-        email: "tajmahal.Vancouver@tajhotels.com",
-        lat: 18.9220,
-        lng: 72.8337,
+        address: "900 W Georgia St, Vancouver, BC V6C 2W6",
+        phone: "+1 (604) 684-3131",
+        email: "vancouver@fairmont.com",
+        lat: 49.2837,
+        lng: -123.1211,
         amenities: ["Free WiFi", "Pool", "Breakfast", "Concierge"],
         roomTypes: [
-            { type: "Deluxe Room", price: 15000, available: true },
-            { type: "Club Room", price: 22000, available: true },
-            { type: "Heritage Suite", price: 50000, available: false },
+            { type: "Deluxe Room", price: 349, available: true },
+            { type: "Club Room", price: 499, available: true },
+            { type: "Heritage Suite", price: 899, available: false },
         ],
     },
     {
         id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
+        name: "Ritz-Carlton Montreal",
+        city: "Montreal",
         stars: 5,
-        pricePerNight: 9500,
+        pricePerNight: 449,
         image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
+        address: "1228 Sherbrooke St W, Montreal, QC H3G 1H6",
+        phone: "+1 (514) 842-4212",
+        email: "montreal@ritzcarlton.com",
+        lat: 45.5022,
+        lng: -73.5779,
         amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
         roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
+            { type: "Superior Room", price: 449, available: true },
+            { type: "Executive Club", price: 599, available: true },
+            { type: "Grand Suite", price: 1199, available: true },
         ],
     },
     {
         id: 4,
-        name: "Leela Palace Montreal",
-        city: "Montreal",
-        stars: 5,
-        pricePerNight: 11000,
+        name: "Hotel Arts Calgary",
+        city: "Calgary",
+        stars: 4,
+        pricePerNight: 249,
         image: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=600&h=350&fit=crop",
-        address: "23 HAL Airport Road, Montreal 560008",
-        phone: "+1 80 2521 1234",
-        email: "res.blr@theleela.com",
-        lat: 12.9597,
-        lng: 77.6484,
+        address: "119 12 Ave SW, Calgary, AB T2R 0G8",
+        phone: "+1 (403) 266-4611",
+        email: "info@hotelarts.ca",
+        lat: 51.0421,
+        lng: -114.0686,
         amenities: ["Free WiFi", "Breakfast", "Spa", "Gym"],
         roomTypes: [
-            { type: "Deluxe Room", price: 11000, available: true },
-            { type: "Royal Club", price: 16000, available: false },
-            { type: "Palace Suite", price: 40000, available: true },
+            { type: "Deluxe Room", price: 249, available: true },
+            { type: "Studio Suite", price: 349, available: false },
+            { type: "Penthouse", price: 699, available: true },
         ],
     },
     {
         id: 5,
-        name: "Radisson Blu Winnipeg",
-        city: "Winnipeg",
+        name: "Andaz Ottawa ByWard Market",
+        city: "Ottawa",
         stars: 4,
-        pricePerNight: 5500,
+        pricePerNight: 279,
         image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=600&h=350&fit=crop",
-        address: "Jawahar Lal Nehru Marg, Winnipeg 302017",
-        phone: "+1 141 661 7777",
-        email: "info.rbWinnipeg@radissonblu.com",
-        lat: 26.8900,
-        lng: 75.7950,
+        address: "325 Dalhousie St, Ottawa, ON K1N 7G1",
+        phone: "+1 (613) 321-1234",
+        email: "ottawa@andaz.com",
+        lat: 45.4290,
+        lng: -75.6881,
         amenities: ["Free WiFi", "Pool", "Breakfast", "Parking"],
         roomTypes: [
-            { type: "Superior Room", price: 5500, available: true },
-            { type: "Business Class", price: 8000, available: true },
-            { type: "Junior Suite", price: 15000, available: true },
+            { type: "King Room", price: 279, available: true },
+            { type: "Double Queen", price: 329, available: true },
+            { type: "Andaz Suite", price: 549, available: true },
         ],
     },
     {
         id: 6,
-        name: "Novotel Edmonton",
+        name: "Marriott Edmonton",
         city: "Edmonton",
         stars: 4,
-        pricePerNight: 6200,
+        pricePerNight: 219,
         image: "https://images.unsplash.com/photo-1551882547-ff40c4a49f50?w=600&h=350&fit=crop",
-        address: "Novotel & HICC Complex, Hi-Tech City, Edmonton 500081",
-        phone: "+1 40 6622 4422",
-        email: "h5574-re@accor.com",
-        lat: 17.4483,
-        lng: 78.3915,
+        address: "10220 102 Ave NW, Edmonton, AB T5J 4C5",
+        phone: "+1 (780) 423-9999",
+        email: "edmonton@marriott.com",
+        lat: 53.5461,
+        lng: -113.4938,
         amenities: ["Free WiFi", "Pool", "Restaurant", "Gym"],
         roomTypes: [
-            { type: "Superior Room", price: 6200, available: true },
-            { type: "Superior Plus", price: 8500, available: false },
-            { type: "Suite", price: 18000, available: true },
+            { type: "Superior Room", price: 219, available: true },
+            { type: "Executive Room", price: 289, available: false },
+            { type: "Suite", price: 449, available: true },
         ],
     },
-    {
-        id: 7,
-        name: "Fairmont Royal York",
-        city: "Toronto",
-        stars: 5,
-        pricePerNight: 28000,
-        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&h=350&fit=crop",
-        address: "100 Front St W, Toronto, ON M5J 1E3, Canada",
-        phone: "+1 416 368 2511",
-        email: "ryh.reservations@fairmont.com",
-        lat: 43.6453,
-        lng: -79.3814,
-        amenities: ["Free WiFi", "Pool", "Spa", "Gym"],
-        roomTypes: [
-            { type: "Fairmont Room", price: 28000, available: true },
-            { type: "Signature Room", price: 35000, available: true },
-            { type: "Suite", price: 55000, available: false },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    },
-    {
-        id: 3,
-        name: "ITC Grand Chola, hamilton",
-        city: "hamilton",
-        stars: 5,
-        pricePerNight: 9500,
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?w=600&h=350&fit=crop",
-        address: "Mount Road, Guindy, hamilton 600032",
-        phone: "+1 44 2220 0000",
-        email: "reservations@itcgrandchola.in",
-        lat: 13.0105,
-        lng: 80.2201,
-        amenities: ["Free WiFi", "Pool", "Spa", "Restaurant"],
-        roomTypes: [
-            { type: "Superior Room", price: 9500, available: true },
-            { type: "Executive Club", price: 14000, available: true },
-            { type: "Grand Chola Suite", price: 32000, available: true },
-        ],
-    }
 ];
 
 // ── AVAILABILITY LOGIC ────────────────────────────────────────────────────────
@@ -441,7 +156,7 @@ function TravelAndStay() {
     const handleBookHotel = (hotel: typeof hotelData[0], roomType: string, price: number) => {
         if (!isLoggedIn) { navigate("/login"); return; }
         navigate("/booking-success", {
-            Province: { pickup: hotel.name, dropoff: hotel.address, type: "travel", fare: price }
+            state: { pickup: hotel.name, dropoff: hotel.address, type: "travel", fare: price }
         });
     };
 
@@ -481,7 +196,7 @@ function TravelAndStay() {
                             <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                             <input type="date" min={today} value={checkIn}
                                 onChange={e => setCheckIn(e.target.value)}
-                                className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
+                                className="w-full pl-10 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-geo-red outline-none" />
                         </div>
                     </div>
                     <div className="flex-1 min-w-[160px]">
@@ -490,13 +205,13 @@ function TravelAndStay() {
                             <Calendar className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
                             <input type="date" min={checkIn || today} value={checkOut}
                                 onChange={e => setCheckOut(e.target.value)}
-                                className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
+                                className="w-full pl-10 pr-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-geo-red outline-none" />
                         </div>
                     </div>
                     <div className="flex-1 min-w-[160px]">
                         <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">City</label>
                         <select value={selectedCity} onChange={e => setSelectedCity(e.target.value)}
-                            className="w-full px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-geo-red outline-none text-gray-900">
+                            className="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 focus:ring-2 focus:ring-geo-red outline-none cursor-pointer">
                             {cities.map(c => <option key={c}>{c}</option>)}
                         </select>
                     </div>
@@ -539,7 +254,7 @@ function TravelAndStay() {
                                 <div className="flex justify-between items-start mb-2">
                                     <h3 className="text-xl font-black text-gray-900">{hotel.name}</h3>
                                     <div className="text-right">
-                                        <div className="text-2xl font-black text-geo-red">CAD ${hotel.pricePerNight.toLocaleString()}</div>
+                                        <div className="text-2xl font-black text-geo-red">CA${hotel.pricePerNight.toLocaleString()}</div>
                                         <div className="text-xs text-gray-400">per night</div>
                                     </div>
                                 </div>
@@ -584,7 +299,7 @@ function TravelAndStay() {
                                                 className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 border border-gray-100">
                                                 <div>
                                                     <span className="font-semibold text-sm text-gray-800">{room.type}</span>
-                                                    <span className="text-xs text-gray-500 ml-2">CAD ${room.price.toLocaleString()}/night</span>
+                                                    <span className="text-xs text-gray-500 ml-2">CA${room.price.toLocaleString()}/night</span>
                                                 </div>
                                                 {(checkIn && checkOut) ? (
                                                     avail ? (
@@ -668,7 +383,7 @@ function ParcelService() {
         setTimeout(() => {
             setIsBooking(false);
             navigate("/booking-success", {
-                Province: { pickup: form.pickup, dropoff: form.dropoff, type: "parcel", fare: totalPrice }
+                state: { pickup: form.pickup, dropoff: form.dropoff, type: "parcel", fare: totalPrice }
             });
         }, 2500);
     };
@@ -707,13 +422,13 @@ function ParcelService() {
                             <MapPin className="absolute left-3 top-3.5 w-5 h-5 text-geo-red" />
                             <input type="text" placeholder="Pickup address"
                                 value={form.pickup} onChange={e => setForm({ ...form, pickup: e.target.value })}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
+                                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-geo-red outline-none" />
                         </div>
                         <div className="relative">
                             <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                             <input type="text" placeholder="Delivery address"
                                 value={form.dropoff} onChange={e => setForm({ ...form, dropoff: e.target.value })}
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-geo-red outline-none text-gray-900" />
+                                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-geo-red outline-none" />
                         </div>
 
                         <div>
@@ -726,7 +441,7 @@ function ParcelService() {
                                             ? "border-geo-red bg-geo-red/5 ring-1 ring-geo-red"
                                             : "border-gray-200 hover:border-gray-300"}`}>
                                         <div className="font-bold text-sm text-gray-900">{opt.label}</div>
-                                        <div className="text-xs text-gray-500">CAD ${opt.price}</div>
+                                        <div className="text-xs text-gray-500">CA${opt.price}</div>
                                     </button>
                                 ))}
                             </div>
@@ -735,7 +450,7 @@ function ParcelService() {
                         <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200">
                             <div>
                                 <p className="font-bold text-sm text-gray-900">⚡ Urgent Delivery</p>
-                                <p className="text-xs text-gray-500">Deliver within 2 hours (+CAD $100)</p>
+                                <p className="text-xs text-gray-500">Deliver within 2 hours (+CA$10)</p>
                             </div>
                             <button onClick={() => setForm({ ...form, urgent: !form.urgent })}
                                 className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${form.urgent ? "bg-geo-red" : "bg-gray-300"}`}>
@@ -747,7 +462,7 @@ function ParcelService() {
                             <div className="bg-gray-50 rounded-2xl p-5 border border-gray-100 flex items-center justify-between">
                                 <div>
                                     <p className="text-xs text-gray-500 font-bold uppercase">Estimated Total</p>
-                                    <p className="text-3xl font-black text-gray-900">CAD ${totalPrice}</p>
+                                    <p className="text-3xl font-black text-gray-900">CA${totalPrice}</p>
                                     <p className="text-xs text-gray-400">{selected.label} weight{form.urgent ? " + urgent fee" : ""}</p>
                                 </div>
                                 <div className="text-right">
@@ -779,7 +494,7 @@ function ParcelService() {
                 {/* Features */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
                     {[
-                        { icon: Shield, label: "Insured Delivery", desc: "Up to CAD $10,000 item insurance included" },
+                        { icon: Shield, label: "Insured Delivery", desc: "Up to CA$500 item insurance included" },
                         { icon: Clock, label: "Real-Time Tracking", desc: "Track your parcel every step of the way" },
                         { icon: MapPinCheck, label: "Doorstep Pickup", desc: "We come to you — no drop-off needed" },
                     ].map(({ icon: Icon, label, desc }) => (
@@ -811,16 +526,16 @@ function CabBooking({ type }: CabBookingProps) {
     const [isBooking, setIsBooking] = useState(false);
 
     const serviceInfo = {
-        bike: { label: t("services.bikeTaxi"), icon: "🏍️", baseFare: 40 },
-        auto: { label: t("services.autoRide"), icon: "🛺", baseFare: 60 },
-        cab: { label: t("services.cabBooking"), icon: "🚗", baseFare: 100 },
-    }[type as "bike" | "auto" | "cab"] || { label: "Ride", icon: "🚗", baseFare: 50 };
+        bike: { label: t("services.bikeTaxi"), icon: "🏍️", baseFare: 10 },
+        auto: { label: t("services.autoRide"), icon: "🛺", baseFare: 15 },
+        cab: { label: t("services.cabBooking"), icon: "🚗", baseFare: 25 },
+    }[type as "bike" | "auto" | "cab"] || { label: "Ride", icon: "🚗", baseFare: 20 };
 
     useEffect(() => {
         if (locations.pickup && locations.dropoff) {
             const multiplier = selectedTier === "luxury" ? 2.5 : 1.0;
-            const priorityFee = isPriorityBooking ? 50 : 0;
-            setFareEstimate(Math.floor(serviceInfo.baseFare * multiplier + Math.random() * 80 + priorityFee));
+            const priorityFee = isPriorityBooking ? 10 : 0;
+            setFareEstimate(Math.floor(serviceInfo.baseFare * multiplier + Math.random() * 20 + priorityFee));
         }
     }, [locations, serviceInfo.baseFare, selectedTier, isPriorityBooking]);
 
@@ -831,14 +546,14 @@ function CabBooking({ type }: CabBookingProps) {
         setTimeout(() => {
             setIsBooking(false);
             navigate("/booking-success", {
-                Province: { pickup: locations.pickup, dropoff: locations.dropoff, type, fare: fareEstimate }
+                state: { pickup: locations.pickup, dropoff: locations.dropoff, type, fare: fareEstimate }
             });
         }, 3000);
     };
 
     const recentDestinations = [
-        "CN Tower, Toronto, ON", "Union Station, Toronto", "Toronto Pearson International Airport",
-        "Pacific Mall, Subhash Nagar", "Sector 15, Mississauga"
+        "Union Station, Toronto", "CN Tower, Front St W",
+        "Toronto Pearson Airport (YYZ)", "Eaton Centre, Yonge St"
     ];
 
     return (
@@ -858,14 +573,14 @@ function CabBooking({ type }: CabBookingProps) {
                                     <input type="text" placeholder="Enter pickup location"
                                         value={locations.pickup}
                                         onChange={e => setLocations({ ...locations, pickup: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition text-gray-900" />
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition" />
                                 </div>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                                     <input type="text" placeholder="Where to?"
                                         value={locations.dropoff}
                                         onChange={e => setLocations({ ...locations, dropoff: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition text-gray-900" />
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition" />
                                 </div>
                             </div>
 
@@ -889,7 +604,7 @@ function CabBooking({ type }: CabBookingProps) {
                             <div className="mt-6 p-4 bg-gray-50 border border-gray-150 rounded-2xl flex items-center justify-between shadow-sm">
                                 <div>
                                     <h4 className="font-bold text-xs text-gray-900 flex items-center gap-1.5">⚡ Priority Pickup</h4>
-                                    <p className="text-[10px] text-gray-500 leading-normal mt-0.5 max-w-[200px]">Skip queue, match instantly (Surcharge: CAD $50)</p>
+                                    <p className="text-[10px] text-gray-500 leading-normal mt-0.5 max-w-[200px]">Skip queue, match instantly (Surcharge: CA$5)</p>
                                 </div>
                                 <button onClick={() => setIsPriorityBooking(!isPriorityBooking)}
                                     title="Toggle priority pickup"
@@ -922,7 +637,7 @@ function CabBooking({ type }: CabBookingProps) {
                                             </div>
                                             <div>
                                                 <p className="text-xs text-gray-500 font-bold">ESTIMATED FARE</p>
-                                                <p className="text-xl font-bold text-gray-900">CAD ${fareEstimate}</p>
+                                                <p className="text-xl font-bold text-gray-900">CA${fareEstimate}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
@@ -1003,6 +718,3 @@ export default function ServiceDetails() {
     if (type === "parcel") return <ParcelService />;
     return <CabBooking type={type || "cab"} />;
 }
-
-
-

@@ -200,7 +200,7 @@ export default function Footer() {
             <div className="mt-6 space-y-2">
               <div className="flex items-center gap-2 text-white/55 text-xs">
                 <Phone className="w-3.5 h-3.5 text-geo-red flex-shrink-0" />
-                <span>+1 98765 43210</span>
+                <span>+91 98765 43210</span>
               </div>
               <div className="flex items-center gap-2 text-white/55 text-xs">
                 <Mail className="w-3.5 h-3.5 text-geo-red flex-shrink-0" />
@@ -243,6 +243,3 @@ export default function Footer() {
     </footer>
   );
 }
-
-
-

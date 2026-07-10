@@ -1,14 +1,83 @@
 {
-  "users": {
-    "tanishkamukhi12@gmail.com": {
-      "id": "8i69iu",
-      "password": "tani0099",
-      "fullName": "Tanishka Mukhi",
-      "email": "tanishkamukhi12@gmail.com",
-      "phone": "8950057229"
+  "users": [
+    {
+      "id": "1783272229862",
+      "fullName": "Darnell Williams",
+      "email": "darnell.williams@georides.ca",
+      "phone": "647-555-0199",
+      "password": "Password123!",
+      "role": "driver",
+      "profilePhoto": null,
+      "rating": 4.5,
+      "totalRides": 0,
+      "createdAt": "2026-07-05T17:23:49.862Z",
+      "driversLicense": "ON-DL-29384-11883",
+      "vehicleNumber": "BYXC 119",
+      "vehicleType": "suv",
+      "sinNumber": "593-294-819",
+      "isVerified": false,
+      "verificationStatus": "pending",
+      "status": "offline"
+    },
+    {
+      "id": "1783352876327",
+      "fullName": "Ritik",
+      "email": "fsfhjkehf@gmail.ca",
+      "phone": "+1 795235655855",
+      "password": "123456",
+      "role": "driver",
+      "profilePhoto": null,
+      "rating": 4.5,
+      "totalRides": 0,
+      "createdAt": "2026-07-06T15:47:56.327Z",
+      "driversLicense": "ON-DL-125785",
+      "vehicleNumber": "XYZ1234",
+      "vehicleType": "car",
+      "sinNumber": "8557-2896-8",
+      "isVerified": false,
+      "verificationStatus": "pending",
+      "status": "offline"
+    },
+    {
+      "id": "1783396320234",
+      "fullName": "Ritik",
+      "email": "hjkehf@gmail.ca",
+      "phone": "+1 795235655855",
+      "password": "123456",
+      "role": "driver",
+      "profilePhoto": null,
+      "rating": 4.5,
+      "totalRides": 0,
+      "createdAt": "2026-07-07T03:52:00.234Z",
+      "driversLicense": "ON-DL-125785",
+      "vehicleNumber": "XYZ1234",
+      "vehicleType": "car",
+      "sinNumber": "8557-2896-5",
+      "isVerified": false,
+      "verificationStatus": "pending",
+      "status": "offline"
+    },
+    {
+      "id": "1783655709712",
+      "fullName": "Ritik",
+      "email": "fshjkehf@gmail.ca",
+      "phone": "+1 795235655855",
+      "password": "123456",
+      "role": "user",
+      "profilePhoto": null,
+      "rating": 4.5,
+      "totalRides": 0,
+      "createdAt": "2026-07-10T03:55:09.712Z"
     }
-  },
+  ],
+  "drivers": [],
+  "bookings": [],
+  "partners": [],
   "tokens": {
-    "9uv65s1783589873918": "8i69iu"
-  }
+    "d6468s1783272229935": "1783272229862",
+    "n11ms1783352876348": "1783352876327",
+    "5u39js1783396320249": "1783396320234",
+    "2qqdpd1783655709727": "1783655709712"
+  },
+  "adminTokens": {}
 }

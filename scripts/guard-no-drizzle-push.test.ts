@@ -16,7 +16,7 @@ function runGuard(root: string) {
 
 afterEach(async () => {
   await Promise.all(
-    tempDiCADsplice(0).map((dir) => rm(dir, { recursive: true, force: true })),
+    tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })),
   );
 });
 
@@ -29,7 +29,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when package scripts contain the banned Drizzle command", () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-guard-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     writeFileSync(
       join(root, "package.json"),
       JSON.stringify({ scripts: { db: ["drizzle-kit", "push"].join(" ") } }),
@@ -43,7 +43,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when package scripts contain a whitespace variant of the banned Drizzle command", () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-whitespace-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     writeFileSync(
       join(root, "package.json"),
       JSON.stringify({ scripts: { db: "drizzle-kit   push" } }),
@@ -57,7 +57,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when package scripts pass flags before the banned Drizzle command", () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-flags-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     writeFileSync(
       join(root, "package.json"),
       JSON.stringify({
@@ -73,7 +73,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when workflow commands contain the banned Drizzle command", async () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-workflow-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     await mkdir(join(root, ".github/workflows"), { recursive: true });
     writeFileSync(
       join(root, ".github/workflows/build.yml"),
@@ -88,7 +88,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when helper scripts contain the banned Drizzle command", async () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-script-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     await mkdir(join(root, "scripts"), { recursive: true });
     writeFileSync(
       join(root, "scripts/migrate.mjs"),
@@ -103,7 +103,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when template source files contain the banned Drizzle command", async () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-source-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     await mkdir(join(root, "server"), { recursive: true });
     writeFileSync(join(root, "package.json"), JSON.stringify({ scripts: {} }));
     writeFileSync(
@@ -119,7 +119,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("fails when drizzle config contains the banned Drizzle command", () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-config-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     writeFileSync(join(root, "package.json"), JSON.stringify({ scripts: {} }));
     writeFileSync(join(root, "drizzle.config.ts"), "drizzle-kit push");
 
@@ -131,7 +131,7 @@ describe("guard-no-drizzle-push", () => {
 
   it("ignores test files that contain banned-command fixtures", async () => {
     const root = mkdtempSync(join(tmpdir(), "drizzle-push-test-file-"));
-    tempDiCADpush(root);
+    tempDirs.push(root);
     await mkdir(join(root, "scripts"), { recursive: true });
     writeFileSync(join(root, "package.json"), JSON.stringify({ scripts: {} }));
     writeFileSync(join(root, "scripts/guard.test.ts"), "drizzle-kit push");
@@ -141,4 +141,3 @@ describe("guard-no-drizzle-push", () => {
     expect(result.status).toBe(0);
   });
 });
-
