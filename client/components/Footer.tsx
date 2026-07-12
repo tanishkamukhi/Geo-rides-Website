@@ -84,7 +84,7 @@ export default function Footer() {
             </Link>
 
             <p className="text-white/60 text-sm leading-relaxed max-w-xs">
-              India's most trusted premium cab booking platform. Ride in comfort, safety, and style — 24/7, across 500+ cities.
+              Canada's most trusted premium cab booking platform. Ride in comfort, safety, and style — 24/7, across 500+ cities.
             </p>
 
             {/* Trust badges */}
@@ -200,7 +200,7 @@ export default function Footer() {
             <div className="mt-6 space-y-2">
               <div className="flex items-center gap-2 text-white/55 text-xs">
                 <Phone className="w-3.5 h-3.5 text-geo-red flex-shrink-0" />
-                <span>+91 98765 43210</span>
+                <span>+1 604 1234567</span>
               </div>
               <div className="flex items-center gap-2 text-white/55 text-xs">
                 <Mail className="w-3.5 h-3.5 text-geo-red flex-shrink-0" />

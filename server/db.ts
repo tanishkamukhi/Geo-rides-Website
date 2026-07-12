@@ -1,10 +1,25 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import "dotenv/config";
+
+console.log("=================================");
+console.log("DATABASE_URL =", process.env.DATABASE_URL);
+console.log("=================================");
+
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "../drizzle/schema";
 
-const databaseUrl = process.env.DATABASE_URL || "postgres://user:pass@dummy-placeholder-url.com:5432/georides";
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-const sql = neon(databaseUrl);
+pool.on("connect", () => {
+  console.log("✅ PostgreSQL Connected");
+});
 
-export const db = drizzle(sql, { schema });
+pool.on("error", (err) => {
+  console.error("❌ PostgreSQL Error:", err);
+});
+
+export const db = drizzle(pool, { schema });
+
 export { schema };
