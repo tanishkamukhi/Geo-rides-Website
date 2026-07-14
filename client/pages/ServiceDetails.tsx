@@ -573,14 +573,16 @@ function CabBooking({ type }: CabBookingProps) {
                                     <input type="text" placeholder="Enter pickup location"
                                         value={locations.pickup}
                                         onChange={e => setLocations({ ...locations, pickup: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition" />
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 text-black placeholder:text-gray-500 border border-gray-300 rounded-xl focus:ring-2 focus:ring-geo-red focus:outline-none transition"
+                                    />
                                 </div>
                                 <div className="relative">
                                     <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
                                     <input type="text" placeholder="Where to?"
                                         value={locations.dropoff}
                                         onChange={e => setLocations({ ...locations, dropoff: e.target.value })}
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition" />
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 text-black placeholder:text-gray-500 border border-gray-300 rounded-xl focus:ring-2 focus:ring-geo-red focus:outline-none transition"
+                                    />
                                 </div>
                             </div>
 
