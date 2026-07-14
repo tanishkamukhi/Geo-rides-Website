@@ -16,10 +16,21 @@ import Footer from "@/components/Footer";
 
 export default function BookingSuccess() {
     const location = useLocation();
-    const bookingData = location.state || { pickup: "Current Location", dropoff: "Destination", type: "cab", fare: 250 };
+    const bookingData = {
 
+        pickup: "Current Location",
+        dropoff: "Destination",
+        type: "Cab",
+        fare: "$25",
+        bookingId: "GEO" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+        driverName: "John Smith",
+        driverPhone: "+1 647-555-1234",
+        vehicleNumber: "ON-AB-1234",
+        estimatedTime: "5 mins",
+        ...(location.state || {}),
+    };
     const driver = {
-        name: "Ramesh Kumar",
+        name: "Johnny",
         rating: 4.9,
         vehicle: "White Swift Dzire (DL 1SC 1234)",
         photo: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&h=100&fit=crop"

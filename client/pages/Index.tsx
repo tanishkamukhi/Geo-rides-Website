@@ -103,11 +103,19 @@ export default function Index() {
     // Navigate to booking confirmation with booking data
     navigate("/booking-confirmation", {
       state: {
+
+        bookingId: "GEO" + Date.now(),
         pickupLocation: formData.pickup,
         dropLocation: formData.dropoff,
         vehicleType: formData.vehicle,
+        estimatedFare: "$25",
+        estimatedTime: "5 mins",
+        driverName: "John Smith",
+        driverPhone: "+1 647-555-1234",
+        vehicleNumber: "ON-AB-1234",
       },
-    });
+});
+    
   };
 
   const services = [
