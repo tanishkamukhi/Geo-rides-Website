@@ -25,7 +25,6 @@ import History from "./pages/History";
 import Safety from "./pages/Safety";
 import FAQ from "./pages/FAQ";
 import Profile from "./pages/Profile";
-import Contact from "./pages/Contact";
 import PartnerWithUs from "./pages/PartnerWithUs";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminPanel from "./pages/AdminPanel";
@@ -50,7 +49,6 @@ const App = () => (
             <Route path="/ride-booking" element={<RideBooking />} />
             <Route path="/safety" element={<Safety />} />
             <Route path="/faq" element={<FAQ />} />
-            <Route path="/contact" element={<Contact />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/history" element={<History />} />
             <Route path="/profile" element={<Profile />} />

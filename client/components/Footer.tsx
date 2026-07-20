@@ -21,7 +21,6 @@ const footerLinks = {
     { label: "Help Center", href: "/help" },
     { label: "Safety", href: "/safety" },
     { label: "FAQ", href: "/faq" },
-    { label: "Contact Us", href: "/contact" },
     { label: "Report Issue", href: "/report" },
   ],
   legal: [

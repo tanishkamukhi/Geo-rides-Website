@@ -9,6 +9,7 @@ import { handleDemo } from "./routes/demo";
 
 // ── JSON Fallback DB ─────────────────────────────────────────────────────────
 const DB_PATH = path.join(__dirname, "db.json");
+const driverTokens = new Map<string, string>(); // token -> driverId
 
 function readDB() {
   try {
@@ -38,11 +39,11 @@ async function tryInitDB() {
     useRealDB = true;
     console.log("✅ Real database connected");
   } catch (e) {
-  useRealDB = false;
-  console.error("DATABASE ERROR:");
-  console.error(e);
-  console.log("⚠️ No database connection — using local JSON fallback store");
-}
+    useRealDB = false;
+    console.error("DATABASE ERROR:");
+    console.error(e);
+    console.log("⚠️ No database connection — using local JSON fallback store");
+  }
 }
 
 export function createServer() {
@@ -88,22 +89,53 @@ export function createServer() {
 
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
-        const existing = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
-        if (existing.length > 0) return res.status(400).json({ message: "Email already registered" });
+        const existingUser = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
+        const existingDriver = await db.select().from(schema.drivers).where(eq(schema.drivers.email, email)).limit(1);
+        if (existingUser.length > 0 || existingDriver.length > 0) {
+          return res.status(400).json({ message: "Email already registered" });
+        }
 
-        const [inserted] = await db.insert(schema.users).values({
-          fullName, email, phone, password,
-        }).returning({ id: schema.users.id });
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        return res.status(201).json({
-          message: "User registered successfully",
-          userId: inserted.id.toString(),
-        });
+        if (role === "driver") {
+          const [inserted] = await db.insert(schema.drivers).values({
+            fullName,
+            email,
+            phone,
+            password: hashedPassword,
+            vehicleType,
+            vehicleNumber,
+            licenseNumber: driversLicense,
+            isVerified: false,
+            status: "offline",
+          }).returning({ id: schema.drivers.id });
+
+          return res.status(201).json({
+            message: "Driver registered successfully",
+            userId: inserted.id.toString(),
+            role,
+            verificationPending: true,
+          });
+        } else {
+          const [inserted] = await db.insert(schema.users).values({
+            fullName,
+            email,
+            phone,
+            password: hashedPassword,
+          }).returning({ id: schema.users.id });
+
+          return res.status(201).json({
+            message: "User registered successfully",
+            userId: inserted.id.toString(),
+            role,
+          });
+        }
       }
 
       // JSON fallback
       const dbData = readDB();
-      const existingUser = dbData.users.find((u: any) => u.email === email);
+      const existingUser = dbData.users.find((u: any) => u.email === email) ||
+        (dbData.drivers && dbData.drivers.find((d: any) => d.email === email));
       if (existingUser) return res.status(400).json({ message: "Email already registered" });
 
       const newId = Date.now().toString();
@@ -121,6 +153,8 @@ export function createServer() {
         newUser.isVerified = false;
         newUser.verificationStatus = "pending";
         newUser.status = "offline";
+        if (!dbData.drivers) dbData.drivers = [];
+        dbData.drivers.push(newUser);
       }
 
       dbData.users.push(newUser);
@@ -149,25 +183,44 @@ export function createServer() {
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
         const usersList = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
-        const user = usersList[0];
+        let user = usersList[0];
+        let role = "user";
+
+        if (!user) {
+          const driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.email, email)).limit(1);
+          if (driversList.length > 0) {
+            user = driversList[0];
+            role = "driver";
+          }
+        }
+
         if (!user) {
           return res.status(401).json({ message: "Invalid email or password" });
         }
+
         const isMatch = await bcrypt.compare(password, user.password);
 
-        console.log("User Found:", user.email);
+        console.log("User Found:", user.email, "Role:", role);
         console.log("Password Match:", isMatch);
         if (!isMatch) {
           return res.status(401).json({ message: "Invalid email or password" });
         }
 
         const token = Math.random().toString(36).substring(7) + Date.now();
-        await db.update(schema.users).set({ apiToken: token }).where(eq(schema.users.id, user.id));
+        if (role === "driver") {
+          driverTokens.set(token, user.id.toString());
+        } else {
+          await db.update(schema.users).set({ apiToken: token }).where(eq(schema.users.id, user.id));
+        }
+
         console.log("Sending Login Response");
         return res.json({
           message: "Login successful",
           token,
-          userId: user.id.toString(), role: "user",
+          userId: user.id.toString(),
+          role,
+          isVerified: role === "driver" ? (user as any).isVerified : true,
+          verificationStatus: role === "driver" ? ((user as any).isVerified ? "verified" : "pending") : "verified",
         });
       }
 
@@ -205,32 +258,9 @@ export function createServer() {
   });
 
   app.post("/api/bookings", async (req, res) => {
-  try {
-    const {
-      userId,
-      pickupLocation,
-      dropLocation,
-      vehicleType,
-      estimatedFare,
-      pickupLat,
-      pickupLng,
-      dropLat,
-      dropLng,
-    } = req.body;
-
-    if (!userId || !pickupLocation || !dropLocation || !vehicleType) {
-      return res.status(400).json({
-        message: "All required fields are mandatory",
-      });
-    }
-
-    const bookingId = "GR" + Date.now();
-
-    const [booking] = await db
-      .insert(schema.bookings)
-      .values({
-        bookingId,
-        userId: Number(userId),
+    try {
+      const {
+        userId,
         pickupLocation,
         dropLocation,
         vehicleType,
@@ -239,67 +269,90 @@ export function createServer() {
         pickupLng,
         dropLat,
         dropLng,
-        status: "pending",
-      })
-      .returning();
+      } = req.body;
 
-    res.status(201).json({
-      message: "Ride booked successfully",
-      booking,
-    });
+      if (!userId || !pickupLocation || !dropLocation || !vehicleType) {
+        return res.status(400).json({
+          message: "All required fields are mandatory",
+        });
+      }
 
-  } catch (error) {
-    console.error(error);
+      const bookingId = "GR" + Date.now();
 
-    res.status(500).json({
-      message: "Booking failed",
-    });
-  }
-});
+      const [booking] = await db
+        .insert(schema.bookings)
+        .values({
+          bookingId,
+          userId: Number(userId),
+          pickupLocation,
+          dropLocation,
+          vehicleType,
+          estimatedFare,
+          pickupLat,
+          pickupLng,
+          dropLat,
+          dropLng,
+          status: "pending",
+        })
+        .returning();
 
-app.get("/api/bookings", async (_req, res) => {
-  try {
-    const bookings = await db
-      .select()
-      .from(schema.bookings);
+      res.status(201).json({
+        message: "Ride booked successfully",
+        booking,
+      });
 
-    return res.json(bookings);
+    } catch (error) {
+      console.error(error);
 
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({
-      message: "Failed to fetch bookings",
-    });
-  }
-});
-app.get("/api/bookings/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { eq } = await import("drizzle-orm");
-
-    const booking = await db
-      .select()
-      .from(schema.bookings)
-      .where(eq(schema.bookings.id, Number(id)))
-      .limit(1);
-
-    if (booking.length === 0) {
-      return res.status(404).json({
-        message: "Booking not found",
+      res.status(500).json({
+        message: "Booking failed",
       });
     }
+  });
 
-    return res.json(booking[0]);
+  app.get("/api/bookings", async (_req, res) => {
+    try {
+      const bookings = await db
+        .select()
+        .from(schema.bookings);
 
-  } catch (error) {
-    console.error(error);
+      return res.json(bookings);
 
-    return res.status(500).json({
-      message: "Failed to fetch booking",
-    });
-  }
-});
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        message: "Failed to fetch bookings",
+      });
+    }
+  });
+  app.get("/api/bookings/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { eq } = await import("drizzle-orm");
+
+      const booking = await db
+        .select()
+        .from(schema.bookings)
+        .where(eq(schema.bookings.id, Number(id)))
+        .limit(1);
+
+      if (booking.length === 0) {
+        return res.status(404).json({
+          message: "Booking not found",
+        });
+      }
+
+      return res.json(booking[0]);
+
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        message: "Failed to fetch booking",
+      });
+    }
+  });
 
   // ── ME ───────────────────────────────────────────────────────────────────────
   app.get("/api/me", async (req, res) => {
@@ -309,6 +362,29 @@ app.get("/api/bookings/:id", async (req, res) => {
 
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
+        const driverId = driverTokens.get(token);
+        if (driverId) {
+          const driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+          const driver = driversList[0];
+          if (driver) {
+            return res.json({
+              id: driver.id.toString(),
+              fullName: driver.fullName,
+              email: driver.email,
+              phone: driver.phone,
+              joined: "Just now",
+              trips: driver.totalRides ?? 0,
+              rating: Number(driver.rating ?? "4.5"),
+              role: "driver",
+              isVerified: driver.isVerified,
+              verificationStatus: driver.isVerified ? "verified" : "pending",
+              driversLicense: driver.licenseNumber,
+              vehicleNumber: driver.vehicleNumber,
+              vehicleType: driver.vehicleType,
+            });
+          }
+        }
+
         const usersList = await db.select().from(schema.users).where(eq(schema.users.apiToken, token)).limit(1);
         const user = usersList[0];
         if (!user) return res.status(404).json({ message: "User not found" });
@@ -431,6 +507,151 @@ app.get("/api/bookings/:id", async (req, res) => {
       res.json({ message: "Status updated", status });
     } catch (error) {
       res.status(500).json({ message: "Error" });
+    }
+  });
+
+  // ── NEW DRIVER DASHBOARD ENDPOINTS ───────────────────
+  app.get("/api/driver/status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+      let driver = null;
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const driverId = driverTokens.get(token);
+        if (driverId) {
+          const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+          driver = results[0];
+        }
+      } else {
+        const dbData = readDB();
+        const driverId = dbData.tokens[token];
+        driver = dbData.drivers?.find((d: any) => d.id === driverId);
+        if (!driver) {
+          driver = dbData.users.find((u: any) => u.id === driverId && u.role === "driver");
+        }
+      }
+
+      if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+      res.json({
+        profile: {
+          fullName: driver.fullName,
+          driversLicense: driver.driversLicense || driver.licenseNumber,
+          vehicleNumber: driver.vehicleNumber,
+          vehicleType: driver.vehicleType,
+          isVerified: driver.isVerified,
+          status: driver.status || "offline",
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Error fetching driver status" });
+    }
+  });
+
+  app.post("/api/driver/toggle-status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+      const { status } = req.body;
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const driverId = driverTokens.get(token);
+        if (!driverId) return res.status(401).json({ message: "Unauthorized" });
+
+        await db.update(schema.drivers)
+          .set({ status })
+          .where(eq(schema.drivers.id, Number(driverId)));
+
+        return res.json({ message: "Status updated", status });
+      } else {
+        const dbData = readDB();
+        const driverId = dbData.tokens[token];
+        let driver = dbData.drivers?.find((d: any) => d.id === driverId);
+        if (!driver) {
+          driver = dbData.users.find((u: any) => u.id === driverId && u.role === "driver");
+        }
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        driver.status = status;
+        writeDB(dbData);
+        return res.json({ message: "Status updated", status });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update status" });
+    }
+  });
+
+  app.get("/api/driver/requests", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+      let driverId = null;
+      if (useRealDB) {
+        driverId = driverTokens.get(token);
+      } else {
+        const dbData = readDB();
+        driverId = dbData.tokens[token];
+      }
+      if (!driverId) return res.status(401).json({ message: "Unauthorized" });
+
+      let pendingBookings = [];
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        pendingBookings = await db.select().from(schema.bookings).where(eq(schema.bookings.status, "pending"));
+      } else {
+        const dbData = readDB();
+        pendingBookings = dbData.bookings.filter((b: any) => b.status === "pending");
+      }
+
+      const requests = pendingBookings.map((b: any) => ({
+        id: b.id.toString(),
+        userId: b.userId?.toString(),
+        source: b.pickupLocation,
+        destination: b.dropLocation,
+        fare: parseFloat(b.estimatedFare?.replace(/[^\d.]/g, "") || "0"),
+        status: b.status,
+        createdAt: b.createdAt,
+      }));
+
+      res.json({ requests });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch requests" });
+    }
+  });
+
+  app.post("/api/driver/accept-ride", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+      const { rideId } = req.body;
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const driverId = driverTokens.get(token);
+        if (!driverId) return res.status(401).json({ message: "Unauthorized" });
+
+        await db.update(schema.bookings)
+          .set({ status: "accepted", driverId: Number(driverId) })
+          .where(eq(schema.bookings.id, Number(rideId)));
+
+        return res.json({ message: "Ride accepted" });
+      } else {
+        const dbData = readDB();
+        const driverId = dbData.tokens[token];
+        const booking = dbData.bookings.find((b: any) => b.id === rideId);
+        if (!booking) return res.status(404).json({ message: "Booking not found" });
+
+        booking.status = "accepted";
+        booking.driverId = driverId;
+        writeDB(dbData);
+        return res.json({ message: "Ride accepted" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: "Failed to accept ride" });
     }
   });
 

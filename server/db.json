@@ -99,9 +99,48 @@
       "rating": 4.5,
       "totalRides": 0,
       "createdAt": "2026-07-18T15:33:41.529Z"
+    },
+    {
+      "id": "1784529696877",
+      "fullName": "Ritik",
+      "email": "kef@gmail.ca",
+      "phone": "+1 795235655855",
+      "password": "000000",
+      "role": "driver",
+      "profilePhoto": null,
+      "rating": 4.5,
+      "totalRides": 0,
+      "createdAt": "2026-07-20T06:41:36.877Z",
+      "driversLicense": "ON-DL-125785",
+      "vehicleNumber": "XYZ1234",
+      "vehicleType": "car",
+      "sinNumber": "8557-2896-7",
+      "isVerified": false,
+      "verificationStatus": "pending",
+      "status": "offline"
     }
   ],
-  "drivers": [],
+  "drivers": [
+    {
+      "id": "1784529696877",
+      "fullName": "Ritik",
+      "email": "kef@gmail.ca",
+      "phone": "+1 795235655855",
+      "password": "000000",
+      "role": "driver",
+      "profilePhoto": null,
+      "rating": 4.5,
+      "totalRides": 0,
+      "createdAt": "2026-07-20T06:41:36.877Z",
+      "driversLicense": "ON-DL-125785",
+      "vehicleNumber": "XYZ1234",
+      "vehicleType": "car",
+      "sinNumber": "8557-2896-7",
+      "isVerified": false,
+      "verificationStatus": "pending",
+      "status": "offline"
+    }
+  ],
   "bookings": [],
   "partners": [
     {
@@ -122,7 +161,8 @@
     "5u39js1783396320249": "1783396320234",
     "2qqdpd1783655709727": "1783655709712",
     "wrrydr1783708310657": "1783708310643",
-    "lnh7ct1784388821613": "1784388821529"
+    "lnh7ct1784388821613": "1784388821529",
+    "4siwp41784529696905": "1784529696877"
   },
   "adminTokens": {}
 }

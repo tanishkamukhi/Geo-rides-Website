@@ -47,37 +47,6 @@ export default function Index() {
     }
   };
 
-  useEffect(() => {
-    const existingScript = document.getElementById("google-maps-script");
-
-    const initLocalMap = () => {
-      const google = (window as any).google;
-      const mapElement = document.getElementById("map");
-      if (!mapElement || !google) return;
-
-      const location = { lat: 28.6139, lng: 77.2090 };
-      const map = new google.maps.Map(mapElement, {
-        zoom: 12,
-        center: location,
-      });
-      new google.maps.Marker({
-        position: location,
-        map: map,
-      });
-    };
-
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.id = "google-maps-script";
-      script.src = "https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY";
-      script.async = true;
-      script.defer = true;
-      script.onload = initLocalMap;
-      document.body.appendChild(script);
-    } else {
-      initLocalMap();
-    }
-  }, []);
 
   const toggleFaq = (index: number) => {
     setExpandedFaq(expandedFaq === index ? null : index);
@@ -114,8 +83,8 @@ export default function Index() {
         driverPhone: "+1 647-555-1234",
         vehicleNumber: "ON-AB-1234",
       },
-});
-    
+    });
+
   };
 
   const services = [
@@ -670,106 +639,6 @@ export default function Index() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-16 md:py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-geo-dark mb-4">
-              {t('contact.title')}
-            </h2>
-            <p className="text-lg text-gray-600">
-              {t('contact.subtitle')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <form className="space-y-4">
-                <input
-                  type="text"
-                  placeholder={t('contact.nameLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20"
-                />
-                <input
-                  type="email"
-                  placeholder={t('contact.emailLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20"
-                />
-                <textarea
-                  rows={4}
-                  placeholder={t('contact.messageLabel')}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-geo-red focus:ring-2 focus:ring-geo-red focus:ring-opacity-20 resize-none"
-                />
-                <button
-                  type="submit"
-                  className="w-full bg-geo-red text-white font-bold py-3 rounded-lg hover:bg-red-600 transition"
-                >
-                  {t('contact.sendBtn')}
-                </button>
-              </form>
-            </div>
-
-            <div className="space-y-8">
-              <div className="flex items-start space-x-4">
-                <Mail className="w-6 h-6 text-geo-red mt-1" />
-                <div>
-                  <h4 className="font-bold text-geo-dark mb-1">
-                    {t('contact.emailContact')}
-                  </h4>
-                  <a
-                    href="mailto:support@georides.com"
-                    className="text-gray-600 hover:text-geo-red transition"
-                  >
-                    {t('contact.emailAddress')}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <Phone className="w-6 h-6 text-geo-red mt-1" />
-                <div>
-                  <h4 className="font-bold text-geo-dark mb-1">
-                    {t('contact.phoneContact')}
-                  </h4>
-                  <a
-                    href="tel:+919876543210"
-                    className="text-gray-600 hover:text-geo-red transition"
-                  >
-                    {t('contact.phoneNumber')}
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4">
-                <MapPin className="w-6 h-6 text-geo-red mt-1" />
-                <div>
-                  <h4 className="font-bold text-geo-dark mb-1">
-                    {t('contact.locationContact')}
-                  </h4>
-                  <p className="text-gray-600">
-                    {t('contact.locationText')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-geo-red bg-opacity-10 border border-geo-red rounded-lg p-4">
-                <p className="text-geo-dark font-semibold">{t('contact.support24')}</p>
-                <p className="text-gray-600 text-sm">
-                  {t('contact.supportDesc')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Map Section */}
-      <section className="pb-16 md:pb-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div id="map" className="rounded-2xl shadow-lg border border-gray-200" style={{ height: "500px", width: "100%" }}></div>
         </div>
       </section>
 
