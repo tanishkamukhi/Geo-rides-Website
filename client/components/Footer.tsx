@@ -16,10 +16,12 @@ const footerLinks = {
     { label: "Cab Service", href: "/service/cab" },
     { label: "Travel & Stay", href: "/service/travel" },
     { label: "Parcel Service", href: "/service/parcel" },
+    { label: "Download App", href: "/download" },
   ],
   support: [
     { label: "Help Center", href: "/help" },
-    { label: "Safety", href: "/safety" },
+    { label: "Safety SOS", href: "/safety" },
+    { label: "Data Security", href: "/data-security" },
     { label: "FAQ", href: "/faq" },
     { label: "Report Issue", href: "/report" },
   ],

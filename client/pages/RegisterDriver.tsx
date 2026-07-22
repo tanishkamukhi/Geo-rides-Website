@@ -119,10 +119,13 @@ export default function RegisterDriver() {
                         <h2 className="text-3xl font-bold mb-3">Registration Successful!</h2>
                         <div className="space-y-4">
                             <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 p-4 rounded-xl text-sm flex items-start gap-3">
-                                <ShieldAlert className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                                <p className="text-left leading-normal">
-                                    <strong>Verification Pending:</strong> Your driver profile details (Canadian SIN, Driver's License & Vehicle Plate) are currently under verification checks by our staff. You will be redirected to the Driver Dashboard.
-                                </p>
+                                <ShieldAlert className="w-5 h-5 flex-shrink-0 mt-0.5 text-amber-400" />
+                                <div className="text-left leading-normal">
+                                    <p className="font-bold text-base mb-1 text-white">Verification Notification Dispatched</p>
+                                    <p>
+                                        Your driver profile details (Canadian SIN, Driver's License & Vehicle Plate) have been submitted. Official verification notification sent to compliance lead at <strong className="text-geo-red font-mono underline">tanishkamukhi12@gmail.com</strong> for approval.
+                                    </p>
+                                </div>
                             </div>
                             <p className="text-gray-300 text-sm">Redirecting to Driver Dashboard...</p>
                         </div>

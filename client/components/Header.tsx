@@ -15,6 +15,7 @@ export default function Header() {
     { label: "🏨 Travel & Stay", href: "/service/travel" },
     { label: "📦 Parcel Service", href: "/service/parcel" },
     { label: "🛡️ Safety", href: "/safety" },
+    { label: "📱 Download App", href: "/download" },
     { label: "🤝 Partner", href: "/partner" },
   ];
 

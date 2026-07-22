@@ -30,6 +30,11 @@ import PartnerWithUs from "./pages/PartnerWithUs";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminPanel from "./pages/AdminPanel";
 
+import DownloadApp from "./pages/DownloadApp";
+import DataSecurity from "./pages/DataSecurity";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import InfoPage from "./pages/InfoPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -49,6 +54,19 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/ride-booking" element={<RideBooking />} />
             <Route path="/safety" element={<Safety />} />
+            <Route path="/download" element={<DownloadApp />} />
+            <Route path="/data-security" element={<DataSecurity />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/about" element={<InfoPage />} />
+            <Route path="/careers" element={<InfoPage />} />
+            <Route path="/blog" element={<InfoPage />} />
+            <Route path="/press" element={<InfoPage />} />
+            <Route path="/investors" element={<InfoPage />} />
+            <Route path="/help" element={<InfoPage />} />
+            <Route path="/report" element={<InfoPage />} />
+            <Route path="/terms" element={<InfoPage />} />
+            <Route path="/cookies" element={<InfoPage />} />
+            <Route path="/refund" element={<InfoPage />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
             <Route path="/stay-booking-success" element={<StayBookingSuccess />} />

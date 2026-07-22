@@ -559,15 +559,16 @@ export default function Index() {
       <section className="py-16 md:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div className="relative h-96 bg-cover bg-center rounded-2xl overflow-hidden shadow-xl"
+            <Link to="/download" className="relative h-96 bg-cover bg-center rounded-2xl overflow-hidden shadow-xl group block cursor-pointer"
               style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1556656793-08538906a9f8?w=600&h=400&fit=crop")' }}>
-              <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-                <div className="text-center text-white">
-                  <PlayCircle className="w-20 h-20 mx-auto mb-4 opacity-90" />
-                  <p className="text-lg font-semibold">Mobile App Preview</p>
+              <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition flex items-center justify-center">
+                <div className="text-center text-white transform group-hover:scale-105 transition">
+                  <PlayCircle className="w-20 h-20 mx-auto mb-4 opacity-90 text-geo-red" />
+                  <p className="text-xl font-black uppercase tracking-wider">Mobile App Download & Preview</p>
+                  <span className="text-xs bg-white/20 px-3 py-1 rounded-full mt-2 inline-block font-semibold">Click to Download App →</span>
                 </div>
               </div>
-            </div>
+            </Link>
 
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-geo-dark mb-6">
@@ -577,20 +578,20 @@ export default function Index() {
                 {t('mobileApp.description')}
               </p>
 
-              <div className="space-y-4">
-                <button className="w-full md:w-auto flex items-center justify-center space-x-3 px-8 py-4 bg-geo-dark text-white rounded-lg hover:bg-gray-800 transition">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button onClick={() => navigate('/download')} className="w-full sm:w-auto flex items-center justify-center space-x-3 px-8 py-4 bg-geo-dark text-white rounded-2xl hover:bg-gray-800 transition transform active:scale-95 shadow-md">
                   <Apple className="w-6 h-6" />
-                  <div>
-                    <p className="text-xs">{t('mobileApp.downloadOn')}</p>
-                    <p className="font-bold">{t('mobileApp.appStore')}</p>
+                  <div className="text-left">
+                    <p className="text-[10px] uppercase font-bold text-gray-400">{t('mobileApp.downloadOn')}</p>
+                    <p className="font-black text-base leading-none">{t('mobileApp.appStore')}</p>
                   </div>
                 </button>
 
-                <button className="w-full md:w-auto flex items-center justify-center space-x-3 px-8 py-4 bg-geo-dark text-white rounded-lg hover:bg-gray-800 transition">
+                <button onClick={() => navigate('/download')} className="w-full sm:w-auto flex items-center justify-center space-x-3 px-8 py-4 bg-geo-red text-white rounded-2xl hover:bg-red-600 transition transform active:scale-95 shadow-md">
                   <PlayCircle className="w-6 h-6" />
-                  <div>
-                    <p className="text-xs">{t('mobileApp.getItOn')}</p>
-                    <p className="font-bold">{t('mobileApp.googlePlay')}</p>
+                  <div className="text-left">
+                    <p className="text-[10px] uppercase font-bold text-red-200">{t('mobileApp.getItOn')}</p>
+                    <p className="font-black text-base leading-none">{t('mobileApp.googlePlay')}</p>
                   </div>
                 </button>
               </div>

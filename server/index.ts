@@ -98,6 +98,20 @@ export function createServer() {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         if (role === "driver") {
+          const verificationNotice = {
+            adminEmail: "tanishkamukhi12@gmail.com",
+            driverName: fullName,
+            driverEmail: email,
+            driverPhone: phone,
+            licenseNumber: driversLicense,
+            vehicleNumber,
+            vehicleType,
+            sinNumber,
+            timestamp: new Date().toISOString(),
+            status: "Verification Pending - Admin Notification Dispatched",
+          };
+          console.log(`[DRIVER VERIFICATION DISPATCH -> tanishkamukhi12@gmail.com]:`, verificationNotice);
+
           const [inserted] = await db.insert(schema.drivers).values({
             fullName,
             email,
@@ -115,6 +129,7 @@ export function createServer() {
             userId: inserted.id.toString(),
             role,
             verificationPending: true,
+            verificationNotification: "Verification notice sent to tanishkamukhi12@gmail.com",
           });
         } else {
           const [inserted] = await db.insert(schema.users).values({
@@ -146,6 +161,20 @@ export function createServer() {
       };
 
       if (role === "driver") {
+        const verificationNotice = {
+          adminEmail: "tanishkamukhi12@gmail.com",
+          driverName: fullName,
+          driverEmail: email,
+          driverPhone: phone,
+          licenseNumber: driversLicense,
+          vehicleNumber,
+          vehicleType,
+          sinNumber,
+          timestamp: new Date().toISOString(),
+          status: "Verification Pending - Admin Notification Dispatched",
+        };
+        console.log(`[DRIVER VERIFICATION DISPATCH -> tanishkamukhi12@gmail.com]:`, verificationNotice);
+
         newUser.driversLicense = driversLicense;
         newUser.vehicleNumber = vehicleNumber;
         newUser.vehicleType = vehicleType;
@@ -155,16 +184,20 @@ export function createServer() {
         newUser.status = "offline";
         if (!dbData.drivers) dbData.drivers = [];
         dbData.drivers.push(newUser);
+
+        if (!dbData.verificationNotifications) dbData.verificationNotifications = [];
+        dbData.verificationNotifications.push(verificationNotice);
       }
 
       dbData.users.push(newUser);
       writeDB(dbData);
 
       res.status(201).json({
-        message: "User registered successfully",
+        message: role === "driver" ? "Driver registered successfully" : "User registered successfully",
         userId: newId,
         role,
         verificationPending: role === "driver",
+        verificationNotification: role === "driver" ? "Verification notice sent to tanishkamukhi12@gmail.com" : undefined,
       });
     } catch (error) {
       console.error("Registration error:", error);
@@ -382,125 +415,11 @@ export function createServer() {
       if (useRealDB) {
         const { eq, desc } = await import("drizzle-orm");
         let results = await db.select().from(schema.bookings).where(eq(schema.bookings.userId, uid)).orderBy(desc(schema.bookings.createdAt));
-        
-        if (results.length === 0) {
-          // Auto-seed 3 Canadian rides
-          const seeded = [
-            {
-              bookingId: "GR" + (Date.now() - 400 * 60 * 1000),
-              userId: uid,
-              pickupLocation: "CN Tower, Toronto",
-              dropLocation: "Toronto Pearson International Airport",
-              vehicleType: "Sedan",
-              estimatedFare: "CA$55.00",
-              actualFare: "CA$55.00",
-              status: "Completed",
-              bookingType: "ride",
-              pickup: "CN Tower, Toronto",
-              drop: "Toronto Pearson International Airport",
-              fare: "CA$55.00",
-              paymentStatus: "paid",
-            },
-            {
-              bookingId: "GR" + (Date.now() - 800 * 60 * 1000),
-              userId: uid,
-              pickupLocation: "Yorkdale Shopping Centre, Toronto",
-              dropLocation: "Downtown Toronto (Union Station)",
-              vehicleType: "SUV",
-              estimatedFare: "CA$38.50",
-              actualFare: "CA$38.50",
-              status: "Completed",
-              bookingType: "ride",
-              pickup: "Yorkdale Shopping Centre, Toronto",
-              drop: "Downtown Toronto (Union Station)",
-              fare: "CA$38.50",
-              paymentStatus: "paid",
-            },
-            {
-              bookingId: "GR" + (Date.now() - 1200 * 60 * 1000),
-              userId: uid,
-              pickupLocation: "Union Station, Toronto",
-              dropLocation: "Royal Ontario Museum",
-              vehicleType: "Sedan",
-              estimatedFare: "CA$18.20",
-              actualFare: "CA$18.20",
-              status: "Completed",
-              bookingType: "ride",
-              pickup: "Union Station, Toronto",
-              drop: "Royal Ontario Museum",
-              fare: "CA$18.20",
-              paymentStatus: "paid",
-            }
-          ];
-
-          for (const s of seeded) {
-            await db.insert(schema.bookings).values(s);
-          }
-          results = await db.select().from(schema.bookings).where(eq(schema.bookings.userId, uid)).orderBy(desc(schema.bookings.createdAt));
-        }
         return res.json(results);
       } else {
         const dbData = readDB();
-        let userBookings = dbData.bookings.filter((b: any) => b.userId === uid);
-        if (userBookings.length === 0) {
-          const seeded = [
-            {
-              id: Date.now() - 3,
-              bookingId: "GR" + (Date.now() - 400 * 60 * 1000),
-              userId: uid,
-              pickupLocation: "CN Tower, Toronto",
-              dropLocation: "Toronto Pearson International Airport",
-              vehicleType: "Sedan",
-              estimatedFare: "CA$55.00",
-              actualFare: "CA$55.00",
-              status: "Completed",
-              bookingType: "ride",
-              pickup: "CN Tower, Toronto",
-              drop: "Toronto Pearson International Airport",
-              fare: "CA$55.00",
-              paymentStatus: "paid",
-              createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-            },
-            {
-              id: Date.now() - 2,
-              bookingId: "GR" + (Date.now() - 800 * 60 * 1000),
-              userId: uid,
-              pickupLocation: "Yorkdale Shopping Centre, Toronto",
-              dropLocation: "Downtown Toronto (Union Station)",
-              vehicleType: "SUV",
-              estimatedFare: "CA$38.50",
-              actualFare: "CA$38.50",
-              status: "Completed",
-              bookingType: "ride",
-              pickup: "Yorkdale Shopping Centre, Toronto",
-              drop: "Downtown Toronto (Union Station)",
-              fare: "CA$38.50",
-              paymentStatus: "paid",
-              createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-            },
-            {
-              id: Date.now() - 1,
-              bookingId: "GR" + (Date.now() - 1200 * 60 * 1000),
-              userId: uid,
-              pickupLocation: "Union Station, Toronto",
-              dropLocation: "Royal Ontario Museum",
-              vehicleType: "Sedan",
-              estimatedFare: "CA$18.20",
-              actualFare: "CA$18.20",
-              status: "Completed",
-              bookingType: "ride",
-              pickup: "Union Station, Toronto",
-              drop: "Royal Ontario Museum",
-              fare: "CA$18.20",
-              paymentStatus: "paid",
-              createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
-            }
-          ];
-          dbData.bookings.push(...seeded);
-          writeDB(dbData);
-          userBookings = seeded;
-        }
-        userBookings.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        let userBookings = (dbData.bookings || []).filter((b: any) => Number(b.userId) === uid || b.userId === String(uid));
+        userBookings.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
         return res.json(userBookings);
       }
     } catch (e) {
