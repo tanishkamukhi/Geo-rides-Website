@@ -10,11 +10,11 @@ export default function BookingConfirmation() {
     pickupLocation: "Current Location",
     dropLocation: "Destination",
     vehicleType: "Cab",
-    estimatedFare: "₹250",
+    estimatedFare: "CA$45",
     estimatedTime: "5 mins",
-    driverName: "Ramesh Kumar",
-    driverPhone: "+91 98765 43210",
-    vehicleNumber: "DL-01-AB-1234",
+    driverName: "James Carter",
+    driverPhone: "+1 (647) 555-0198",
+    vehicleNumber: "ON-AB-1234",
   };
 
   return (

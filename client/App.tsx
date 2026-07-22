@@ -20,6 +20,7 @@ import NotFound from "./pages/NotFound";
 
 import ServiceDetails from "./pages/ServiceDetails";
 import BookingSuccess from "./pages/BookingSuccess";
+import StayBookingSuccess from "./pages/StayBookingSuccess";
 import ForgotPassword from "./pages/ForgotPassword";
 import History from "./pages/History";
 import Safety from "./pages/Safety";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/safety" element={<Safety />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/booking-success" element={<BookingSuccess />} />
+            <Route path="/stay-booking-success" element={<StayBookingSuccess />} />
             <Route path="/history" element={<History />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/partner" element={<PartnerWithUs />} />

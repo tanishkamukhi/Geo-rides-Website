@@ -52,13 +52,14 @@ export default function DriverDashboard() {
                 setOnline(data.profile?.status === "online");
                 fetchRequests();
             } else {
-                // Fallback fallback
                 setDriverProfile({
                     fullName: "Alex Mercer",
                     driversLicense: "ON-DL-49301-92305",
                     vehicleNumber: "CVBA 894",
                     vehicleType: "Premium Car (Tesla Model 3)",
                     isVerified: false,
+                    verificationStatus: "pending",
+                    rejectionReason: null,
                     status: "offline"
                 });
             }
@@ -149,44 +150,89 @@ export default function DriverDashboard() {
         );
     }
 
-    const isVerified = driverProfile?.isVerified ?? false;
+    const verificationStatus = driverProfile?.verificationStatus ?? (driverProfile?.isVerified ? "verified" : "pending");
+    const rejectionReason = driverProfile?.rejectionReason;
+
+    const VerificationBanner = () => {
+        if (verificationStatus === "verified") {
+            return (
+                <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
+                    <div className="flex items-start gap-4">
+                        <Award className="w-8 h-8 text-emerald-400 flex-shrink-0 mt-1" />
+                        <div>
+                            <h2 className="font-bold text-lg text-white">Profile Fully Verified ✔</h2>
+                            <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
+                                Your identity documents, vehicle plates, and background are verified. You are authorized to accept high-tier VIP and standard bookings.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-emerald-500/10 text-emerald-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-emerald-500/30">
+                        VERIFIED
+                    </div>
+                </div>
+            );
+        }
+        if (verificationStatus === "rejected") {
+            return (
+                <div className="bg-gradient-to-r from-red-500/10 to-rose-500/10 border border-red-500/20 text-red-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
+                    <div className="flex items-start gap-4">
+                        <ShieldAlert className="w-8 h-8 text-red-400 flex-shrink-0 mt-1" />
+                        <div>
+                            <h2 className="font-bold text-lg text-white">Verification Rejected</h2>
+                            <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
+                                {rejectionReason || "Your application did not meet our verification criteria. Please contact support or re-submit corrected documents."}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-red-500/10 text-red-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-red-500/20">
+                        REJECTED
+                    </div>
+                </div>
+            );
+        }
+        if (verificationStatus === "under_review") {
+            return (
+                <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 text-orange-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
+                    <div className="flex items-start gap-4">
+                        <Eye className="w-8 h-8 text-orange-400 flex-shrink-0 mt-1" />
+                        <div>
+                            <h2 className="font-bold text-lg text-white">Under Review</h2>
+                            <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
+                                Documents are under review. Our compliance team is validating your Canadian SIN, driver's license, and background check. This typically takes 1–3 business days.
+                            </p>
+                        </div>
+                    </div>
+                    <div className="bg-orange-500/10 text-orange-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-orange-500/20">
+                        UNDER REVIEW
+                    </div>
+                </div>
+            );
+        }
+        // pending (default)
+        return (
+            <div className="bg-gradient-to-r from-amber-500/10 to-yellow-500/10 border border-amber-500/20 text-amber-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
+                <div className="flex items-start gap-4">
+                    <ShieldAlert className="w-8 h-8 text-amber-400 flex-shrink-0 mt-1" />
+                    <div>
+                        <h2 className="font-bold text-lg text-white">Verification Pending</h2>
+                        <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
+                            We are performing your Canadian citizen background, SIN, and driver's license validation. You can explore the dashboard but cannot accept passengers until verified.
+                        </p>
+                    </div>
+                </div>
+                <div className="bg-amber-500/10 text-amber-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-amber-500/20">
+                    PENDING
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
             <Header />
             <main className="pt-28 pb-20 px-4 max-w-7xl mx-auto space-y-8">
-                {/* Banner Verification Status */}
-                {!isVerified ? (
-                    <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 text-amber-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
-                        <div className="flex items-start gap-4">
-                            <ShieldAlert className="w-8 h-8 text-amber-400 flex-shrink-0 mt-1" />
-                            <div>
-                                <h2 className="font-bold text-lg text-white">Verification Status: Pending Checks</h2>
-                                <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
-                                    We are currently performing Canadian citizen background, SIN and driver's license validations. You can explore the dashboard but cannot accept live passengers until verified.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="bg-amber-500/10 text-amber-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-amber-500/20">
-                            Under Review
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
-                        <div className="flex items-start gap-4">
-                            <Award className="w-8 h-8 text-emerald-400 flex-shrink-0 mt-1" />
-                            <div>
-                                <h2 className="font-bold text-lg text-white">Profile Fully Verified ✔</h2>
-                                <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
-                                    Your identity documents, vehicle plates, and background are verified. You are authorized to accept high-tier VIP and standard bookings.
-                                </p>
-                            </div>
-                        </div>
-                        <div className="bg-emerald-500/10 text-emerald-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-emerald-500/30">
-                            Active Partner
-                        </div>
-                    </div>
-                )}
+                {/* Dynamic Verification Banner */}
+                <VerificationBanner />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Driver Info & Toggle Status */}
@@ -227,7 +273,7 @@ export default function DriverDashboard() {
                                 <Switch
                                     checked={online}
                                     onCheckedChange={toggleStatus}
-                                    disabled={!isVerified}
+                                    disabled={verificationStatus !== "verified"}
                                     className="data-[state=checked]:bg-geo-red"
                                     title="Driver Availability status online/offline"
                                 />

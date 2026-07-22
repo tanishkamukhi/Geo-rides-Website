@@ -6,6 +6,7 @@
 import { useEffect } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import Header from "@/components/Header";
 
 // This page was built as a standalone OSM/Leaflet prototype and adapted into
 // a React component. The map, routing, and UI logic run as plain DOM/JS
@@ -715,6 +716,7 @@ export default function RideBooking() {
 
   return (
     <>
+      <Header />
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -745,7 +747,8 @@ export default function RideBooking() {
 
   .app {
     display: flex;
-    height: 100vh;
+    height: calc(100vh - 72px);
+    margin-top: 72px;
     width: 100%;
   }
 

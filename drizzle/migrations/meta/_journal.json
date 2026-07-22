@@ -15,6 +15,13 @@
       "when": 1783055102494,
       "tag": "0001_crazy_human_cannonball",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784531403118,
+      "tag": "0002_bored_the_fallen",
+      "breakpoints": true
     }
   ]
 }

@@ -154,11 +154,63 @@ function TravelAndStay() {
     const cities = ["All", ...Array.from(new Set(hotelData.map(h => h.city)))];
     const filtered = selectedCity === "All" ? hotelData : hotelData.filter(h => h.city === selectedCity);
 
-    const handleBookHotel = (hotel: typeof hotelData[0], roomType: string, price: number) => {
+    const handleBookHotel = async (hotel: typeof hotelData[0], roomType: string, price: number) => {
         if (!isLoggedIn) { navigate("/login"); return; }
-        navigate("/booking-success", {
-            state: { pickup: hotel.name, dropoff: hotel.address, type: "travel", fare: price }
-        });
+        const token = localStorage.getItem("authToken");
+        const userId = localStorage.getItem("userId");
+        if (!token || !userId) { navigate("/login"); return; }
+
+        try {
+            const guestName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "Guest User";
+            const response = await fetch("/api/bookings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: Number(userId),
+                    bookingType: "hotel",
+                    hotelName: hotel.name,
+                    hotelAddress: hotel.address,
+                    roomType,
+                    fare: `CA$${price}`,
+                    currency: "CAD",
+                    checkIn: checkIn || new Date().toISOString().split("T")[0],
+                    checkOut: checkOut || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+                    guestsCount: 1,
+                    guestName: guestName,
+                    status: "Confirmed",
+                    paymentStatus: "paid",
+                    phone: hotel.phone
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                navigate("/stay-booking-success", {
+                    state: {
+                        bookingId: data.booking?.bookingId,
+                        hotelName: hotel.name,
+                        hotelAddress: hotel.address,
+                        roomType,
+                        checkIn: checkIn || new Date().toISOString().split("T")[0],
+                        checkOut: checkOut || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+                        guestsCount: 1,
+                        guestName: guestName,
+                        fare: `CA$${price}`,
+                        status: "Confirmed",
+                        paymentStatus: "paid",
+                        phone: hotel.phone
+                    }
+                });
+            } else {
+                throw new Error("Hotel booking failed");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Booking failed. Please try again.");
+        }
     };
 
     const handleCallHotel = (hotel: typeof hotelData[0]) => {
@@ -377,16 +429,57 @@ function ParcelService() {
     const selected = weightOptions.find(w => w.value === form.weight)!;
     const totalPrice = selected.price + (form.urgent ? 100 : 0);
 
-    const handleBook = () => {
+    const handleBook = async () => {
         if (!isLoggedIn) { navigate("/login"); return; }
         if (!form.pickup || !form.dropoff) return;
+        const token = localStorage.getItem("authToken");
+        const userId = localStorage.getItem("userId");
+        if (!token || !userId) { navigate("/login"); return; }
+
         setIsBooking(true);
-        setTimeout(() => {
-            setIsBooking(false);
-            navigate("/booking-success", {
-                state: { pickup: form.pickup, dropoff: form.dropoff, type: "parcel", fare: totalPrice }
+        try {
+            const response = await fetch("/api/bookings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    userId: Number(userId),
+                    bookingType: "parcel",
+                    pickup: form.pickup,
+                    drop: form.dropoff,
+                    pickupLocation: form.pickup,
+                    dropLocation: form.dropoff,
+                    vehicleType: "parcel",
+                    estimatedFare: `CA$${totalPrice}`,
+                    fare: `CA$${totalPrice}`,
+                    currency: "CAD",
+                    status: "Completed",
+                    paymentStatus: "paid"
+                })
             });
-        }, 2500);
+
+            if (response.ok) {
+                const data = await response.json();
+                setIsBooking(false);
+                navigate("/booking-success", {
+                    state: {
+                        bookingId: data.booking?.bookingId,
+                        pickup: form.pickup,
+                        dropoff: form.dropoff,
+                        type: "Parcel Courier",
+                        fare: `CA$${totalPrice}`
+                    }
+                });
+            } else {
+                throw new Error("Parcel booking failed");
+            }
+        } catch (e) {
+            console.error(e);
+            setIsBooking(false);
+            alert("Parcel booking failed. Please try again.");
+        }
     };
 
     return (

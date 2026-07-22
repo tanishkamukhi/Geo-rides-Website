@@ -32,7 +32,7 @@ export default function BookingSuccess() {
     const driver = {
         name: "Johnny",
         rating: 4.9,
-        vehicle: "White Swift Dzire (DL 1SC 1234)",
+        vehicle: "White Toyota Camry (ON AB-1234)",
         photo: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=100&h=100&fit=crop"
     };
 
@@ -60,7 +60,7 @@ export default function BookingSuccess() {
                             <span className="font-bold uppercase tracking-wider text-sm">Reward Unlocked</span>
                         </div>
                         <h2 className="text-2xl font-bold mb-1">Congratulations!</h2>
-                        <p className="text-red-100 text-sm">You earned <span className="font-bold text-white">50 Reward Points</span> and <span className="font-bold text-white">₹25 Cashback</span> for this ride.</p>
+                        <p className="text-red-100 text-sm">You earned <span className="font-bold text-white">50 Reward Points</span> and <span className="font-bold text-white">CA$25 Cashback</span> for this ride.</p>
                     </div>
                 </div>
 
