@@ -1,0 +1,7 @@
+[
+  { "name": "Toronto", "province": "ON", "latitude": 43.6532, "longitude": -79.3832 },
+  { "name": "Vancouver", "province": "BC", "latitude": 49.2827, "longitude": -123.1207 },
+  { "name": "Montreal", "province": "QC", "latitude": 45.5017, "longitude": -73.5673 },
+  { "name": "Calgary", "province": "AB", "latitude": 51.0447, "longitude": -114.0719 },
+  { "name": "Ottawa", "province": "ON", "latitude": 45.4215, "longitude": -75.6972 }
+]

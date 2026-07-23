@@ -45,6 +45,7 @@ export const drivers = pgTable("drivers", {
 });
 
 export const bookings = pgTable("bookings", {
+  // existing fields...
   id: serial("id").primaryKey(),
   bookingId: text("booking_id").unique().notNull(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -78,3 +79,17 @@ export const bookings = pgTable("bookings", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+
+export const cities = pgTable("cities", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  province: text("province"),
+  country: text("country").default("Canada"),
+});
+
+export const hotels = pgTable("hotels", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  cityId: integer("city_id").references(() => cities.id).notNull(),
+  address: text("address"),
+});

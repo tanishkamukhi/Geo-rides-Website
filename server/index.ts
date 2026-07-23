@@ -1,4 +1,5 @@
-import bcrypt from "bcryptjs";
+import nodemailer from "nodemailer";
+
 import { eq } from "drizzle-orm";
 import "dotenv/config";
 import express from "express";
@@ -29,6 +30,11 @@ let schema: any = null;
 let useRealDB = false;
 
 async function tryInitDB() {
+  // Ensure database schema is up‑to‑date
+  const { runMigrations } = await import("./db");
+  await runMigrations();
+  // Import seed function
+  const { seedIfEmpty } = await import("./seed");
   try {
     const dbModule = await import("./db");
     db = dbModule.db;
@@ -38,6 +44,9 @@ async function tryInitDB() {
     await db.select().from(schema.users).limit(1);
     useRealDB = true;
     console.log("✅ Real database connected");
+    // Seed static data if tables are empty
+    // Seed static Canadian data if tables are empty
+  await seedIfEmpty();
   } catch (e) {
     useRealDB = false;
     console.error("DATABASE ERROR:");
@@ -112,6 +121,28 @@ export function createServer() {
           };
           console.log(`[DRIVER VERIFICATION DISPATCH -> tanishkamukhi12@gmail.com]:`, verificationNotice);
 
+          // Send verification email to admin (optional)
+          try {
+            const testAccount = await nodemailer.createTestAccount();
+            const transporter = nodemailer.createTransport({
+              host: process.env.SMTP_HOST || testAccount.smtp.host,
+              port: Number(process.env.SMTP_PORT) || testAccount.smtp.port,
+              secure: testAccount.smtp.secure,
+              auth: {
+                user: process.env.SMTP_USER || testAccount.user,
+                pass: process.env.SMTP_PASS || testAccount.pass,
+              },
+            });
+            await transporter.sendMail({
+              from: `"Geo Rides" <${process.env.SMTP_FROM || testAccount.user}>`,
+              to: verificationNotice.adminEmail,
+              subject: "Driver Verification Request",
+              text: `A driver has requested verification.\n\nName: ${fullName}\nEmail: ${email}\nPhone: ${phone}\nLicense: ${driversLicense}\nVehicle: ${vehicleType} (${vehicleNumber})\nSIN: ${sinNumber}\n\nPlease review the details.`,
+            });
+          } catch (mailErr) {
+            console.error('⚠️ Verification email failed:', mailErr);
+          }
+
           const [inserted] = await db.insert(schema.drivers).values({
             fullName,
             email,
@@ -121,6 +152,7 @@ export function createServer() {
             vehicleNumber,
             licenseNumber: driversLicense,
             isVerified: false,
+            verificationStatus: "pending",
             status: "offline",
           }).returning({ id: schema.drivers.id });
 
@@ -405,6 +437,7 @@ export function createServer() {
   });
 
   app.get("/api/my-bookings", async (req, res) => {
+      // existing endpoint unchanged
     try {
       const { userId } = req.query;
       if (!userId) {

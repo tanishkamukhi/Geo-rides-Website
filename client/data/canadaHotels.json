@@ -1,0 +1,7 @@
+[
+  { "name": "Fairmont Royal York", "city": "Toronto", "address": "100 Front St W, Toronto, ON", "rating": 4.5 },
+  { "name": "Hotel Vancouver", "city": "Vancouver", "address": "900 Robson St, Vancouver, BC", "rating": 4.3 },
+  { "name": "Le Saint-Sulpice", "city": "Montreal", "address": "414 Rue Saint-Sulpice, Montreal, QC", "rating": 4.6 },
+  { "name": "The Fairmont Palliser", "city": "Calgary", "address": "133 9 Ave SW, Calgary, AB", "rating": 4.4 },
+  { "name": "Fairmont Chateau Laurier", "city": "Ottawa", "address": "1 Rideau St, Ottawa, ON", "rating": 4.5 }
+]
