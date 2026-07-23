@@ -26,10 +26,14 @@ interface DriverItem {
     fullName: string;
     email: string;
     phone: string;
-    driversLicense: string;
+    driversLicense?: string;
+    licenseNumber?: string;
     vehicleNumber: string;
     vehicleType: string;
     isVerified: boolean;
+    verificationStatus?: string;
+    rejectionReason?: string | null;
+    createdAt?: string;
     status: string;
 }
 
@@ -56,16 +60,48 @@ interface PartnerItem {
     createdAt: string;
 }
 
+interface HotelBookingItem {
+    id: string;
+    bookingId: string;
+    hotelName: string;
+    city: string;
+    customerName: string;
+    email: string;
+    phone: string;
+    roomType: string;
+    guests: number;
+    checkIn: string;
+    checkOut: string;
+    bookingStatus: string;
+    createdAt: string;
+}
+
+interface ParcelBookingItem {
+    id: string;
+    trackingId: string;
+    senderName: string;
+    senderPhone: string;
+    receiverName: string;
+    receiverPhone: string;
+    pickupAddress: string;
+    deliveryAddress: string;
+    price: string;
+    status: string;
+    createdAt: string;
+}
+
 export default function AdminPanel() {
     const { t } = useTranslation();
     const navigate = useNavigate();
 
-    const [activeTab, setActiveTab] = useState<"overview" | "users" | "drivers" | "bookings" | "partners">("overview");
+    const [activeTab, setActiveTab] = useState<"overview" | "users" | "drivers" | "bookings" | "hotelBookings" | "parcelBookings" | "partners">("overview");
 
     // Data State
     const [users, setUsers] = useState<UserItem[]>([]);
     const [drivers, setDrivers] = useState<DriverItem[]>([]);
     const [bookings, setBookings] = useState<BookingItem[]>([]);
+    const [hotelBookings, setHotelBookings] = useState<HotelBookingItem[]>([]);
+    const [parcelBookings, setParcelBookings] = useState<ParcelBookingItem[]>([]);
     const [partners, setPartners] = useState<PartnerItem[]>([]);
     const [stats, setStats] = useState<any>(null);
 
@@ -128,6 +164,22 @@ export default function AdminPanel() {
                     const data = await res.json();
                     setPartners(data.partners || []);
                 }
+            } else if (activeTab === "hotelBookings") {
+                const res = await fetch("/api/admin/hotel-bookings", {
+                    headers: { "X-Admin-Token": token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setHotelBookings(data);
+                }
+            } else if (activeTab === "parcelBookings") {
+                const res = await fetch("/api/admin/parcel-bookings", {
+                    headers: { "X-Admin-Token": token }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setParcelBookings(data);
+                }
             }
         } catch (err: any) {
             setError("Failed to fetch admin dashboard records. Please review API connection.");
@@ -136,27 +188,59 @@ export default function AdminPanel() {
         }
     };
 
-    const handleVerifyDriver = async (driverId: string, verify: boolean) => {
+    const [driverFilter, setDriverFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
+    const [driverSearch, setDriverSearch] = useState("");
+
+    const handleApproveDriver = async (driverId: string) => {
         setActionId(driverId);
         const token = localStorage.getItem("authToken") || "mock-admin-token";
         try {
-            const res = await fetch(`/api/admin/drivers/${driverId}/verify`, {
-                method: "PATCH",
+            const res = await fetch(`/api/admin/drivers/${driverId}/approve`, {
+                method: "PUT",
                 headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "X-Admin-Token": token,
+                    "Content-Type": "application/json"
+                }
+            });
+            if (res.ok) {
+                setDrivers(prev => prev.map(d => String(d.id) === String(driverId) ? { ...d, isVerified: true, verificationStatus: "approved", rejectionReason: null } : d));
+            } else {
+                const errData = await res.json();
+                alert(errData.message || "Failed to approve driver");
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setActionId(null);
+        }
+    };
+
+    const handleRejectDriver = async (driverId: string) => {
+        const reason = prompt("Enter rejection reason for driver verification:");
+        if (reason === null) return;
+        if (!reason.trim()) {
+            alert("Rejection reason is required.");
+            return;
+        }
+
+        setActionId(driverId);
+        const token = localStorage.getItem("authToken") || "mock-admin-token";
+        try {
+            const res = await fetch(`/api/admin/drivers/${driverId}/reject`, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
                     "X-Admin-Token": token,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ isVerified: verify })
+                body: JSON.stringify({ rejectionReason: reason.trim() })
             });
             if (res.ok) {
-                setDrivers(prev => prev.map(d => d.id === driverId ? { ...d, isVerified: verify } : d));
-                // Update stats
-                if (stats) {
-                    setStats({
-                        ...stats,
-                        activeDrivers: verify ? stats.activeDrivers + 1 : Math.max(0, stats.activeDrivers - 1)
-                    });
-                }
+                setDrivers(prev => prev.map(d => String(d.id) === String(driverId) ? { ...d, isVerified: false, verificationStatus: "rejected", rejectionReason: reason.trim() } : d));
+            } else {
+                const errData = await res.json();
+                alert(errData.message || "Failed to reject driver");
             }
         } catch (err) {
             console.error(err);
@@ -271,8 +355,10 @@ export default function AdminPanel() {
                     {([
                         { id: "overview", label: "📈 Dashboard Analytics" },
                         { id: "users", label: "👥 Users Directory" },
-                        { id: "drivers", label: "🚗 Driver Cred Verification" },
-                        { id: "bookings", label: "📦 Bookings Tracking" },
+                        { id: "drivers", label: "🚗 Driver Verification" },
+                        { id: "bookings", label: "🚕 Ride Bookings" },
+                        { id: "hotelBookings", label: "🏨 Hotel Bookings" },
+                        { id: "parcelBookings", label: "📦 Parcel Bookings" },
                         { id: "partners", label: "🤝 Brand Applicants" }
                     ] as const).map(tab => (
                         <button
@@ -459,68 +545,155 @@ export default function AdminPanel() {
                         )}
 
                         {/* TAB 3: DRIVERS */}
-                        {activeTab === "drivers" && (
-                            <div className="bg-white/[0.02] border border-white/[0.08] rounded-3xl overflow-hidden shadow-2xl">
-                                <div className="p-6 border-b border-white/10 flex justify-between items-center">
-                                    <h3 className="font-bold text-lg uppercase">Driver Verification Panel</h3>
-                                    <span className="text-xs text-gray-500 font-semibold">{drivers.length} Profiles Registered</span>
-                                </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr className="border-b border-white/5 text-xs text-gray-500 uppercase font-bold bg-white/[0.01]">
-                                                <th className="p-4">Driver Name</th>
-                                                <th className="p-4">License plate</th>
-                                                <th className="p-4">DL Number</th>
-                                                <th className="p-4">Vehicle Tier</th>
-                                                <th className="p-4">Auth Status</th>
-                                                <th className="p-4">Review Credentials</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/5 text-sm text-gray-300">
-                                            {drivers.map(d => (
-                                                <tr key={d.id} className="hover:bg-white/[0.01] transition">
-                                                    <td className="p-4 font-bold text-white">{d.fullName}</td>
-                                                    <td className="p-4 font-mono">{d.vehicleNumber}</td>
-                                                    <td className="p-4 font-mono">{d.driversLicense}</td>
-                                                    <td className="p-4 text-xs font-bold text-gray-400 uppercase">{d.vehicleType}</td>
-                                                    <td className="p-4">
-                                                        {d.isVerified ? (
-                                                            <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-2.5 py-0.5 rounded-full">
-                                                                Verified
-                                                            </span>
-                                                        ) : (
-                                                            <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold px-2.5 py-0.5 rounded-full">
-                                                                Pending
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-4 flex gap-2">
-                                                        {!d.isVerified ? (
-                                                            <button
-                                                                onClick={() => handleVerifyDriver(d.id, true)}
-                                                                disabled={actionId === d.id}
-                                                                className="text-xs bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1"
-                                                            >
-                                                                <Check className="w-3 h-3" /> Approve Partner
-                                                            </button>
-                                                        ) : (
-                                                            <button
-                                                                onClick={() => handleVerifyDriver(d.id, false)}
-                                                                disabled={actionId === d.id}
-                                                                className="text-xs bg-white/5 hover:bg-white/10 disabled:opacity-40 text-gray-300 font-bold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1"
-                                                            >
-                                                                <X className="w-3 h-3" /> Suspend Status
-                                                            </button>
-                                                        )}
-                                                    </td>
+                        {activeTab === "drivers" && (() => {
+                            const filteredDrivers = drivers.filter(d => {
+                                const status = d.verificationStatus || (d.isVerified ? "approved" : "pending");
+                                if (driverFilter === "pending" && status !== "pending") return false;
+                                if (driverFilter === "approved" && status !== "approved") return false;
+                                if (driverFilter === "rejected" && status !== "rejected") return false;
+
+                                if (driverSearch.trim()) {
+                                    const q = driverSearch.toLowerCase();
+                                    const name = (d.fullName || "").toLowerCase();
+                                    const email = (d.email || "").toLowerCase();
+                                    const phone = (d.phone || "").toLowerCase();
+                                    const vehicle = (d.vehicleNumber || "").toLowerCase();
+                                    const license = (d.driversLicense || d.licenseNumber || "").toLowerCase();
+                                    return name.includes(q) || email.includes(q) || phone.includes(q) || vehicle.includes(q) || license.includes(q);
+                                }
+                                return true;
+                            });
+
+                            const pendingCount = drivers.filter(d => (d.verificationStatus || (d.isVerified ? "approved" : "pending")) === "pending").length;
+                            const approvedCount = drivers.filter(d => (d.verificationStatus || (d.isVerified ? "approved" : "pending")) === "approved").length;
+                            const rejectedCount = drivers.filter(d => (d.verificationStatus || (d.isVerified ? "approved" : "pending")) === "rejected").length;
+
+                            return (
+                                <div className="bg-white/[0.02] border border-white/[0.08] rounded-3xl overflow-hidden shadow-2xl space-y-4">
+                                    <div className="p-6 border-b border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                        <div>
+                                            <h3 className="font-bold text-lg uppercase tracking-tight">Driver Verification Management</h3>
+                                            <p className="text-xs text-gray-400 mt-0.5">Review, verify and manage driver compliance credentials</p>
+                                        </div>
+
+                                        {/* Search Box */}
+                                        <div className="w-full md:w-72">
+                                            <input
+                                                type="text"
+                                                value={driverSearch}
+                                                onChange={(e) => setDriverSearch(e.target.value)}
+                                                placeholder="Search driver, email, plate, license..."
+                                                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-geo-red"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Sub-Tabs / Filters */}
+                                    <div className="px-6 flex gap-2 flex-wrap text-xs font-bold">
+                                        <button
+                                            onClick={() => setDriverFilter("all")}
+                                            className={`px-3 py-1.5 rounded-lg border transition ${driverFilter === "all" ? "bg-white/10 border-white/20 text-white" : "border-transparent text-gray-400 hover:text-white"}`}
+                                        >
+                                            All Drivers ({drivers.length})
+                                        </button>
+                                        <button
+                                            onClick={() => setDriverFilter("pending")}
+                                            className={`px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 ${driverFilter === "pending" ? "bg-amber-500/20 border-amber-500/30 text-amber-300" : "border-transparent text-gray-400 hover:text-amber-400"}`}
+                                        >
+                                            🟡 Pending Drivers ({pendingCount})
+                                        </button>
+                                        <button
+                                            onClick={() => setDriverFilter("approved")}
+                                            className={`px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 ${driverFilter === "approved" ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-300" : "border-transparent text-gray-400 hover:text-emerald-400"}`}
+                                        >
+                                            🟢 Approved Drivers ({approvedCount})
+                                        </button>
+                                        <button
+                                            onClick={() => setDriverFilter("rejected")}
+                                            className={`px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 ${driverFilter === "rejected" ? "bg-rose-500/20 border-rose-500/30 text-rose-300" : "border-transparent text-gray-400 hover:text-rose-400"}`}
+                                        >
+                                            🔴 Rejected Drivers ({rejectedCount})
+                                        </button>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse">
+                                            <thead>
+                                                <tr className="border-b border-white/5 text-xs text-gray-500 uppercase font-bold bg-white/[0.01]">
+                                                    <th className="p-4">Driver Name</th>
+                                                    <th className="p-4">Email</th>
+                                                    <th className="p-4">Phone</th>
+                                                    <th className="p-4">Vehicle Number</th>
+                                                    <th className="p-4">License Number</th>
+                                                    <th className="p-4">Registration Date</th>
+                                                    <th className="p-4">Verification Status</th>
+                                                    <th className="p-4">Actions</th>
                                                 </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody className="divide-y divide-white/5 text-sm text-gray-300">
+                                                {filteredDrivers.length === 0 ? (
+                                                    <tr>
+                                                        <td colSpan={8} className="p-8 text-center text-gray-500 font-semibold">
+                                                            No drivers found matching current filter/search.
+                                                        </td>
+                                                    </tr>
+                                                ) : (
+                                                    filteredDrivers.map(d => {
+                                                        const status = d.verificationStatus || (d.isVerified ? "approved" : "pending");
+                                                        const dateStr = d.createdAt ? new Date(d.createdAt).toLocaleDateString("en-CA") : "N/A";
+                                                        return (
+                                                            <tr key={d.id} className="hover:bg-white/[0.01] transition">
+                                                                <td className="p-4 font-bold text-white">{d.fullName}</td>
+                                                                <td className="p-4 text-gray-300">{d.email}</td>
+                                                                <td className="p-4 text-gray-300">{d.phone}</td>
+                                                                <td className="p-4 font-mono text-xs">{d.vehicleNumber}</td>
+                                                                <td className="p-4 font-mono text-xs">{d.driversLicense || d.licenseNumber}</td>
+                                                                <td className="p-4 text-xs text-gray-400">{dateStr}</td>
+                                                                <td className="p-4">
+                                                                    {status === "approved" && (
+                                                                        <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-bold px-2.5 py-1 rounded-full">
+                                                                            🟢 Approved
+                                                                        </span>
+                                                                    )}
+                                                                    {status === "pending" && (
+                                                                        <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold px-2.5 py-1 rounded-full">
+                                                                            🟡 Pending
+                                                                        </span>
+                                                                    )}
+                                                                    {status === "rejected" && (
+                                                                        <span className="inline-flex items-center gap-1 bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-bold px-2.5 py-1 rounded-full" title={d.rejectionReason || "Rejected"}>
+                                                                            🔴 Rejected
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="p-4">
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onClick={() => handleApproveDriver(d.id)}
+                                                                            disabled={actionId === d.id || status === "approved"}
+                                                                            className="text-xs bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1"
+                                                                        >
+                                                                            <Check className="w-3.5 h-3.5" /> Approve
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleRejectDriver(d.id)}
+                                                                            disabled={actionId === d.id || status === "rejected"}
+                                                                            className="text-xs bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1"
+                                                                        >
+                                                                            <X className="w-3.5 h-3.5" /> Reject
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 
                         {/* TAB 4: BOOKINGS */}
                         {activeTab === "bookings" && (
@@ -552,6 +725,94 @@ export default function AdminPanel() {
                                                     <td className="p-4">
                                                         <span className={`px-2 py-0.5 rounded-full text-xs font-bold leading-none ${b.status === "completed" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
                                                             b.status === "accepted" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                                                                "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                                            }`}>
+                                                            {b.status}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 4.1: HOTEL BOOKINGS */}
+                        {activeTab === "hotelBookings" && (
+                            <div className="bg-white/[0.02] border border-white/[0.08] rounded-3xl overflow-hidden shadow-2xl">
+                                <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                                    <h3 className="font-bold text-lg uppercase">Hotel Bookings Logs</h3>
+                                    <span className="text-xs text-gray-500 font-semibold">{hotelBookings.length} Bookings Logged</span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-white/5 text-xs text-gray-500 uppercase font-bold bg-white/[0.01]">
+                                                <th className="p-4">Booking ID</th>
+                                                <th className="p-4">Customer Name</th>
+                                                <th className="p-4">Phone</th>
+                                                <th className="p-4">Hotel Name</th>
+                                                <th className="p-4">Room Type</th>
+                                                <th className="p-4">Check In/Out</th>
+                                                <th className="p-4">Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5 text-sm text-gray-300">
+                                            {hotelBookings.map(b => (
+                                                <tr key={b.id} className="hover:bg-white/[0.01] transition">
+                                                    <td className="p-4 font-mono text-xs text-gray-500">{b.bookingId}</td>
+                                                    <td className="p-4 font-bold text-white text-xs">{b.customerName}</td>
+                                                    <td className="p-4">{b.phone}</td>
+                                                    <td className="p-4 text-white font-bold">{b.hotelName}</td>
+                                                    <td className="p-4 text-gray-300">{b.roomType}</td>
+                                                    <td className="p-4 text-xs">{b.checkIn} - {b.checkOut}</td>
+                                                    <td className="p-4">
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold leading-none ${b.bookingStatus === "confirmed" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                                                            b.bookingStatus === "cancelled" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
+                                                                "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                                            }`}>
+                                                            {b.bookingStatus}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 4.2: PARCEL BOOKINGS */}
+                        {activeTab === "parcelBookings" && (
+                            <div className="bg-white/[0.02] border border-white/[0.08] rounded-3xl overflow-hidden shadow-2xl">
+                                <div className="p-6 border-b border-white/10 flex justify-between items-center">
+                                    <h3 className="font-bold text-lg uppercase">Parcel Bookings Logs</h3>
+                                    <span className="text-xs text-gray-500 font-semibold">{parcelBookings.length} Bookings Logged</span>
+                                </div>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-white/5 text-xs text-gray-500 uppercase font-bold bg-white/[0.01]">
+                                                <th className="p-4">Tracking ID</th>
+                                                <th className="p-4">Sender / Receiver</th>
+                                                <th className="p-4">Pickup Address</th>
+                                                <th className="p-4">Delivery Address</th>
+                                                <th className="p-4">Price</th>
+                                                <th className="p-4">Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-white/5 text-sm text-gray-300">
+                                            {parcelBookings.map(b => (
+                                                <tr key={b.id} className="hover:bg-white/[0.01] transition">
+                                                    <td className="p-4 font-mono text-xs text-gray-500">{b.trackingId}</td>
+                                                    <td className="p-4 font-bold text-white text-xs">{b.senderName} ➡️ {b.receiverName}</td>
+                                                    <td className="p-4 truncate max-w-[150px] text-xs" title={b.pickupAddress}>{b.pickupAddress}</td>
+                                                    <td className="p-4 truncate max-w-[150px] text-xs" title={b.deliveryAddress}>{b.deliveryAddress}</td>
+                                                    <td className="p-4 text-white font-bold">{b.price}</td>
+                                                    <td className="p-4">
+                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-bold leading-none ${b.status === "delivered" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" :
+                                                            b.status === "cancelled" ? "bg-red-500/10 text-red-400 border border-red-500/20" :
                                                                 "bg-amber-500/10 text-amber-400 border border-amber-500/20"
                                                             }`}>
                                                             {b.status}

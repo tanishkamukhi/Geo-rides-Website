@@ -283,7 +283,7 @@ export default function Index() {
                       value={formData.pickup}
                       onChange={handleFormChange}
                       placeholder="Enter pickup location"
-                      className="w-full pl-10 pr-4 py-3 bg-white/90 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition"
+                      className="w-full pl-10 pr-4 py-3 bg-white/90 text-gray-900 placeholder-gray-600 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition"
                       required
                     />
                   </div>
@@ -295,7 +295,7 @@ export default function Index() {
                       value={formData.dropoff}
                       onChange={handleFormChange}
                       placeholder="Enter drop location"
-                      className="w-full pl-10 pr-4 py-3 bg-white/90 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition"
+                      className="w-full pl-10 pr-4 py-3 bg-white/90 text-gray-900 placeholder-gray-600 border-0 rounded-xl focus:ring-2 focus:ring-geo-red transition"
                       required
                     />
                   </div>

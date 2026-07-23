@@ -36,6 +36,19 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
+        if (data.role === "driver") {
+          const vStatus = data.verificationStatus || (data.isVerified ? "approved" : "pending");
+          if (vStatus === "pending") {
+            setError("Your account is under verification.\nYou will receive an email after admin verification.");
+            return;
+          }
+          if (vStatus === "rejected") {
+            const reasonMsg = data.rejectionReason ? ` Reason: ${data.rejectionReason}` : "";
+            setError(`Verification Failed.${reasonMsg}`);
+            return;
+          }
+        }
+
         localStorage.setItem("authToken", data.token);
         localStorage.setItem("userId", data.userId);
         localStorage.setItem("userRole", data.role || "user");
@@ -49,7 +62,14 @@ export default function Login() {
         }
       } else {
         const errorData = await response.json();
-        setError(errorData.message || "Login failed. Please try again.");
+        if (errorData.verificationStatus === "pending" || errorData.message?.includes("under verification")) {
+          setError("Your account is under verification.\nYou will receive an email after admin verification.");
+        } else if (errorData.verificationStatus === "rejected" || errorData.message?.includes("Verification Failed")) {
+          const reasonMsg = errorData.rejectionReason ? ` Reason: ${errorData.rejectionReason}` : "";
+          setError(`Verification Failed.${reasonMsg}`);
+        } else {
+          setError(errorData.message || "Login failed. Please try again.");
+        }
       }
     } catch (err) {
       setError("Network error. Please try again.");

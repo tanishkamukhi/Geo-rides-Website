@@ -162,27 +162,22 @@ function TravelAndStay() {
 
         try {
             const guestName = localStorage.getItem("userName") || localStorage.getItem("userEmail") || "Guest User";
-            const response = await fetch("/api/bookings", {
+            const response = await fetch("/api/hotel-bookings", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    userId: Number(userId),
-                    bookingType: "hotel",
                     hotelName: hotel.name,
-                    hotelAddress: hotel.address,
+                    city: hotel.city,
+                    customerName: guestName,
+                    email: localStorage.getItem("userEmail") || "customer@georides.ca",
+                    phone: localStorage.getItem("userPhone") || hotel.phone,
                     roomType,
-                    fare: `CA$${price}`,
-                    currency: "CAD",
+                    guests: 1,
                     checkIn: checkIn || new Date().toISOString().split("T")[0],
                     checkOut: checkOut || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-                    guestsCount: 1,
-                    guestName: guestName,
-                    status: "Confirmed",
-                    paymentStatus: "paid",
-                    phone: hotel.phone
                 })
             });
 
@@ -190,7 +185,7 @@ function TravelAndStay() {
                 const data = await response.json();
                 navigate("/stay-booking-success", {
                     state: {
-                        bookingId: data.booking?.bookingId,
+                        bookingId: data.bookingId,
                         hotelName: hotel.name,
                         hotelAddress: hotel.address,
                         roomType,
@@ -438,25 +433,24 @@ function ParcelService() {
 
         setIsBooking(true);
         try {
-            const response = await fetch("/api/bookings", {
+            const response = await fetch("/api/parcel-bookings", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    userId: Number(userId),
-                    bookingType: "parcel",
-                    pickup: form.pickup,
-                    drop: form.dropoff,
-                    pickupLocation: form.pickup,
-                    dropLocation: form.dropoff,
-                    vehicleType: "parcel",
-                    estimatedFare: `CA$${totalPrice}`,
-                    fare: `CA$${totalPrice}`,
-                    currency: "CAD",
-                    status: "Completed",
-                    paymentStatus: "paid"
+                    senderName: localStorage.getItem("userName") || "Guest",
+                    senderPhone: localStorage.getItem("userPhone") || "0000000000",
+                    receiverName: "Receiver",
+                    receiverPhone: "0000000000",
+                    pickupAddress: form.pickup,
+                    deliveryAddress: form.dropoff,
+                    parcelWeight: form.weight,
+                    parcelType: "general",
+                    urgentDelivery: form.urgent,
+                    price: `CA$${totalPrice}`,
+                    email: localStorage.getItem("userEmail") || "customer@georides.ca"
                 })
             });
 
@@ -465,7 +459,7 @@ function ParcelService() {
                 setIsBooking(false);
                 navigate("/booking-success", {
                     state: {
-                        bookingId: data.booking?.bookingId,
+                        bookingId: data.trackingId,
                         pickup: form.pickup,
                         dropoff: form.dropoff,
                         type: "Parcel Courier",

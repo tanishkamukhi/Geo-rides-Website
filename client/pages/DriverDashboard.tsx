@@ -85,7 +85,14 @@ export default function DriverDashboard() {
         }
     };
 
+    const verificationStatus = (driverProfile?.verificationStatus || (driverProfile?.isVerified ? "approved" : "pending")) === "approved" ? "approved" : (driverProfile?.verificationStatus === "rejected" ? "rejected" : "pending");
+    const rejectionReason = driverProfile?.rejectionReason;
+
     const toggleStatus = async () => {
+        if (verificationStatus !== "approved") {
+            alert("Your account is not verified. Unverified drivers cannot go online.");
+            return;
+        }
         const token = localStorage.getItem("authToken");
         try {
             const res = await fetch("/api/driver/toggle-status", {
@@ -98,6 +105,9 @@ export default function DriverDashboard() {
             });
             if (res.ok) {
                 setOnline(!online);
+            } else {
+                const errData = await res.json();
+                alert(errData.message || "Failed to update status");
             }
         } catch (err) {
             console.error(err);
@@ -117,15 +127,16 @@ export default function DriverDashboard() {
                 body: JSON.stringify({ rideId })
             });
             if (res.ok) {
-                // Update requests state
                 setRideRequests(prev => prev.filter(r => r.id !== rideId));
-                // Add fake cash to earnings
                 setEarnings(prev => ({
                     ...prev,
                     daily: prev.daily + 35,
                     weekly: prev.weekly + 35
                 }));
                 alert("Ride accepted successfully! GPS route guided to pickup.");
+            } else {
+                const errData = await res.json();
+                alert(errData.message || "Failed to accept ride");
             }
         } catch (err) {
             console.error(err);
@@ -135,39 +146,24 @@ export default function DriverDashboard() {
     };
 
     const handleDecline = async (rideId: string) => {
-        // Simply filter out locally or let backend know
         setRideRequests(prev => prev.filter(r => r.id !== rideId));
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-950 flex items-center justify-center text-white">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="w-10 h-10 border-4 border-geo-red border-t-transparent rounded-full animate-spin" />
-                    <p className="text-gray-400 text-sm font-bold uppercase tracking-wider">Loading Dashboard...</p>
-                </div>
-            </div>
-        );
-    }
-
-    const verificationStatus = driverProfile?.verificationStatus ?? (driverProfile?.isVerified ? "verified" : "pending");
-    const rejectionReason = driverProfile?.rejectionReason;
-
     const VerificationBanner = () => {
-        if (verificationStatus === "verified") {
+        if (verificationStatus === "approved") {
             return (
                 <div className="bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 text-emerald-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
                     <div className="flex items-start gap-4">
                         <Award className="w-8 h-8 text-emerald-400 flex-shrink-0 mt-1" />
                         <div>
-                            <h2 className="font-bold text-lg text-white">Profile Fully Verified ✔</h2>
+                            <h2 className="font-bold text-lg text-white">Driver Verification Approved</h2>
                             <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
-                                Your identity documents, vehicle plates, and background are verified. You are authorized to accept high-tier VIP and standard bookings.
+                                Your GeoRides driver account is verified. You can now go online and start accepting rides.
                             </p>
                         </div>
                     </div>
-                    <div className="bg-emerald-500/10 text-emerald-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-emerald-500/30">
-                        VERIFIED
+                    <div className="bg-emerald-500/10 text-emerald-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-emerald-500/30 flex items-center gap-1.5">
+                        🟢 Verified
                     </div>
                 </div>
             );
@@ -178,32 +174,14 @@ export default function DriverDashboard() {
                     <div className="flex items-start gap-4">
                         <ShieldAlert className="w-8 h-8 text-red-400 flex-shrink-0 mt-1" />
                         <div>
-                            <h2 className="font-bold text-lg text-white">Verification Rejected</h2>
+                            <h2 className="font-bold text-lg text-white">Verification Failed</h2>
                             <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
-                                {rejectionReason || "Your application did not meet our verification criteria. Please contact support or re-submit corrected documents."}
+                                Reason: <strong className="text-red-300">{rejectionReason || "Requirements not met"}</strong>
                             </p>
                         </div>
                     </div>
-                    <div className="bg-red-500/10 text-red-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-red-500/20">
-                        REJECTED
-                    </div>
-                </div>
-            );
-        }
-        if (verificationStatus === "under_review") {
-            return (
-                <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 text-orange-400 rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 backdrop-blur-md">
-                    <div className="flex items-start gap-4">
-                        <Eye className="w-8 h-8 text-orange-400 flex-shrink-0 mt-1" />
-                        <div>
-                            <h2 className="font-bold text-lg text-white">Under Review</h2>
-                            <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
-                                Documents are under review. Our compliance team is validating your Canadian SIN, driver's license, and background check. This typically takes 1–3 business days.
-                            </p>
-                        </div>
-                    </div>
-                    <div className="bg-orange-500/10 text-orange-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-orange-500/20">
-                        UNDER REVIEW
+                    <div className="bg-red-500/10 text-red-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-red-500/20 flex items-center gap-1.5">
+                        🔴 Rejected
                     </div>
                 </div>
             );
@@ -216,12 +194,12 @@ export default function DriverDashboard() {
                     <div>
                         <h2 className="font-bold text-lg text-white">Verification Pending</h2>
                         <p className="text-sm text-gray-400 max-w-2xl mt-1 leading-relaxed">
-                            We are performing your Canadian citizen background, SIN, and driver's license validation. You can explore the dashboard but cannot accept passengers until verified.
+                            Your account is under verification. You will receive an email after admin verification.
                         </p>
                     </div>
                 </div>
-                <div className="bg-amber-500/10 text-amber-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-amber-500/20">
-                    PENDING
+                <div className="bg-amber-500/10 text-amber-400 text-xs px-4 py-2 rounded-xl font-bold uppercase tracking-wider border border-amber-500/20 flex items-center gap-1.5">
+                    🟡 Pending
                 </div>
             </div>
         );
@@ -273,7 +251,7 @@ export default function DriverDashboard() {
                                 <Switch
                                     checked={online}
                                     onCheckedChange={toggleStatus}
-                                    disabled={verificationStatus !== "verified"}
+                                    disabled={verificationStatus !== "approved"}
                                     className="data-[state=checked]:bg-geo-red"
                                     title="Driver Availability status online/offline"
                                 />

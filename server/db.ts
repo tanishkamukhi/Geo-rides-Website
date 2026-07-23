@@ -54,6 +54,9 @@ export async function runMigrations() {
       created_at TIMESTAMPTZ DEFAULT now(),
       updated_at TIMESTAMPTZ DEFAULT now()
     );
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS verification_status TEXT DEFAULT 'pending';
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
   `);
   // Bookings table
   await pool.query(`
@@ -112,6 +115,39 @@ export async function runMigrations() {
       city TEXT,
       lat NUMERIC(10,8),
       lng NUMERIC(11,8)
+    );
+    CREATE TABLE IF NOT EXISTS hotel_bookings (
+      id SERIAL PRIMARY KEY,
+      booking_id TEXT UNIQUE NOT NULL,
+      hotel_name TEXT NOT NULL,
+      city TEXT NOT NULL,
+      customer_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      room_type TEXT NOT NULL,
+      guests INTEGER NOT NULL,
+      check_in TEXT NOT NULL,
+      check_out TEXT NOT NULL,
+      special_request TEXT,
+      booking_status TEXT DEFAULT 'Confirmed',
+      created_at TIMESTAMPTZ DEFAULT now()
+    );
+    CREATE TABLE IF NOT EXISTS parcel_bookings (
+      id SERIAL PRIMARY KEY,
+      tracking_id TEXT UNIQUE NOT NULL,
+      sender_name TEXT NOT NULL,
+      sender_phone TEXT NOT NULL,
+      receiver_name TEXT NOT NULL,
+      receiver_phone TEXT NOT NULL,
+      pickup_address TEXT NOT NULL,
+      delivery_address TEXT NOT NULL,
+      parcel_weight TEXT NOT NULL,
+      parcel_type TEXT NOT NULL,
+      urgent_delivery BOOLEAN DEFAULT false,
+      instructions TEXT,
+      price TEXT NOT NULL,
+      status TEXT DEFAULT 'Pending',
+      created_at TIMESTAMPTZ DEFAULT now()
     );
   `);
 

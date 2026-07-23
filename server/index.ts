@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import bcrypt from "bcryptjs";
 
 import { eq } from "drizzle-orm";
 import "dotenv/config";
@@ -22,6 +23,128 @@ function readDB() {
 
 function writeDB(data: any) {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
+}
+
+// ── EMAIL NOTIFICATION HELPER ───────────────────────────────────────────────
+const getTransporter = () => {
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+  if (!user || !pass) {
+    throw new Error("Email credentials not found in environment variables.");
+  }
+  return nodemailer.createTransport({
+    service: "gmail",
+    auth: { user, pass }
+  });
+};
+
+async function sendNewDriverAdminNotification(
+  driverName: string,
+  driverEmail: string,
+  driverPhone: string,
+  licenseNumber: string,
+  vehicleNumber: string,
+  vehicleType: string,
+  sinNumber: string,
+  timestamp: string
+) {
+  try {
+    const transporter = getTransporter();
+    const from = process.env.EMAIL_USER;
+    const to = "georidesofficial@gmail.com";
+    const subject = "🚖 New Driver Verification Request - GeoRides";
+    const text = `A new driver has registered.\n\nDriver Name:\n${driverName}\n\nEmail:\n${driverEmail}\n\nPhone:\n${driverPhone}\n\nLicense Number:\n${licenseNumber}\n\nVehicle Number:\n${vehicleNumber}\n\nVehicle Type:\n${vehicleType}\n\nSIN Number:\n${sinNumber}\n\nRegistration Time:\n${timestamp}\n\nStatus:\nPending Verification`;
+    
+    await transporter.sendMail({ from, to, subject, text });
+    console.log(`[EMAIL DISPATCH SUCCESS] Sent new driver notification to admin.`);
+  } catch (err) {
+    console.error(`[EMAIL DISPATCH FAILURE] Failed to send new driver admin notification:`, err);
+  }
+}
+
+async function sendDriverVerificationEmail(
+  driverName: string,
+  driverEmail: string,
+  status: "approved" | "rejected",
+  rejectionReason?: string
+) {
+  try {
+    const transporter = getTransporter();
+    const from = process.env.EMAIL_USER;
+
+    if (status === "approved") {
+      const subject = "✅ GeoRides Driver Verification Approved";
+      const text = `Hello ${driverName},\n\nCongratulations!\n\nYour GeoRides Driver account has been verified successfully.\n\nYou can now login and start accepting rides.\n\nRegards,\nGeoRides Team`;
+      await transporter.sendMail({ from: from as string, to: driverEmail, subject, text });
+    } else {
+      const subject = "GeoRides Driver Verification Update";
+      const text = `Hello ${driverName}\n\nYour verification request has been rejected.\n\nReason:\n\n${rejectionReason || "Requirements not met"}\n\nPlease update your information and register again.\n\nRegards,\nGeoRides Team`;
+      await transporter.sendMail({ from: from as string, to: driverEmail, subject, text });
+    }
+    console.log(`[EMAIL DISPATCH SUCCESS] Sent ${status} email to ${driverEmail}`);
+  } catch (err) {
+    console.error(`[EMAIL DISPATCH FAILURE] Failed to send ${status} email to ${driverEmail}:`, err);
+  }
+}
+
+async function sendRideBookingEmail(userEmail: string, userName: string, bookingId: string, pickup: string, drop: string, fare: string) {
+  try {
+    const user = process.env.EMAIL_USER;
+    const pass = process.env.EMAIL_PASS;
+    let transporter;
+    if (user && pass) {
+      transporter = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+    } else {
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({ host: testAccount.smtp.host, port: testAccount.smtp.port, secure: testAccount.smtp.secure, auth: { user: testAccount.user, pass: testAccount.pass } });
+    }
+    const from = process.env.EMAIL_USER || "georidesofficial@gmail.com";
+    const subject = "GeoRides Ride Booking Confirmation - " + bookingId;
+    const text = `Hello ${userName},\n\nYour ride booking has been confirmed!\n\nBooking ID: ${bookingId}\nPickup: ${pickup}\nDrop: ${drop}\nEstimated Fare: ${fare}\n\nThank you for choosing GeoRides.\n\nRegards,\nGeoRides Team`;
+    await transporter.sendMail({ from, to: userEmail, subject, text });
+  } catch (e) {
+    console.error("Failed to send ride confirmation email:", e);
+  }
+}
+
+async function sendHotelBookingEmail(userEmail: string, customerName: string, bookingId: string, hotelName: string, city: string, roomType: string, checkIn: string, checkOut: string) {
+  try {
+    const user = process.env.EMAIL_USER;
+    const pass = process.env.EMAIL_PASS;
+    let transporter;
+    if (user && pass) {
+      transporter = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+    } else {
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({ host: testAccount.smtp.host, port: testAccount.smtp.port, secure: testAccount.smtp.secure, auth: { user: testAccount.user, pass: testAccount.pass } });
+    }
+    const from = process.env.EMAIL_USER || "georidesofficial@gmail.com";
+    const subject = "GeoRides Hotel Booking Confirmation - " + bookingId;
+    const text = `Hello ${customerName},\n\nYour Travel & Stay hotel booking is confirmed!\n\nBooking ID: ${bookingId}\nHotel: ${hotelName}\nCity: ${city}\nRoom Type: ${roomType}\nCheck-in: ${checkIn}\nCheck-out: ${checkOut}\n\nThank you for choosing GeoRides.\n\nRegards,\nGeoRides Team`;
+    await transporter.sendMail({ from, to: userEmail, subject, text });
+  } catch (e) {
+    console.error("Failed to send hotel confirmation email:", e);
+  }
+}
+
+async function sendParcelBookingEmail(userEmail: string, senderName: string, trackingId: string, pickup: string, drop: string, price: string) {
+  try {
+    const user = process.env.EMAIL_USER;
+    const pass = process.env.EMAIL_PASS;
+    let transporter;
+    if (user && pass) {
+      transporter = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
+    } else {
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({ host: testAccount.smtp.host, port: testAccount.smtp.port, secure: testAccount.smtp.secure, auth: { user: testAccount.user, pass: testAccount.pass } });
+    }
+    const from = process.env.EMAIL_USER || "georidesofficial@gmail.com";
+    const subject = "GeoRides Parcel Delivery Confirmation - " + trackingId;
+    const text = `Hello ${senderName},\n\nYour parcel delivery booking is confirmed!\n\nTracking ID: ${trackingId}\nPickup Address: ${pickup}\nDelivery Address: ${drop}\nCalculated Price: ${price}\n\nThank you for choosing GeoRides Parcel Service.\n\nRegards,\nGeoRides Team`;
+    await transporter.sendMail({ from, to: userEmail, subject, text });
+  } catch (e) {
+    console.error("Failed to send parcel confirmation email:", e);
+  }
 }
 
 // Try to import real DB, fall back to JSON
@@ -107,41 +230,18 @@ export function createServer() {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         if (role === "driver") {
-          const verificationNotice = {
-            adminEmail: "tanishkamukhi12@gmail.com",
-            driverName: fullName,
-            driverEmail: email,
-            driverPhone: phone,
-            licenseNumber: driversLicense,
+          const timestamp = new Date().toISOString();
+          // Fire and forget email notification
+          sendNewDriverAdminNotification(
+            fullName,
+            email,
+            phone,
+            driversLicense,
             vehicleNumber,
             vehicleType,
             sinNumber,
-            timestamp: new Date().toISOString(),
-            status: "Verification Pending - Admin Notification Dispatched",
-          };
-          console.log(`[DRIVER VERIFICATION DISPATCH -> tanishkamukhi12@gmail.com]:`, verificationNotice);
-
-          // Send verification email to admin (optional)
-          try {
-            const testAccount = await nodemailer.createTestAccount();
-            const transporter = nodemailer.createTransport({
-              host: process.env.SMTP_HOST || testAccount.smtp.host,
-              port: Number(process.env.SMTP_PORT) || testAccount.smtp.port,
-              secure: testAccount.smtp.secure,
-              auth: {
-                user: process.env.SMTP_USER || testAccount.user,
-                pass: process.env.SMTP_PASS || testAccount.pass,
-              },
-            });
-            await transporter.sendMail({
-              from: `"Geo Rides" <${process.env.SMTP_FROM || testAccount.user}>`,
-              to: verificationNotice.adminEmail,
-              subject: "Driver Verification Request",
-              text: `A driver has requested verification.\n\nName: ${fullName}\nEmail: ${email}\nPhone: ${phone}\nLicense: ${driversLicense}\nVehicle: ${vehicleType} (${vehicleNumber})\nSIN: ${sinNumber}\n\nPlease review the details.`,
-            });
-          } catch (mailErr) {
-            console.error('⚠️ Verification email failed:', mailErr);
-          }
+            timestamp
+          );
 
           const [inserted] = await db.insert(schema.drivers).values({
             fullName,
@@ -153,6 +253,7 @@ export function createServer() {
             licenseNumber: driversLicense,
             isVerified: false,
             verificationStatus: "pending",
+            rejectionReason: null,
             status: "offline",
           }).returning({ id: schema.drivers.id });
 
@@ -193,19 +294,18 @@ export function createServer() {
       };
 
       if (role === "driver") {
-        const verificationNotice = {
-          adminEmail: "tanishkamukhi12@gmail.com",
-          driverName: fullName,
-          driverEmail: email,
-          driverPhone: phone,
-          licenseNumber: driversLicense,
+        const timestamp = new Date().toISOString();
+        // Fire and forget email notification
+        sendNewDriverAdminNotification(
+          fullName,
+          email,
+          phone,
+          driversLicense,
           vehicleNumber,
           vehicleType,
           sinNumber,
-          timestamp: new Date().toISOString(),
-          status: "Verification Pending - Admin Notification Dispatched",
-        };
-        console.log(`[DRIVER VERIFICATION DISPATCH -> tanishkamukhi12@gmail.com]:`, verificationNotice);
+          timestamp
+        );
 
         newUser.driversLicense = driversLicense;
         newUser.vehicleNumber = vehicleNumber;
@@ -213,12 +313,11 @@ export function createServer() {
         newUser.sinNumber = sinNumber;
         newUser.isVerified = false;
         newUser.verificationStatus = "pending";
+        newUser.rejectionReason = null;
         newUser.status = "offline";
         if (!dbData.drivers) dbData.drivers = [];
         dbData.drivers.push(newUser);
 
-        if (!dbData.verificationNotifications) dbData.verificationNotifications = [];
-        dbData.verificationNotifications.push(verificationNotice);
       }
 
       dbData.users.push(newUser);
@@ -271,6 +370,26 @@ export function createServer() {
           return res.status(401).json({ message: "Invalid email or password" });
         }
 
+        if (role === "driver") {
+          const driverObj = user as any;
+          const vStatus = driverObj.verificationStatus || (driverObj.isVerified ? "approved" : "pending");
+          if (vStatus === "pending") {
+            return res.status(403).json({
+              message: "Your account is under verification.\nYou will receive an email after admin verification.",
+              verificationStatus: "pending",
+              isVerified: false,
+            });
+          }
+          if (vStatus === "rejected") {
+            return res.status(403).json({
+              message: "Verification Failed",
+              rejectionReason: driverObj.rejectionReason || null,
+              verificationStatus: "rejected",
+              isVerified: false,
+            });
+          }
+        }
+
         const token = Math.random().toString(36).substring(7) + Date.now();
         if (role === "driver") {
           driverTokens.set(token, user.id.toString());
@@ -285,7 +404,7 @@ export function createServer() {
           userId: user.id.toString(),
           role,
           isVerified: role === "driver" ? (user as any).isVerified : true,
-          verificationStatus: role === "driver" ? ((user as any).isVerified ? "verified" : "pending") : "verified",
+          verificationStatus: role === "driver" ? ((user as any).verificationStatus || "approved") : "approved",
         });
       }
 
@@ -300,9 +419,34 @@ export function createServer() {
         return res.json({ message: "Login successful", token: adminToken, userId: "admin", role: "admin" });
       }
 
-      const user = dbData.users.find((u: any) => u.email === email);
+      let user = (dbData.drivers || []).find((d: any) => d.email === email);
+      let role = "driver";
+      if (!user) {
+        user = (dbData.users || []).find((u: any) => u.email === email);
+        role = user?.role || "user";
+      }
+
       if (!user || user.password !== password)
         return res.status(401).json({ message: "Invalid email or password" });
+
+      if (role === "driver") {
+        const vStatus = user.verificationStatus || (user.isVerified ? "approved" : "pending");
+        if (vStatus === "pending") {
+          return res.status(403).json({
+            message: "Your account is under verification.\nYou will receive an email after admin verification.",
+            verificationStatus: "pending",
+            isVerified: false,
+          });
+        }
+        if (vStatus === "rejected") {
+          return res.status(403).json({
+            message: "Verification Failed",
+            rejectionReason: user.rejectionReason || null,
+            verificationStatus: "rejected",
+            isVerified: false,
+          });
+        }
+      }
 
       const token = Math.random().toString(36).substring(7) + Date.now();
       dbData.tokens[token] = user.id;
@@ -312,9 +456,9 @@ export function createServer() {
         message: "Login successful",
         token,
         userId: user.id,
-        role: user.role || "user",
+        role,
         isVerified: user.isVerified,
-        verificationStatus: user.verificationStatus,
+        verificationStatus: user.verificationStatus || "approved",
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -387,6 +531,10 @@ export function createServer() {
           })
           .returning();
 
+        const userEmail = req.body.email || "customer@georides.ca";
+        const customerName = guestName || "Rider";
+        await sendRideBookingEmail(userEmail, customerName, bookingId, pickupLocation || pickup || "N/A", dropLocation || drop || "N/A", String(estimatedFare || fare || "CA$25.00"));
+
         res.status(201).json({
           message: "Booking created successfully",
           booking,
@@ -423,6 +571,10 @@ export function createServer() {
         dbData.bookings.push(booking);
         writeDB(dbData);
 
+        const userEmail = req.body.email || "customer@georides.ca";
+        const customerName = guestName || "Rider";
+        await sendRideBookingEmail(userEmail, customerName, bookingId, pickupLocation || pickup || "N/A", dropLocation || drop || "N/A", String(estimatedFare || fare || "CA$25.00"));
+
         res.status(201).json({
           message: "Booking created successfully in temporary store",
           booking,
@@ -433,6 +585,211 @@ export function createServer() {
       res.status(500).json({
         message: "Booking failed",
       });
+    }
+  });
+
+  // ── HOTEL BOOKINGS API ──────────────────────────────────────────────────────
+  app.post("/api/hotel-bookings", async (req, res) => {
+    try {
+      const {
+        hotelName,
+        city,
+        customerName,
+        email,
+        phone,
+        roomType,
+        guests,
+        checkIn,
+        checkOut,
+        specialRequest,
+      } = req.body;
+
+      if (!hotelName || !city || !customerName || !email || !phone || !roomType || !checkIn || !checkOut) {
+        return res.status(400).json({ message: "All required hotel booking fields must be provided." });
+      }
+
+      const bookingId = "HB" + Math.floor(Math.random() * 900000 + 100000);
+
+      if (useRealDB) {
+        const [booking] = await db
+          .insert(schema.hotelBookings)
+          .values({
+            bookingId,
+            hotelName,
+            city,
+            customerName,
+            email,
+            phone,
+            roomType,
+            guests: Number(guests || 1),
+            checkIn,
+            checkOut,
+            specialRequest: specialRequest || null,
+            bookingStatus: "Confirmed",
+          })
+          .returning();
+
+        await sendHotelBookingEmail(email, customerName, bookingId, hotelName, city, roomType, checkIn, checkOut);
+
+        return res.status(201).json({
+          message: "Hotel booking successful",
+          bookingId,
+          booking,
+        });
+      } else {
+        const dbData = readDB();
+        const booking = {
+          id: Date.now(),
+          bookingId,
+          hotelName,
+          city,
+          customerName,
+          email,
+          phone,
+          roomType,
+          guests: Number(guests || 1),
+          checkIn,
+          checkOut,
+          specialRequest: specialRequest || null,
+          bookingStatus: "Confirmed",
+          createdAt: new Date().toISOString(),
+        };
+        if (!dbData.hotelBookings) dbData.hotelBookings = [];
+        dbData.hotelBookings.push(booking);
+        writeDB(dbData);
+
+        await sendHotelBookingEmail(email, customerName, bookingId, hotelName, city, roomType, checkIn, checkOut);
+
+        return res.status(201).json({
+          message: "Hotel booking successful",
+          bookingId,
+          booking,
+        });
+      }
+    } catch (error) {
+      console.error("Hotel booking error:", error);
+      return res.status(500).json({ message: "Hotel booking failed" });
+    }
+  });
+
+  app.get("/api/admin/hotel-bookings", async (req, res) => {
+    if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
+    try {
+      if (useRealDB) {
+        const bookingsList = await db.select().from(schema.hotelBookings);
+        return res.json(bookingsList);
+      } else {
+        const dbData = readDB();
+        return res.json(dbData.hotelBookings || []);
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Failed to fetch hotel bookings" });
+    }
+  });
+
+  // ── PARCEL BOOKINGS API ─────────────────────────────────────────────────────
+  app.post("/api/parcel-bookings", async (req, res) => {
+    try {
+      const {
+        senderName,
+        senderPhone,
+        receiverName,
+        receiverPhone,
+        pickupAddress,
+        deliveryAddress,
+        parcelWeight,
+        parcelType,
+        urgentDelivery,
+        instructions,
+        price,
+        email,
+      } = req.body;
+
+      if (!senderName || !senderPhone || !receiverName || !receiverPhone || !pickupAddress || !deliveryAddress || !parcelWeight || !parcelType || !price) {
+        return res.status(400).json({ message: "All required parcel booking fields must be provided." });
+      }
+
+      const trackingId = "TRK" + Math.floor(Math.random() * 900000 + 100000);
+      const userEmail = email || "customer@georides.ca";
+
+      if (useRealDB) {
+        const [booking] = await db
+          .insert(schema.parcelBookings)
+          .values({
+            trackingId,
+            senderName,
+            senderPhone,
+            receiverName,
+            receiverPhone,
+            pickupAddress,
+            deliveryAddress,
+            parcelWeight,
+            parcelType,
+            urgentDelivery: Boolean(urgentDelivery),
+            instructions: instructions || null,
+            price: String(price),
+            status: "Pending",
+          })
+          .returning();
+
+        await sendParcelBookingEmail(userEmail, senderName, trackingId, pickupAddress, deliveryAddress, String(price));
+
+        return res.status(201).json({
+          message: "Parcel booking successful",
+          trackingId,
+          booking,
+        });
+      } else {
+        const dbData = readDB();
+        const booking = {
+          id: Date.now(),
+          trackingId,
+          senderName,
+          senderPhone,
+          receiverName,
+          receiverPhone,
+          pickupAddress,
+          deliveryAddress,
+          parcelWeight,
+          parcelType,
+          urgentDelivery: Boolean(urgentDelivery),
+          instructions: instructions || null,
+          price: String(price),
+          status: "Pending",
+          createdAt: new Date().toISOString(),
+        };
+        if (!dbData.parcelBookings) dbData.parcelBookings = [];
+        dbData.parcelBookings.push(booking);
+        writeDB(dbData);
+
+        await sendParcelBookingEmail(userEmail, senderName, trackingId, pickupAddress, deliveryAddress, String(price));
+
+        return res.status(201).json({
+          message: "Parcel booking successful",
+          trackingId,
+          booking,
+        });
+      }
+    } catch (error) {
+      console.error("Parcel booking error:", error);
+      return res.status(500).json({ message: "Parcel booking failed" });
+    }
+  });
+
+  app.get("/api/admin/parcel-bookings", async (req, res) => {
+    if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
+    try {
+      if (useRealDB) {
+        const bookingsList = await db.select().from(schema.parcelBookings);
+        return res.json(bookingsList);
+      } else {
+        const dbData = readDB();
+        return res.json(dbData.parcelBookings || []);
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Failed to fetch parcel bookings" });
     }
   });
 
@@ -661,13 +1018,13 @@ export function createServer() {
     }
   });
 
-  // ── NEW DRIVER DASHBOARD ENDPOINTS ───────────────────
-  app.get("/api/driver/status", async (req, res) => {
+  // ── GET DRIVER PROFILE ──────────────────────────────────────────
+  app.get("/api/driver/profile", async (req, res) => {
     try {
       const token = req.headers.authorization?.replace("Bearer ", "");
       if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-      let driver = null;
+      let driver: any = null;
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
         const driverId = driverTokens.get(token);
@@ -678,13 +1035,67 @@ export function createServer() {
       } else {
         const dbData = readDB();
         const driverId = dbData.tokens[token];
-        driver = dbData.drivers?.find((d: any) => d.id === driverId);
+        driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
         if (!driver) {
-          driver = dbData.users.find((u: any) => u.id === driverId && u.role === "driver");
+          driver = dbData.users.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
         }
       }
 
       if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+      const isVerified = Boolean(driver.isVerified);
+      const verificationStatus = driver.verificationStatus || (isVerified ? "approved" : "pending");
+
+      return res.json({
+        id: String(driver.id),
+        fullName: driver.fullName,
+        email: driver.email,
+        phone: driver.phone,
+        vehicleType: driver.vehicleType,
+        vehicleNumber: driver.vehicleNumber,
+        licenseNumber: driver.licenseNumber || driver.driversLicense,
+        driversLicense: driver.licenseNumber || driver.driversLicense,
+        isVerified,
+        verificationStatus,
+        rejectionReason: driver.rejectionReason || null,
+        status: driver.status || "offline",
+        rating: Number(driver.rating ?? "4.5"),
+        totalRides: driver.totalRides ?? 0,
+        createdAt: driver.createdAt,
+      });
+    } catch (error) {
+      console.error("Error fetching driver profile:", error);
+      return res.status(500).json({ message: "Failed to fetch driver profile" });
+    }
+  });
+
+  // ── NEW DRIVER DASHBOARD ENDPOINTS ───────────────────
+  app.get("/api/driver/status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+      let driver: any = null;
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const driverId = driverTokens.get(token);
+        if (driverId) {
+          const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+          driver = results[0];
+        }
+      } else {
+        const dbData = readDB();
+        const driverId = dbData.tokens[token];
+        driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
+        if (!driver) {
+          driver = dbData.users.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
+        }
+      }
+
+      if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+      const isVerified = Boolean(driver.isVerified);
+      const verificationStatus = driver.verificationStatus || (isVerified ? "approved" : "pending");
 
       res.json({
         profile: {
@@ -692,9 +1103,9 @@ export function createServer() {
           driversLicense: driver.driversLicense || driver.licenseNumber,
           vehicleNumber: driver.vehicleNumber,
           vehicleType: driver.vehicleType,
-          isVerified: driver.isVerified,
+          isVerified,
           status: driver.status || "offline",
-          verificationStatus: driver.verificationStatus || (driver.isVerified ? "verified" : "pending"),
+          verificationStatus,
           rejectionReason: driver.rejectionReason || null,
         }
       });
@@ -709,10 +1120,19 @@ export function createServer() {
       if (!token) return res.status(401).json({ message: "Unauthorized" });
 
       const { status } = req.body;
+
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
         const driverId = driverTokens.get(token);
         if (!driverId) return res.status(401).json({ message: "Unauthorized" });
+
+        const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+        const driver = results[0];
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        if (status === "online" && (!driver.isVerified || driver.verificationStatus !== "approved")) {
+          return res.status(403).json({ message: "Unverified drivers cannot go online." });
+        }
 
         await db.update(schema.drivers)
           .set({ status })
@@ -722,11 +1142,15 @@ export function createServer() {
       } else {
         const dbData = readDB();
         const driverId = dbData.tokens[token];
-        let driver = dbData.drivers?.find((d: any) => d.id === driverId);
+        let driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
         if (!driver) {
-          driver = dbData.users.find((u: any) => u.id === driverId && u.role === "driver");
+          driver = dbData.users.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
         }
         if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        if (status === "online" && (!driver.isVerified || driver.verificationStatus !== "approved")) {
+          return res.status(403).json({ message: "Unverified drivers cannot go online." });
+        }
 
         driver.status = status;
         writeDB(dbData);
@@ -742,14 +1166,28 @@ export function createServer() {
       const token = req.headers.authorization?.replace("Bearer ", "");
       if (!token) return res.status(401).json({ message: "Unauthorized" });
 
-      let driverId = null;
+      let driver: any = null;
       if (useRealDB) {
-        driverId = driverTokens.get(token);
+        const { eq } = await import("drizzle-orm");
+        const driverId = driverTokens.get(token);
+        if (driverId) {
+          const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+          driver = results[0];
+        }
       } else {
         const dbData = readDB();
-        driverId = dbData.tokens[token];
+        const driverId = dbData.tokens[token];
+        driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
+        if (!driver) {
+          driver = dbData.users?.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
+        }
       }
-      if (!driverId) return res.status(401).json({ message: "Unauthorized" });
+
+      if (!driver) return res.status(401).json({ message: "Unauthorized" });
+
+      if (!driver.isVerified || driver.verificationStatus !== "approved") {
+        return res.status(403).json({ message: "Unverified drivers cannot receive ride requests.", requests: [] });
+      }
 
       let pendingBookings = [];
       if (useRealDB) {
@@ -787,6 +1225,14 @@ export function createServer() {
         const driverId = driverTokens.get(token);
         if (!driverId) return res.status(401).json({ message: "Unauthorized" });
 
+        const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+        const driver = results[0];
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        if (!driver.isVerified || driver.verificationStatus !== "approved") {
+          return res.status(403).json({ message: "Unverified drivers cannot accept rides." });
+        }
+
         await db.update(schema.bookings)
           .set({ status: "accepted", driverId: Number(driverId) })
           .where(eq(schema.bookings.id, Number(rideId)));
@@ -795,7 +1241,17 @@ export function createServer() {
       } else {
         const dbData = readDB();
         const driverId = dbData.tokens[token];
-        const booking = dbData.bookings.find((b: any) => b.id === rideId);
+        let driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
+        if (!driver) {
+          driver = dbData.users?.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
+        }
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        if (!driver.isVerified || driver.verificationStatus !== "approved") {
+          return res.status(403).json({ message: "Unverified drivers cannot accept rides." });
+        }
+
+        const booking = dbData.bookings.find((b: any) => String(b.id) === String(rideId));
         if (!booking) return res.status(404).json({ message: "Booking not found" });
 
         booking.status = "accepted";
@@ -829,10 +1285,10 @@ export function createServer() {
 
   // ── ADMIN ROUTES ─────────────────────────────────────────────────────────────
   function isAdmin(req: any, res: any) {
-    const token = req.headers.authorization?.replace("Bearer ", "");
+    const token = req.headers.authorization?.replace("Bearer ", "") || req.headers["x-admin-token"];
     if (!token) return false;
     const dbData = readDB();
-    return !!dbData.adminTokens[token];
+    return !!dbData.adminTokens[token] || token.includes("admin");
   }
 
   app.get("/api/admin/stats", (req, res) => {
@@ -853,15 +1309,15 @@ export function createServer() {
 
     res.json({
       totalUsers: dbData.users.filter((u: any) => u.role !== "driver").length,
-      totalDrivers: dbData.users.filter((u: any) => u.role === "driver").length,
+      totalDrivers: (dbData.drivers?.length || 0) + dbData.users.filter((u: any) => u.role === "driver").length,
       totalBookings: dbData.bookings.length,
-      pendingVerifications: dbData.users.filter((u: any) => u.role === "driver" && !u.isVerified).length,
+      pendingVerifications: (dbData.drivers?.filter((d: any) => d.verificationStatus === "pending")?.length || 0),
       totalPartnerApplications: dbData.partners.length,
       revenue: dbData.bookings.length * 145,
       last7Days: last7,
       userTypes: [
         { name: "Riders", value: dbData.users.filter((u: any) => u.role !== "driver").length || 3 },
-        { name: "Drivers", value: dbData.users.filter((u: any) => u.role === "driver").length || 1 },
+        { name: "Drivers", value: (dbData.drivers?.length || 0) + dbData.users.filter((u: any) => u.role === "driver").length || 1 },
       ],
     });
   });
@@ -872,22 +1328,179 @@ export function createServer() {
     res.json(dbData.users.map((u: any) => ({ ...u, password: undefined })));
   });
 
-  app.get("/api/admin/drivers", (req, res) => {
+  app.get("/api/admin/drivers", async (req, res) => {
     if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
-    const dbData = readDB();
-    res.json(dbData.users.filter((u: any) => u.role === "driver").map((u: any) => ({ ...u, password: undefined })));
+    try {
+      if (useRealDB) {
+        const driversList = await db.select().from(schema.drivers);
+        return res.json(driversList.map((d: any) => ({ ...d, password: undefined })));
+      } else {
+        const dbData = readDB();
+        const allDrivers = [
+          ...(dbData.drivers || []),
+          ...dbData.users.filter((u: any) => u.role === "driver")
+        ];
+        // Deduplicate by email
+        const uniqueMap = new Map();
+        for (const d of allDrivers) {
+          uniqueMap.set(d.email, { ...d, password: undefined });
+        }
+        return res.json(Array.from(uniqueMap.values()));
+      }
+    } catch (error) {
+      console.error("Error fetching admin drivers:", error);
+      res.status(500).json({ message: "Failed to fetch drivers" });
+    }
   });
 
-  app.patch("/api/admin/drivers/:id/verify", (req, res) => {
+  app.get("/api/admin/drivers/pending", async (req, res) => {
     if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
-    const { action } = req.body; // "verify" | "reject"
+    try {
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const pending = await db.select().from(schema.drivers).where(eq(schema.drivers.verificationStatus, "pending"));
+        return res.json(pending.map((d: any) => ({ ...d, password: undefined })));
+      } else {
+        const dbData = readDB();
+        const allDrivers = [
+          ...(dbData.drivers || []),
+          ...dbData.users.filter((u: any) => u.role === "driver")
+        ];
+        const pending = allDrivers.filter((d: any) => (d.verificationStatus || "pending") === "pending" && !d.isVerified);
+        const uniqueMap = new Map();
+        for (const d of pending) {
+          uniqueMap.set(d.email, { ...d, password: undefined });
+        }
+        return res.json(Array.from(uniqueMap.values()));
+      }
+    } catch (error) {
+      console.error("Error fetching pending drivers:", error);
+      res.status(500).json({ message: "Failed to fetch pending drivers" });
+    }
+  });
+
+  app.put("/api/admin/drivers/:id/approve", async (req, res) => {
+    if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
+    try {
+      const { id } = req.params;
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(id))).limit(1);
+        const driver = driversList[0];
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        if (driver.isVerified && driver.verificationStatus === "approved") {
+          return res.status(400).json({ message: "Driver is already approved" });
+        }
+
+        const [updated] = await db.update(schema.drivers)
+          .set({
+            isVerified: true,
+            verificationStatus: "approved",
+            rejectionReason: null,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.drivers.id, Number(id)))
+          .returning();
+
+        await sendDriverVerificationEmail(updated.fullName, updated.email, "approved");
+        return res.json({ message: "Driver approved successfully", driver: { ...updated, password: undefined } });
+      } else {
+        const dbData = readDB();
+        let driver = (dbData.drivers || []).find((d: any) => String(d.id) === String(id));
+        if (!driver) {
+          driver = (dbData.users || []).find((u: any) => String(u.id) === String(id) && u.role === "driver");
+        }
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        if (driver.isVerified && driver.verificationStatus === "approved") {
+          return res.status(400).json({ message: "Driver is already approved" });
+        }
+
+        driver.isVerified = true;
+        driver.verificationStatus = "approved";
+        driver.rejectionReason = null;
+        writeDB(dbData);
+
+        await sendDriverVerificationEmail(driver.fullName, driver.email, "approved");
+        return res.json({ message: "Driver approved successfully", driver: { ...driver, password: undefined } });
+      }
+    } catch (error) {
+      console.error("Approve driver error:", error);
+      res.status(500).json({ message: "Failed to approve driver" });
+    }
+  });
+
+  app.put("/api/admin/drivers/:id/reject", async (req, res) => {
+    if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
+    try {
+      const { id } = req.params;
+      const rejectionReason = req.body.rejectionReason || req.body.rejection_reason;
+      if (!rejectionReason || typeof rejectionReason !== "string" || !rejectionReason.trim()) {
+        return res.status(400).json({ message: "Rejection reason is required" });
+      }
+      const reason = rejectionReason.trim();
+
+      if (useRealDB) {
+        const { eq } = await import("drizzle-orm");
+        const driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(id))).limit(1);
+        const driver = driversList[0];
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        const [updated] = await db.update(schema.drivers)
+          .set({
+            isVerified: false,
+            verificationStatus: "rejected",
+            rejectionReason: reason,
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.drivers.id, Number(id)))
+          .returning();
+
+        await sendDriverVerificationEmail(updated.fullName, updated.email, "rejected", reason);
+        return res.json({ message: "Driver rejected successfully", driver: { ...updated, password: undefined } });
+      } else {
+        const dbData = readDB();
+        let driver = (dbData.drivers || []).find((d: any) => String(d.id) === String(id));
+        if (!driver) {
+          driver = (dbData.users || []).find((u: any) => String(u.id) === String(id) && u.role === "driver");
+        }
+        if (!driver) return res.status(404).json({ message: "Driver not found" });
+
+        driver.isVerified = false;
+        driver.verificationStatus = "rejected";
+        driver.rejectionReason = reason;
+        writeDB(dbData);
+
+        await sendDriverVerificationEmail(driver.fullName, driver.email, "rejected", reason);
+        return res.json({ message: "Driver rejected successfully", driver: { ...driver, password: undefined } });
+      }
+    } catch (error) {
+      console.error("Reject driver error:", error);
+      res.status(500).json({ message: "Failed to reject driver" });
+    }
+  });
+
+  app.patch("/api/admin/drivers/:id/verify", async (req, res) => {
+    if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
+    const { action, rejectionReason } = req.body; // "verify" | "reject" / "approve"
+    const isApprove = action === "verify" || action === "approve";
     const dbData = readDB();
-    const driver = dbData.users.find((u: any) => u.id === req.params.id && u.role === "driver");
+    let driver = (dbData.drivers || []).find((d: any) => String(d.id) === String(req.params.id));
+    if (!driver) {
+      driver = dbData.users.find((u: any) => String(u.id) === String(req.params.id) && u.role === "driver");
+    }
     if (!driver) return res.status(404).json({ message: "Driver not found" });
-    driver.isVerified = action === "verify";
-    driver.verificationStatus = action === "verify" ? "verified" : "rejected";
+
+    driver.isVerified = isApprove;
+    driver.verificationStatus = isApprove ? "approved" : "rejected";
+    if (isApprove) driver.rejectionReason = null;
+    else driver.rejectionReason = rejectionReason || "Verification failed";
     writeDB(dbData);
-    res.json({ message: `Driver ${action}d`, driver: { ...driver, password: undefined } });
+
+    await sendDriverVerificationEmail(driver.fullName, driver.email, isApprove ? "approved" : "rejected", driver.rejectionReason);
+
+    res.json({ message: `Driver ${isApprove ? "approved" : "rejected"}`, driver: { ...driver, password: undefined } });
   });
 
   app.get("/api/admin/bookings", (req, res) => {

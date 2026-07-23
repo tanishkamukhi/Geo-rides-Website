@@ -93,3 +93,38 @@ export const hotels = pgTable("hotels", {
   cityId: integer("city_id").references(() => cities.id).notNull(),
   address: text("address"),
 });
+
+export const hotelBookings = pgTable("hotel_bookings", {
+  id: serial("id").primaryKey(),
+  bookingId: text("booking_id").unique().notNull(),
+  hotelName: text("hotel_name").notNull(),
+  city: text("city").notNull(),
+  customerName: text("customer_name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  roomType: text("room_type").notNull(),
+  guests: integer("guests").notNull(),
+  checkIn: text("check_in").notNull(),
+  checkOut: text("check_out").notNull(),
+  specialRequest: text("special_request"),
+  bookingStatus: text("booking_status").default("Confirmed"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const parcelBookings = pgTable("parcel_bookings", {
+  id: serial("id").primaryKey(),
+  trackingId: text("tracking_id").unique().notNull(),
+  senderName: text("sender_name").notNull(),
+  senderPhone: text("sender_phone").notNull(),
+  receiverName: text("receiver_name").notNull(),
+  receiverPhone: text("receiver_phone").notNull(),
+  pickupAddress: text("pickup_address").notNull(),
+  deliveryAddress: text("delivery_address").notNull(),
+  parcelWeight: text("parcel_weight").notNull(),
+  parcelType: text("parcel_type").notNull(),
+  urgentDelivery: boolean("urgent_delivery").default(false),
+  instructions: text("instructions"),
+  price: text("price").notNull(),
+  status: text("status").default("Pending"),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
