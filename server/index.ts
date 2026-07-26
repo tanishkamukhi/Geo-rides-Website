@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
-
+import jwt from "jsonwebtoken";
 import { eq } from "drizzle-orm";
 import "dotenv/config";
 import express from "express";
@@ -12,7 +12,13 @@ import { handleDemo } from "./routes/demo";
 // ── JSON Fallback DB ─────────────────────────────────────────────────────────
 const DB_PATH = path.join(__dirname, "db.json");
 const driverTokens = new Map<string, string>(); // token -> driverId
-
+const passwordResetOTPs = new Map<
+  string,
+  {
+    otp: string;
+    expiresAt: number;
+  }
+>();
 function readDB() {
   try {
     return JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
@@ -54,7 +60,7 @@ async function sendNewDriverAdminNotification(
     const to = "georidesofficial@gmail.com";
     const subject = "🚖 New Driver Verification Request - GeoRides";
     const text = `A new driver has registered.\n\nDriver Name:\n${driverName}\n\nEmail:\n${driverEmail}\n\nPhone:\n${driverPhone}\n\nLicense Number:\n${licenseNumber}\n\nVehicle Number:\n${vehicleNumber}\n\nVehicle Type:\n${vehicleType}\n\nSIN Number:\n${sinNumber}\n\nRegistration Time:\n${timestamp}\n\nStatus:\nPending Verification`;
-    
+
     await transporter.sendMail({ from, to, subject, text });
     console.log(`[EMAIL DISPATCH SUCCESS] Sent new driver notification to admin.`);
   } catch (err) {
@@ -146,6 +152,9 @@ async function sendParcelBookingEmail(userEmail: string, senderName: string, tra
     console.error("Failed to send parcel confirmation email:", e);
   }
 }
+function generateOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 // Try to import real DB, fall back to JSON
 let db: any = null;
@@ -169,7 +178,7 @@ async function tryInitDB() {
     console.log("✅ Real database connected");
     // Seed static data if tables are empty
     // Seed static Canadian data if tables are empty
-  await seedIfEmpty();
+    await seedIfEmpty();
   } catch (e) {
     useRealDB = false;
     console.error("DATABASE ERROR:");
@@ -335,6 +344,209 @@ export function createServer() {
       res.status(500).json({ message: "Registration failed: " + (error instanceof Error ? error.message : "Unknown error") });
     }
   });
+  app.post("/api/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return res.status(400).json({
+          message: "Email is required",
+        });
+      }
+
+      let user: any = null;
+
+      if (useRealDB) {
+        const users = await db
+          .select()
+          .from(schema.users)
+          .where(eq(schema.users.email, email))
+          .limit(1);
+
+        user = users[0];
+
+        if (!user) {
+          const drivers = await db
+            .select()
+            .from(schema.drivers)
+            .where(eq(schema.drivers.email, email))
+            .limit(1);
+
+          user = drivers[0];
+        }
+      } else {
+        const dbData = readDB();
+
+        user =
+          dbData.users.find((u: any) => u.email === email) ||
+          dbData.drivers.find((d: any) => d.email === email);
+      }
+
+      if (!user) {
+        return res.status(404).json({
+          message: "Email not found",
+        });
+      }
+
+      const otp = generateOTP();
+
+      passwordResetOTPs.set(email, {
+        otp,
+        expiresAt: Date.now() + 5 * 60 * 1000,
+      });
+
+      const transporter = getTransporter();
+
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "GeoRides Password Reset OTP",
+        text: `Hello ${user.fullName},
+
+Your OTP is ${otp}
+
+This OTP is valid for 5 minutes.
+
+Regards,
+GeoRides Team`,
+      });
+
+      return res.json({
+        message: "OTP sent successfully",
+      });
+    } catch (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        message: "Failed to send OTP",
+      });
+    }
+  });
+  app.post("/api/verify-otp", (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        message: "Email and OTP are required",
+      });
+    }
+
+    const storedOTP = passwordResetOTPs.get(email);
+
+    if (!storedOTP) {
+      return res.status(400).json({
+        message: "OTP not found",
+      });
+    }
+
+    if (Date.now() > storedOTP.expiresAt) {
+      passwordResetOTPs.delete(email);
+
+      return res.status(400).json({
+        message: "OTP expired",
+      });
+    }
+
+    if (storedOTP.otp !== otp) {
+      return res.status(400).json({
+        message: "Invalid OTP",
+      });
+    }
+
+    return res.json({
+      message: "OTP verified successfully",
+    });
+  });
+
+  app.post("/api/reset-password", async (req, res) => {
+    try {
+      const { email, otp, password } = req.body;
+
+      if (!email || !otp || !password) {
+        return res.status(400).json({
+          message: "All fields are required",
+        });
+      }
+
+      const storedOTP = passwordResetOTPs.get(email);
+
+      if (!storedOTP) {
+        return res.status(400).json({
+          message: "OTP not found",
+        });
+      }
+
+      if (storedOTP.otp !== otp) {
+        return res.status(400).json({
+          message: "Invalid OTP",
+        });
+      }
+
+      if (Date.now() > storedOTP.expiresAt) {
+        passwordResetOTPs.delete(email);
+
+        return res.status(400).json({
+          message: "OTP expired",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      if (useRealDB) {
+        const users = await db
+          .select()
+          .from(schema.users)
+          .where(eq(schema.users.email, email))
+          .limit(1);
+
+        if (users.length > 0) {
+          await db
+            .update(schema.users)
+            .set({
+              password: hashedPassword,
+            })
+            .where(eq(schema.users.email, email));
+        } else {
+          await db
+            .update(schema.drivers)
+            .set({
+              password: hashedPassword,
+            })
+            .where(eq(schema.drivers.email, email));
+        }
+      } else {
+        const dbData = readDB();
+
+        const user =
+          dbData.users.find((u: any) => u.email === email) ||
+          dbData.drivers.find((d: any) => d.email === email);
+
+        if (!user) {
+          return res.status(404).json({
+            message: "User not found",
+          });
+        }
+
+        user.password = password;
+
+        writeDB(dbData);
+      }
+
+      passwordResetOTPs.delete(email);
+
+      return res.json({
+        message: "Password reset successfully",
+      });
+
+    } catch (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        message: "Password reset failed",
+      });
+    }
+  });
+
 
   // ── LOGIN ────────────────────────────────────────────────────────────────────
   app.post("/api/login", async (req, res) => {
@@ -390,7 +602,17 @@ export function createServer() {
           }
         }
 
-        const token = Math.random().toString(36).substring(7) + Date.now();
+        const token = jwt.sign(
+          {
+            id: user.id,
+            role,
+            email: user.email,
+          },
+          process.env.JWT_SECRET as string,
+          {
+            expiresIn: "7d",
+          }
+        );
         if (role === "driver") {
           driverTokens.set(token, user.id.toString());
         } else {
@@ -448,7 +670,17 @@ export function createServer() {
         }
       }
 
-      const token = Math.random().toString(36).substring(7) + Date.now();
+      const token = jwt.sign(
+        {
+          id: user.id,
+          role,
+          email: user.email,
+        },
+        process.env.JWT_SECRET as string,
+        {
+          expiresIn: "7d",
+        }
+      );
       dbData.tokens[token] = user.id;
       writeDB(dbData);
 
@@ -794,7 +1026,7 @@ export function createServer() {
   });
 
   app.get("/api/my-bookings", async (req, res) => {
-      // existing endpoint unchanged
+    // existing endpoint unchanged
     try {
       const { userId } = req.query;
       if (!userId) {

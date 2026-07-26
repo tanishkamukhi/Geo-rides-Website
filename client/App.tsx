@@ -1,4 +1,4 @@
-
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./global.css";
 import "@/i18n/config";
 import { Toaster } from "@/components/ui/toaster";
@@ -39,50 +39,52 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <ThemeProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/register-driver" element={<RegisterDriver />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/service/:type" element={<ServiceDetails />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/ride-booking" element={<RideBooking />} />
-            <Route path="/safety" element={<Safety />} />
-            <Route path="/download" element={<DownloadApp />} />
-            <Route path="/data-security" element={<DataSecurity />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/about" element={<InfoPage />} />
-            <Route path="/careers" element={<InfoPage />} />
-            <Route path="/blog" element={<InfoPage />} />
-            <Route path="/press" element={<InfoPage />} />
-            <Route path="/investors" element={<InfoPage />} />
-            <Route path="/help" element={<InfoPage />} />
-            <Route path="/report" element={<InfoPage />} />
-            <Route path="/terms" element={<InfoPage />} />
-            <Route path="/cookies" element={<InfoPage />} />
-            <Route path="/refund" element={<InfoPage />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/booking-success" element={<BookingSuccess />} />
-            <Route path="/stay-booking-success" element={<StayBookingSuccess />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/partner" element={<PartnerWithUs />} />
-            <Route path="/driver-dashboard" element={<DriverDashboard />} />
-            <Route path="/admin" element={<AdminPanel />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/booking-confirmation" element={<BookingConfirmation />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </ThemeProvider>
-    </TooltipProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <TooltipProvider>
+        <ThemeProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/register-driver" element={<RegisterDriver />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/service/:type" element={<ServiceDetails />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/ride-booking" element={<RideBooking />} />
+              <Route path="/safety" element={<Safety />} />
+              <Route path="/download" element={<DownloadApp />} />
+              <Route path="/data-security" element={<DataSecurity />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/about" element={<InfoPage />} />
+              <Route path="/careers" element={<InfoPage />} />
+              <Route path="/blog" element={<InfoPage />} />
+              <Route path="/press" element={<InfoPage />} />
+              <Route path="/investors" element={<InfoPage />} />
+              <Route path="/help" element={<InfoPage />} />
+              <Route path="/report" element={<InfoPage />} />
+              <Route path="/terms" element={<InfoPage />} />
+              <Route path="/cookies" element={<InfoPage />} />
+              <Route path="/refund" element={<InfoPage />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/booking-success" element={<BookingSuccess />} />
+              <Route path="/stay-booking-success" element={<StayBookingSuccess />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/partner" element={<PartnerWithUs />} />
+              <Route path="/driver-dashboard" element={<DriverDashboard />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/booking-confirmation" element={<BookingConfirmation />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </ThemeProvider>
+      </TooltipProvider>
+    </GoogleOAuthProvider>
   </QueryClientProvider>
 );
 

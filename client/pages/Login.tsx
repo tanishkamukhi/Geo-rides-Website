@@ -1,3 +1,4 @@
+import { GoogleLogin } from "@react-oauth/google";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
@@ -78,11 +79,14 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    localStorage.setItem("authToken", "mock-google-token-12345");
-    localStorage.setItem("userId", "google-user-999");
-    navigate("/");
-  };
+  <GoogleLogin
+    onSuccess={(credentialResponse) => {
+      console.log("Google Token:", credentialResponse.credential);
+    }}
+    onError={() => {
+      console.log("Google Login Failed");
+    }}
+  />
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-900">
@@ -204,15 +208,16 @@ export default function Login() {
               <div className="flex-1 border-t border-white/10"></div>
             </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleGoogleLogin}
-              className="w-full relative z-10 flex items-center justify-center space-x-3 px-4 py-3.5 bg-white text-gray-900 rounded-xl hover:bg-gray-50 transition-colors font-medium shadow-xl"
-            >
-              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" className="w-5 h-5" />
-              <span>Sign in with Google</span>
-            </motion.button>
+            <div className="flex justify-center">
+              <GoogleLogin
+                onSuccess={(credentialResponse) => {
+                  console.log("Google Token:", credentialResponse.credential);
+                }}
+                onError={() => {
+                  console.log("Google Login Failed");
+                }}
+              />
+            </div>
 
             <div className="text-center text-gray-400 text-sm mt-8 relative z-10 space-y-3">
               <div className="flex justify-center items-center gap-1.5 flex-wrap">
