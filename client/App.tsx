@@ -1,3 +1,4 @@
+import ProtectedRoute from "./components/ProtectedRoute";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import "./global.css";
 import "@/i18n/config";
@@ -71,12 +72,47 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/booking-success" element={<BookingSuccess />} />
               <Route path="/stay-booking-success" element={<StayBookingSuccess />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route
+                path="/history"
+                element={
+                  <ProtectedRoute>
+                    <History />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/partner" element={<PartnerWithUs />} />
-              <Route path="/driver-dashboard" element={<DriverDashboard />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/driver-dashboard"
+                element={
+                  <ProtectedRoute allowedRoles={["driver"]}>
+                    <DriverDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/booking-confirmation" element={<BookingConfirmation />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />

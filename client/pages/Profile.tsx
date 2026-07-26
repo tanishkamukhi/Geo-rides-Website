@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import { Mail, Phone, MapPin, CreditCard, LogOut, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-
 export default function Profile() {
     const navigate = useNavigate();
     const [user, setUser] = useState<any>(null);
@@ -41,7 +40,9 @@ export default function Profile() {
     const handleLogout = () => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("userId");
-        navigate("/login");
+        localStorage.removeItem("userRole");
+
+        navigate("/login", { replace: true });
     };
 
     if (loading) {

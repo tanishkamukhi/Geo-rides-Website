@@ -37,6 +37,7 @@ export default function Login() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Login Response:", data);
         if (data.role === "driver") {
           const vStatus = data.verificationStatus || (data.isVerified ? "approved" : "pending");
           if (vStatus === "pending") {
@@ -80,11 +81,36 @@ export default function Login() {
   };
 
   <GoogleLogin
-    onSuccess={(credentialResponse) => {
-      console.log("Google Token:", credentialResponse.credential);
+    onSuccess={async (credentialResponse) => {
+      try {
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            token: credentialResponse.credential,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("authToken", data.token);
+          localStorage.setItem("userId", data.user.id);
+          localStorage.setItem("userRole", data.user.role);
+
+          navigate("/");
+        } else {
+          alert(data.message);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Google Login Failed");
+      }
     }}
     onError={() => {
-      console.log("Google Login Failed");
+      alert("Google Login Failed");
     }}
   />
 
