@@ -21,67 +21,67 @@ import Header from "@/components/Header";
 export default function RideBooking() {
   useEffect(() => {
 
-  const map = L.map('map').setView([43.6532, -79.3832], 12); // Toronto default
+    const map = L.map('map').setView([43.6532, -79.3832], 12); // Toronto default
 
-  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
-  }).addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-  // ---- Fare formula (adjust to match your team's actual pricing) ----
-  const FARE = { base: 3.5, perKm: 1.75, perMin: 0.35 };
+    // ---- Fare formula (adjust to match your team's actual pricing) ----
+    const FARE = { base: 3.5, perKm: 1.75, perMin: 0.35 };
 
-  // ---- Cab type + superfast pickup ----
-  const CAB_MULTIPLIERS = { normal: 1, luxury: 1.8 };
-  const SUPERFAST_SURCHARGE = 10; // flat CAD charge
-  let selectedCabType = 'normal';
-  let superfastSelected = false;
+    // ---- Cab type + superfast pickup ----
+    const CAB_MULTIPLIERS = { normal: 1, luxury: 1.8 };
+    const SUPERFAST_SURCHARGE = 10; // flat CAD charge
+    let selectedCabType = 'normal';
+    let superfastSelected = false;
 
-  let routeLayer = null;
-  let pickupMarker = null;
-  let dropMarker = null;
-  let pickupCoords = null;
-  let dropCoords = null;
-  let pickingMode = null; // null | 'pickup' | 'drop'
+    let routeLayer = null;
+    let pickupMarker = null;
+    let dropMarker = null;
+    let pickupCoords = null;
+    let dropCoords = null;
+    let pickingMode = null; // null | 'pickup' | 'drop'
 
-  // ---- Car tracking state ----
-  let carMarker = null;
-  let carRouteCoords = [];   // full list of [lat, lng] points along the route
-  let carStepIndex = 0;
-  let carIntervalId = null;
-  const CAR_UPDATE_MS = 5000; // move the car every 5 seconds, like a live delivery tracker
+    // ---- Car tracking state ----
+    let carMarker = null;
+    let carRouteCoords = [];   // full list of [lat, lng] points along the route
+    let carStepIndex = 0;
+    let carIntervalId = null;
+    const CAR_UPDATE_MS = 5000; // move the car every 5 seconds, like a live delivery tracker
 
-  // stored so fuel cost can recalculate live when mileage/price inputs change
-  let lastDistanceKm = null;
-  let lastFareParts = null; // { base, distanceCharge, timeCharge, distanceKm, durationMin }
+    // stored so fuel cost can recalculate live when mileage/price inputs change
+    let lastDistanceKm = null;
+    let lastFareParts = null; // { base, distanceCharge, timeCharge, distanceKm, durationMin }
 
-  const pickupInput = document.getElementById('pickup');
-  const dropInput = document.getElementById('drop');
-  const pickupPinBtn = document.getElementById('pickup-pin');
-  const dropPinBtn = document.getElementById('drop-pin');
-  const pickupRow = document.getElementById('pickup-row');
-  const dropRow = document.getElementById('drop-row');
-  const mapHint = document.getElementById('map-hint');
-  const mapHintText = document.getElementById('map-hint-text');
-  const mapWrap = document.getElementById('map-wrap');
-  const statusEl = document.getElementById('status');
-  const meterEl = document.getElementById('meter');
+    const pickupInput = document.getElementById('pickup');
+    const dropInput = document.getElementById('drop');
+    const pickupPinBtn = document.getElementById('pickup-pin');
+    const dropPinBtn = document.getElementById('drop-pin');
+    const pickupRow = document.getElementById('pickup-row');
+    const dropRow = document.getElementById('drop-row');
+    const mapHint = document.getElementById('map-hint');
+    const mapHintText = document.getElementById('map-hint-text');
+    const mapWrap = document.getElementById('map-wrap');
+    const statusEl = document.getElementById('status');
+    const meterEl = document.getElementById('meter');
 
-  // ---- Multiple stops (waypoints) ----
-  const stopsContainer = document.getElementById('stops-container');
-  const addStopBtn = document.getElementById('add-stop-btn');
-  const MAX_STOPS = 3;
-  let stops = []; // { id, row, input, pinBtn, marker, coords }
-  let stopIdCounter = 0;
+    // ---- Multiple stops (waypoints) ----
+    const stopsContainer = document.getElementById('stops-container');
+    const addStopBtn = document.getElementById('add-stop-btn');
+    const MAX_STOPS = 3;
+    let stops = []; // { id, row, input, pinBtn, marker, coords }
+    let stopIdCounter = 0;
 
-  const pinIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
+    const pinIconSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>';
 
-  function addStopRow() {
-    if (stops.length >= MAX_STOPS) return;
-    const id = 'stop-' + (stopIdCounter++);
+    function addStopRow() {
+      if (stops.length >= MAX_STOPS) return;
+      const id = 'stop-' + (stopIdCounter++);
 
-    const wrap = document.createElement('div');
-    wrap.className = 'field';
-    wrap.innerHTML = `
+      const wrap = document.createElement('div');
+      wrap.className = 'field';
+      wrap.innerHTML = `
       <label>Stop ${stops.length + 1}</label>
       <div class="stop-row-wrap">
         <div class="input-row" id="${id}-row">
@@ -91,371 +91,372 @@ export default function RideBooking() {
         <button class="remove-stop-btn" title="Remove stop">×</button>
       </div>
     `;
-    stopsContainer.appendChild(wrap);
+      stopsContainer.appendChild(wrap);
 
-    const input = wrap.querySelector('input');
-    const pinBtn = wrap.querySelector('.pin-btn');
-    const row = wrap.querySelector('.input-row');
-    const removeBtn = wrap.querySelector('.remove-stop-btn');
+      const input = wrap.querySelector('input');
+      const pinBtn = wrap.querySelector('.pin-btn');
+      const row = wrap.querySelector('.input-row');
+      const removeBtn = wrap.querySelector('.remove-stop-btn');
 
-    const stop = { id, wrap, row, input, pinBtn, marker: null, coords: null };
-    stops.push(stop);
+      const stop = { id, wrap, row, input, pinBtn, marker: null, coords: null };
+      stops.push(stop);
 
-    input.addEventListener('input', () => { stop.coords = null; row.classList.remove('pinned'); });
-    pinBtn.addEventListener('click', () => togglePicking(id));
-    removeBtn.addEventListener('click', () => removeStopRow(stop));
+      input.addEventListener('input', () => { stop.coords = null; row.classList.remove('pinned'); });
+      pinBtn.addEventListener('click', () => togglePicking(id));
+      removeBtn.addEventListener('click', () => removeStopRow(stop));
 
-    addStopBtn.disabled = stops.length >= MAX_STOPS;
-  }
+      addStopBtn.disabled = stops.length >= MAX_STOPS;
+    }
 
-  function removeStopRow(stop) {
-    if (stop.marker) map.removeLayer(stop.marker);
-    stop.wrap.remove();
-    stops = stops.filter(s => s.id !== stop.id);
-    // renumber remaining stop labels
-    stops.forEach((s, i) => { s.wrap.querySelector('label').textContent = 'Stop ' + (i + 1); });
-    addStopBtn.disabled = stops.length >= MAX_STOPS;
-  }
+    function removeStopRow(stop) {
+      if (stop.marker) map.removeLayer(stop.marker);
+      stop.wrap.remove();
+      stops = stops.filter(s => s.id !== stop.id);
+      // renumber remaining stop labels
+      stops.forEach((s, i) => { s.wrap.querySelector('label').textContent = 'Stop ' + (i + 1); });
+      addStopBtn.disabled = stops.length >= MAX_STOPS;
+    }
 
-  addStopBtn.addEventListener('click', addStopRow);
+    addStopBtn.addEventListener('click', addStopRow);
 
-  // typing manually invalidates any map-set coordinate
-  pickupInput.addEventListener('input', () => { pickupCoords = null; pickupRow.classList.remove('pinned'); });
-  dropInput.addEventListener('input', () => { dropCoords = null; dropRow.classList.remove('pinned'); });
+    // typing manually invalidates any map-set coordinate
+    pickupInput.addEventListener('input', () => { pickupCoords = null; pickupRow.classList.remove('pinned'); });
+    dropInput.addEventListener('input', () => { dropCoords = null; dropRow.classList.remove('pinned'); });
 
-  pickupPinBtn.addEventListener('click', () => togglePicking('pickup'));
-  dropPinBtn.addEventListener('click', () => togglePicking('drop'));
+    pickupPinBtn.addEventListener('click', () => togglePicking('pickup'));
+    dropPinBtn.addEventListener('click', () => togglePicking('drop'));
 
-  function getPinBtnFor(field) {
-    if (field === 'pickup') return pickupPinBtn;
-    if (field === 'drop') return dropPinBtn;
-    const stop = stops.find(s => s.id === field);
-    return stop ? stop.pinBtn : null;
-  }
+    function getPinBtnFor(field) {
+      if (field === 'pickup') return pickupPinBtn;
+      if (field === 'drop') return dropPinBtn;
+      const stop = stops.find(s => s.id === field);
+      return stop ? stop.pinBtn : null;
+    }
 
-  function togglePicking(which) {
-    if (pickingMode === which) {
+    function togglePicking(which) {
+      if (pickingMode === which) {
+        pickingMode = null;
+        clearPickingUI();
+        return;
+      }
+      pickingMode = which;
+      [pickupPinBtn, dropPinBtn, ...stops.map(s => s.pinBtn)].forEach(btn => {
+        btn.classList.toggle('active', btn === getPinBtnFor(which));
+      });
+      mapHint.classList.add('visible');
+      mapHintText.textContent = which === 'pickup' ? 'Tap the map to set pickup'
+        : which === 'drop' ? 'Tap the map to set drop'
+          : 'Tap the map to set this stop';
+      mapWrap.classList.add('picking');
+    }
+
+    function clearPickingUI() {
+      pickupPinBtn.classList.remove('active');
+      dropPinBtn.classList.remove('active');
+      stops.forEach(s => s.pinBtn.classList.remove('active'));
+      mapHint.classList.remove('visible');
+      mapWrap.classList.remove('picking');
+    }
+
+    map.on('click', async (e) => {
+      // explicit mode wins if the user pressed a pin button
+      let targetField = pickingMode;
+
+      // otherwise, fall back to filling whichever field is empty —
+      // this makes plain tapping work even without pressing a pin button first.
+      // stops are only set explicitly via their own pin button, not by implicit tap.
+      if (!targetField) {
+        if (!pickupInput.value.trim()) targetField = 'pickup';
+        else if (!dropInput.value.trim()) targetField = 'drop';
+        else return; // both already set — press a pin button to explicitly override one
+      }
+
+      const latlng = e.latlng;
+      const address = await reverseGeocode(latlng);
+
+      if (targetField === 'pickup') {
+        pickupCoords = { lat: latlng.lat, lng: latlng.lng };
+        pickupInput.value = address;
+        pickupRow.classList.add('pinned');
+        if (pickupMarker) map.removeLayer(pickupMarker);
+        pickupMarker = L.marker(latlng).addTo(map).bindPopup('Pickup').openPopup();
+      } else if (targetField === 'drop') {
+        dropCoords = { lat: latlng.lat, lng: latlng.lng };
+        dropInput.value = address;
+        dropRow.classList.add('pinned');
+        if (dropMarker) map.removeLayer(dropMarker);
+        dropMarker = L.marker(latlng).addTo(map).bindPopup('Drop').openPopup();
+      } else {
+        const stop = stops.find(s => s.id === targetField);
+        if (stop) {
+          stop.coords = { lat: latlng.lat, lng: latlng.lng };
+          stop.input.value = address;
+          stop.row.classList.add('pinned');
+          if (stop.marker) map.removeLayer(stop.marker);
+          stop.marker = L.marker(latlng).addTo(map).bindPopup('Stop').openPopup();
+        }
+      }
+
       pickingMode = null;
       clearPickingUI();
-      return;
-    }
-    pickingMode = which;
-    [pickupPinBtn, dropPinBtn, ...stops.map(s => s.pinBtn)].forEach(btn => {
-      btn.classList.toggle('active', btn === getPinBtnFor(which));
+      updateDefaultHint();
     });
-    mapHint.classList.add('visible');
-    mapHintText.textContent = which === 'pickup' ? 'Tap the map to set pickup'
-      : which === 'drop' ? 'Tap the map to set drop'
-      : 'Tap the map to set this stop';
-    mapWrap.classList.add('picking');
-  }
 
-  function clearPickingUI() {
-    pickupPinBtn.classList.remove('active');
-    dropPinBtn.classList.remove('active');
-    stops.forEach(s => s.pinBtn.classList.remove('active'));
-    mapHint.classList.remove('visible');
-    mapWrap.classList.remove('picking');
-  }
-
-  map.on('click', async (e) => {
-    // explicit mode wins if the user pressed a pin button
-    let targetField = pickingMode;
-
-    // otherwise, fall back to filling whichever field is empty —
-    // this makes plain tapping work even without pressing a pin button first.
-    // stops are only set explicitly via their own pin button, not by implicit tap.
-    if (!targetField) {
-      if (!pickupInput.value.trim()) targetField = 'pickup';
-      else if (!dropInput.value.trim()) targetField = 'drop';
-      else return; // both already set — press a pin button to explicitly override one
-    }
-
-    const latlng = e.latlng;
-    const address = await reverseGeocode(latlng);
-
-    if (targetField === 'pickup') {
-      pickupCoords = { lat: latlng.lat, lng: latlng.lng };
-      pickupInput.value = address;
-      pickupRow.classList.add('pinned');
-      if (pickupMarker) map.removeLayer(pickupMarker);
-      pickupMarker = L.marker(latlng).addTo(map).bindPopup('Pickup').openPopup();
-    } else if (targetField === 'drop') {
-      dropCoords = { lat: latlng.lat, lng: latlng.lng };
-      dropInput.value = address;
-      dropRow.classList.add('pinned');
-      if (dropMarker) map.removeLayer(dropMarker);
-      dropMarker = L.marker(latlng).addTo(map).bindPopup('Drop').openPopup();
-    } else {
-      const stop = stops.find(s => s.id === targetField);
-      if (stop) {
-        stop.coords = { lat: latlng.lat, lng: latlng.lng };
-        stop.input.value = address;
-        stop.row.classList.add('pinned');
-        if (stop.marker) map.removeLayer(stop.marker);
-        stop.marker = L.marker(latlng).addTo(map).bindPopup('Stop').openPopup();
+    // shows a helpful hint even before the user presses any pin button
+    function updateDefaultHint() {
+      if (pickingMode) return; // explicit picking mode has its own message
+      if (!pickupInput.value.trim()) {
+        mapHintText.textContent = 'Tap the map to set pickup';
+        mapHint.classList.add('visible');
+      } else if (!dropInput.value.trim()) {
+        mapHintText.textContent = 'Tap the map to set drop';
+        mapHint.classList.add('visible');
+      } else {
+        mapHint.classList.remove('visible');
       }
     }
 
-    pickingMode = null;
-    clearPickingUI();
-    updateDefaultHint();
-  });
+    pickupInput.addEventListener('input', updateDefaultHint);
+    dropInput.addEventListener('input', updateDefaultHint);
+    updateDefaultHint(); // show hint on page load
 
-  // shows a helpful hint even before the user presses any pin button
-  function updateDefaultHint() {
-    if (pickingMode) return; // explicit picking mode has its own message
-    if (!pickupInput.value.trim()) {
-      mapHintText.textContent = 'Tap the map to set pickup';
-      mapHint.classList.add('visible');
-    } else if (!dropInput.value.trim()) {
-      mapHintText.textContent = 'Tap the map to set drop';
-      mapHint.classList.add('visible');
-    } else {
-      mapHint.classList.remove('visible');
+    // ---------------------------------------------------------
+    // SOS / Emergency panel
+    // ---------------------------------------------------------
+    const sosBtn = document.getElementById('sos-btn');
+    const sosPanel = document.getElementById('sos-panel');
+    const sosNote = document.getElementById('sos-note');
+    const sosShareBtn = document.getElementById('sos-share-btn');
+
+    sosBtn.addEventListener('click', () => {
+      sosPanel.classList.toggle('visible');
+      sosNote.textContent = '';
+    });
+
+    sosShareBtn.addEventListener('click', () => {
+      // In production this would send live coordinates + trip details to an
+      // emergency contact / support team via your backend. Kept as a simple
+      // confirmation here since there's no real contact/backend wired up yet.
+      const hasTrip = pickupInput.value.trim() && dropInput.value.trim();
+      sosNote.textContent = hasTrip
+        ? 'Trip status and location shared with your emergency contact.'
+        : 'No active trip yet — location will be shared once a ride starts.';
+    });
+
+    async function reverseGeocode(latlng) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=jsonv2`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
+        const data = await res.json();
+        return data.display_name || `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+      } catch {
+        return `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+      }
     }
-  }
 
-  pickupInput.addEventListener('input', updateDefaultHint);
-  dropInput.addEventListener('input', updateDefaultHint);
-  updateDefaultHint(); // show hint on page load
-
-  // ---------------------------------------------------------
-  // SOS / Emergency panel
-  // ---------------------------------------------------------
-  const sosBtn = document.getElementById('sos-btn');
-  const sosPanel = document.getElementById('sos-panel');
-  const sosNote = document.getElementById('sos-note');
-  const sosShareBtn = document.getElementById('sos-share-btn');
-
-  sosBtn.addEventListener('click', () => {
-    sosPanel.classList.toggle('visible');
-    sosNote.textContent = '';
-  });
-
-  sosShareBtn.addEventListener('click', () => {
-    // In production this would send live coordinates + trip details to an
-    // emergency contact / support team via your backend. Kept as a simple
-    // confirmation here since there's no real contact/backend wired up yet.
-    const hasTrip = pickupInput.value.trim() && dropInput.value.trim();
-    sosNote.textContent = hasTrip
-      ? 'Trip status and location shared with your emergency contact.'
-      : 'No active trip yet — location will be shared once a ride starts.';
-  });
-
-  async function reverseGeocode(latlng) {
-    try {
-      const url = `https://nominatim.openstreetmap.org/reverse?lat=${latlng.lat}&lon=${latlng.lng}&format=jsonv2`;
+    async function geocode(address) {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=ca`;
       const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
       const data = await res.json();
-      return data.display_name || `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
-    } catch {
-      return `${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
-    }
-  }
-
-  async function geocode(address) {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=ca`;
-    const res = await fetch(url, { headers: { 'Accept-Language': 'en' } });
-    const data = await res.json();
-    if (data.length === 0) return null;
-    return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-  }
-
-  document.getElementById('get-route-btn').addEventListener('click', handleSearch);
-
-  async function handleSearch() {
-    const pickupText = pickupInput.value.trim();
-    const dropText = dropInput.value.trim();
-
-    if (!pickupText || !dropText) {
-      setStatus('Enter both a pickup and drop location.', true);
-      return;
+      if (data.length === 0) return null;
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
     }
 
-    setStatus('Locating addresses…');
+    document.getElementById('get-route-btn').addEventListener('click', handleSearch);
 
-    let pickup = pickupCoords;
-    let drop = dropCoords;
+    async function handleSearch() {
+      const pickupText = pickupInput.value.trim();
+      const dropText = dropInput.value.trim();
 
-    if (!pickup) pickup = await geocode(pickupText);
-    if (!drop) drop = await geocode(dropText);
-
-    if (!pickup) { setStatus(`Couldn't find "${pickupText}". Try adding a city or postal code.`, true); return; }
-    if (!drop) { setStatus(`Couldn't find "${dropText}". Try adding a city or postal code.`, true); return; }
-
-    // resolve any stop rows that have text entered (blank stop rows are skipped)
-    const resolvedStops = [];
-    for (const stop of stops) {
-      const text = stop.input.value.trim();
-      if (!text) continue;
-      let coords = stop.coords;
-      if (!coords) coords = await geocode(text);
-      if (!coords) { setStatus(`Couldn't find stop "${text}". Try adding a city or postal code.`, true); return; }
-      resolvedStops.push(coords);
-    }
-
-    if (pickupMarker) map.removeLayer(pickupMarker);
-    if (dropMarker) map.removeLayer(dropMarker);
-    pickupMarker = L.marker([pickup.lat, pickup.lng]).addTo(map).bindPopup('Pickup');
-    dropMarker = L.marker([drop.lat, drop.lng]).addTo(map).bindPopup('Drop');
-
-    const waypoints = [pickup, ...resolvedStops, drop];
-
-    resetTripUI();
-    setStatus('Calculating route…');
-    await getRoute(waypoints);
-    renderWeather(pickup, drop);
-  }
-
-  async function getRoute(waypoints) {
-    const coordString = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
-    const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&steps=true`;
-
-    try {
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (!data.routes || data.routes.length === 0) {
-        setStatus('No route found between these points.', true);
+      if (!pickupText || !dropText) {
+        setStatus('Enter both a pickup and drop location.', true);
         return;
       }
 
-      const route = data.routes[0];
-      const distanceKm = route.distance / 1000;
-      const durationMin = route.duration / 60;
-      const baseFareAmount = FARE.base;
-      const distanceCharge = distanceKm * FARE.perKm;
-      const timeCharge = durationMin * FARE.perMin;
+      setStatus('Locating addresses…');
 
-      // exact clock time of arrival = now + trip duration
-      const arrivalDate = new Date(Date.now() + route.duration * 1000);
-      const arrivalLabel = arrivalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      let pickup = pickupCoords;
+      let drop = dropCoords;
 
-      if (routeLayer) map.removeLayer(routeLayer);
-      routeLayer = L.geoJSON(route.geometry, { style: { color: '#B9291F', weight: 5 } }).addTo(map);
-      map.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+      if (!pickup) pickup = await geocode(pickupText);
+      if (!drop) drop = await geocode(dropText);
 
-      document.getElementById('meter-distance').textContent = distanceKm.toFixed(2) + ' km';
-      document.getElementById('meter-time').textContent = Math.round(durationMin) + ' min';
-      document.getElementById('meter-arrival').textContent = 'By ' + arrivalLabel + ' (in ' + Math.round(durationMin) + ' min)';
-      meterEl.classList.add('visible');
+      if (!pickup) { setStatus(`Couldn't find "${pickupText}". Try adding a city or postal code.`, true); return; }
+      if (!drop) { setStatus(`Couldn't find "${dropText}". Try adding a city or postal code.`, true); return; }
 
-      // store the non-fuel fare parts; fuel cost (and therefore the total)
-      // gets computed separately since mileage/fuel price can change live
-      lastFareParts = { base: baseFareAmount, distanceCharge, timeCharge, distanceKm, durationMin };
-      lastDistanceKm = distanceKm;
-      updateFareDisplay();
+      // resolve any stop rows that have text entered (blank stop rows are skipped)
+      const resolvedStops = [];
+      for (const stop of stops) {
+        const text = stop.input.value.trim();
+        if (!text) continue;
+        let coords = stop.coords;
+        if (!coords) coords = await geocode(text);
+        if (!coords) { setStatus(`Couldn't find stop "${text}". Try adding a city or postal code.`, true); return; }
+        resolvedStops.push(coords);
+      }
 
-      setStatus('');
-      // a route with stops has multiple "legs" (one per segment) — flatten
-      // every leg's turn-by-turn steps into a single ordered directions list
-      const allSteps = [];
-      route.legs.forEach(leg => allSteps.push(...leg.steps));
-      renderDirections(allSteps);
-      startCarTracking(route.geometry.coordinates, route.duration);
+      if (pickupMarker) map.removeLayer(pickupMarker);
+      if (dropMarker) map.removeLayer(dropMarker);
+      pickupMarker = L.marker([pickup.lat, pickup.lng]).addTo(map).bindPopup('Pickup');
+      dropMarker = L.marker([drop.lat, drop.lng]).addTo(map).bindPopup('Drop');
 
-    } catch (err) {
-      setStatus('Error fetching route. Check your connection.', true);
-      console.error(err);
-    }
-  }
+      const waypoints = [pickup, ...resolvedStops, drop];
 
-  function renderDirections(steps) {
-    const list = document.getElementById('directions-list');
-    list.innerHTML = '';
-    steps.forEach((step, i) => {
-      const li = document.createElement('li');
-      li.innerHTML = `<span class="step-num">${String(i + 1).padStart(2, '0')}</span><span>${buildInstruction(step)}</span>`;
-      list.appendChild(li);
-    });
-  }
-
-  function buildInstruction(step) {
-    const type = step.maneuver.type;
-    const modifier = step.maneuver.modifier;
-    const roadName = step.name || 'the road';
-    const distance = step.distance.toFixed(0);
-
-    let action = 'Continue';
-    if (type === 'depart') action = 'Start';
-    else if (type === 'arrive') action = 'Arrive at destination';
-    else if (type === 'turn') action = `Turn ${modifier}`;
-    else if (type === 'roundabout') action = 'Enter roundabout and take exit';
-    else if (type === 'merge') action = `Merge ${modifier}`;
-    else if (type === 'fork') action = `Keep ${modifier} at the fork`;
-    else if (type === 'end of road') action = `Turn ${modifier} at end of road`;
-
-    return `${action} onto ${roadName} (${distance} m)`;
-  }
-
-  function setStatus(msg, isError = false) {
-    statusEl.textContent = msg;
-    statusEl.classList.toggle('error', isError);
-  }
-
-  // ---------------------------------------------------------
-  // Live weather at pickup & drop — via Open-Meteo (free, no API key)
-  // ---------------------------------------------------------
-  async function fetchWeather(lat, lng) {
-    try {
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return data.current_weather || null;
-    } catch (err) {
-      console.error('Weather fetch error:', err);
-      return null;
-    }
-  }
-
-  // maps WMO weather codes (used by Open-Meteo) to a simple icon + label
-  function describeWeather(code) {
-    if (code === 0) return { icon: '☀️', label: 'Clear' };
-    if ([1, 2, 3].includes(code)) return { icon: '⛅', label: 'Partly cloudy' };
-    if ([45, 48].includes(code)) return { icon: '🌫️', label: 'Fog' };
-    if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌦️', label: 'Drizzle' };
-    if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { icon: '🌧️', label: 'Rain' };
-    if ([71, 73, 75, 77, 85, 86].includes(code)) return { icon: '❄️', label: 'Snow' };
-    if ([95, 96, 99].includes(code)) return { icon: '⛈️', label: 'Thunderstorm' };
-    return { icon: '🌡️', label: 'Weather' };
-  }
-
-  async function renderWeather(pickup, drop) {
-    const weatherCard = document.getElementById('weather-card');
-    weatherCard.classList.add('visible');
-
-    const pickupEl = document.getElementById('weather-pickup');
-    const dropEl = document.getElementById('weather-drop');
-    pickupEl.textContent = 'Loading…';
-    dropEl.textContent = 'Loading…';
-
-    const [pickupWeather, dropWeather] = await Promise.all([
-      fetchWeather(pickup.lat, pickup.lng),
-      fetchWeather(drop.lat, drop.lng)
-    ]);
-
-    if (pickupWeather) {
-      const info = describeWeather(pickupWeather.weathercode);
-      pickupEl.textContent = `${info.icon} ${Math.round(pickupWeather.temperature)}°C · ${info.label}`;
-    } else {
-      pickupEl.textContent = 'Unavailable';
+      resetTripUI();
+      setStatus('Calculating route…');
+      await getRoute(waypoints);
+      renderWeather(pickup, drop);
+      (document.getElementById("book-ride-btn") as HTMLButtonElement).style.display = "block";
     }
 
-    if (dropWeather) {
-      const info = describeWeather(dropWeather.weathercode);
-      dropEl.textContent = `${info.icon} ${Math.round(dropWeather.temperature)}°C · ${info.label}`;
-    } else {
-      dropEl.textContent = 'Unavailable';
+    async function getRoute(waypoints) {
+      const coordString = waypoints.map(p => `${p.lng},${p.lat}`).join(';');
+      const url = `https://router.project-osrm.org/route/v1/driving/${coordString}?overview=full&geometries=geojson&steps=true`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.routes || data.routes.length === 0) {
+          setStatus('No route found between these points.', true);
+          return;
+        }
+
+        const route = data.routes[0];
+        const distanceKm = route.distance / 1000;
+        const durationMin = route.duration / 60;
+        const baseFareAmount = FARE.base;
+        const distanceCharge = distanceKm * FARE.perKm;
+        const timeCharge = durationMin * FARE.perMin;
+
+        // exact clock time of arrival = now + trip duration
+        const arrivalDate = new Date(Date.now() + route.duration * 1000);
+        const arrivalLabel = arrivalDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        if (routeLayer) map.removeLayer(routeLayer);
+        routeLayer = L.geoJSON(route.geometry, { style: { color: '#B9291F', weight: 5 } }).addTo(map);
+        map.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+
+        document.getElementById('meter-distance').textContent = distanceKm.toFixed(2) + ' km';
+        document.getElementById('meter-time').textContent = Math.round(durationMin) + ' min';
+        document.getElementById('meter-arrival').textContent = 'By ' + arrivalLabel + ' (in ' + Math.round(durationMin) + ' min)';
+        meterEl.classList.add('visible');
+
+        // store the non-fuel fare parts; fuel cost (and therefore the total)
+        // gets computed separately since mileage/fuel price can change live
+        lastFareParts = { base: baseFareAmount, distanceCharge, timeCharge, distanceKm, durationMin };
+        lastDistanceKm = distanceKm;
+        updateFareDisplay();
+
+        setStatus('');
+        // a route with stops has multiple "legs" (one per segment) — flatten
+        // every leg's turn-by-turn steps into a single ordered directions list
+        const allSteps = [];
+        route.legs.forEach(leg => allSteps.push(...leg.steps));
+        renderDirections(allSteps);
+        startCarTracking(route.geometry.coordinates, route.duration);
+
+      } catch (err) {
+        setStatus('Error fetching route. Check your connection.', true);
+        console.error(err);
+      }
     }
-  }
 
-  // ---------------------------------------------------------
-  // Car tracking — simulates a driver moving along the route,
-  // updating position every 5 seconds (like Swiggy/Zepto tracking)
-  // ---------------------------------------------------------
+    function renderDirections(steps) {
+      const list = document.getElementById('directions-list');
+      list.innerHTML = '';
+      steps.forEach((step, i) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="step-num">${String(i + 1).padStart(2, '0')}</span><span>${buildInstruction(step)}</span>`;
+        list.appendChild(li);
+      });
+    }
 
-  const carSvg = `
+    function buildInstruction(step) {
+      const type = step.maneuver.type;
+      const modifier = step.maneuver.modifier;
+      const roadName = step.name || 'the road';
+      const distance = step.distance.toFixed(0);
+
+      let action = 'Continue';
+      if (type === 'depart') action = 'Start';
+      else if (type === 'arrive') action = 'Arrive at destination';
+      else if (type === 'turn') action = `Turn ${modifier}`;
+      else if (type === 'roundabout') action = 'Enter roundabout and take exit';
+      else if (type === 'merge') action = `Merge ${modifier}`;
+      else if (type === 'fork') action = `Keep ${modifier} at the fork`;
+      else if (type === 'end of road') action = `Turn ${modifier} at end of road`;
+
+      return `${action} onto ${roadName} (${distance} m)`;
+    }
+
+    function setStatus(msg, isError = false) {
+      statusEl.textContent = msg;
+      statusEl.classList.toggle('error', isError);
+    }
+
+    // ---------------------------------------------------------
+    // Live weather at pickup & drop — via Open-Meteo (free, no API key)
+    // ---------------------------------------------------------
+    async function fetchWeather(lat, lng) {
+      try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`;
+        const res = await fetch(url);
+        const data = await res.json();
+        return data.current_weather || null;
+      } catch (err) {
+        console.error('Weather fetch error:', err);
+        return null;
+      }
+    }
+
+    // maps WMO weather codes (used by Open-Meteo) to a simple icon + label
+    function describeWeather(code) {
+      if (code === 0) return { icon: '☀️', label: 'Clear' };
+      if ([1, 2, 3].includes(code)) return { icon: '⛅', label: 'Partly cloudy' };
+      if ([45, 48].includes(code)) return { icon: '🌫️', label: 'Fog' };
+      if ([51, 53, 55, 56, 57].includes(code)) return { icon: '🌦️', label: 'Drizzle' };
+      if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return { icon: '🌧️', label: 'Rain' };
+      if ([71, 73, 75, 77, 85, 86].includes(code)) return { icon: '❄️', label: 'Snow' };
+      if ([95, 96, 99].includes(code)) return { icon: '⛈️', label: 'Thunderstorm' };
+      return { icon: '🌡️', label: 'Weather' };
+    }
+
+    async function renderWeather(pickup, drop) {
+      const weatherCard = document.getElementById('weather-card');
+      weatherCard.classList.add('visible');
+
+      const pickupEl = document.getElementById('weather-pickup');
+      const dropEl = document.getElementById('weather-drop');
+      pickupEl.textContent = 'Loading…';
+      dropEl.textContent = 'Loading…';
+
+      const [pickupWeather, dropWeather] = await Promise.all([
+        fetchWeather(pickup.lat, pickup.lng),
+        fetchWeather(drop.lat, drop.lng)
+      ]);
+
+      if (pickupWeather) {
+        const info = describeWeather(pickupWeather.weathercode);
+        pickupEl.textContent = `${info.icon} ${Math.round(pickupWeather.temperature)}°C · ${info.label}`;
+      } else {
+        pickupEl.textContent = 'Unavailable';
+      }
+
+      if (dropWeather) {
+        const info = describeWeather(dropWeather.weathercode);
+        dropEl.textContent = `${info.icon} ${Math.round(dropWeather.temperature)}°C · ${info.label}`;
+      } else {
+        dropEl.textContent = 'Unavailable';
+      }
+    }
+
+    // ---------------------------------------------------------
+    // Car tracking — simulates a driver moving along the route,
+    // updating position every 5 seconds (like Swiggy/Zepto tracking)
+    // ---------------------------------------------------------
+
+    const carSvg = `
     <svg width="46" height="28" viewBox="0 0 60 36" xmlns="http://www.w3.org/2000/svg">
       <ellipse cx="30" cy="33.5" rx="24" ry="2" fill="rgba(0,0,0,0.2)"/>
       <rect x="23" y="0" width="6" height="7" rx="2" fill="#2A2622"/>
@@ -476,241 +477,241 @@ export default function RideBooking() {
     </svg>
   `;
 
-  const carIcon = L.divIcon({
-    className: 'car-marker-wrap',
-    html: `<span class="car-marker-inner">${carSvg}</span>`,
-    iconSize: [46, 28],
-    iconAnchor: [23, 26]
-  });
+    const carIcon = L.divIcon({
+      className: 'car-marker-wrap',
+      html: `<span class="car-marker-inner">${carSvg}</span>`,
+      iconSize: [46, 28],
+      iconAnchor: [23, 26]
+    });
 
-  function startCarTracking(geoJsonCoords, totalDurationSeconds) {
-    // stop any tracking from a previous route calculation
-    stopCarTracking();
-
-    // OSRM gives [lng, lat] pairs — Leaflet wants [lat, lng]
-    const fullPath = geoJsonCoords.map(c => [c[1], c[0]]);
-
-    // the car should take exactly as long as the "Estimated time" shown to
-    // the user — so the number of 5-second hops is derived from the real
-    // route duration instead of a fixed step count
-    const updateSeconds = CAR_UPDATE_MS / 1000;
-    const stepsForDuration = Math.max(2, Math.round(totalDurationSeconds / updateSeconds));
-
-    carRouteCoords = sampleRoute(fullPath, stepsForDuration);
-    carStepIndex = 0;
-
-    if (carMarker) map.removeLayer(carMarker);
-    carMarker = L.marker(carRouteCoords[0], { icon: carIcon }).addTo(map);
-
-    document.getElementById('trip-status').classList.add('visible');
-    updateTripStatusText();
-
-    carIntervalId = setInterval(advanceCar, CAR_UPDATE_MS);
-  }
-
-  function stopCarTracking() {
-    if (carIntervalId) {
-      clearInterval(carIntervalId);
-      carIntervalId = null;
-    }
-  }
-
-  // reduces a full route (hundreds of points) down to N evenly spaced points
-  function sampleRoute(fullPath, steps) {
-    if (fullPath.length <= steps) return fullPath;
-    const sampled = [];
-    const interval = (fullPath.length - 1) / (steps - 1);
-    for (let i = 0; i < steps; i++) {
-      sampled.push(fullPath[Math.round(i * interval)]);
-    }
-    return sampled;
-  }
-
-  function advanceCar() {
-    if (carStepIndex >= carRouteCoords.length - 1) {
+    function startCarTracking(geoJsonCoords, totalDurationSeconds) {
+      // stop any tracking from a previous route calculation
       stopCarTracking();
-      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      document.getElementById('trip-status-text').innerHTML = `Car <strong>arrived</strong> at ${now}`;
+
+      // OSRM gives [lng, lat] pairs — Leaflet wants [lat, lng]
+      const fullPath = geoJsonCoords.map(c => [c[1], c[0]]);
+
+      // the car should take exactly as long as the "Estimated time" shown to
+      // the user — so the number of 5-second hops is derived from the real
+      // route duration instead of a fixed step count
+      const updateSeconds = CAR_UPDATE_MS / 1000;
+      const stepsForDuration = Math.max(2, Math.round(totalDurationSeconds / updateSeconds));
+
+      carRouteCoords = sampleRoute(fullPath, stepsForDuration);
+      carStepIndex = 0;
+
+      if (carMarker) map.removeLayer(carMarker);
+      carMarker = L.marker(carRouteCoords[0], { icon: carIcon }).addTo(map);
+
+      document.getElementById('trip-status').classList.add('visible');
+      updateTripStatusText();
+
+      carIntervalId = setInterval(advanceCar, CAR_UPDATE_MS);
+    }
+
+    function stopCarTracking() {
+      if (carIntervalId) {
+        clearInterval(carIntervalId);
+        carIntervalId = null;
+      }
+    }
+
+    // reduces a full route (hundreds of points) down to N evenly spaced points
+    function sampleRoute(fullPath, steps) {
+      if (fullPath.length <= steps) return fullPath;
+      const sampled = [];
+      const interval = (fullPath.length - 1) / (steps - 1);
+      for (let i = 0; i < steps; i++) {
+        sampled.push(fullPath[Math.round(i * interval)]);
+      }
+      return sampled;
+    }
+
+    function advanceCar() {
+      if (carStepIndex >= carRouteCoords.length - 1) {
+        stopCarTracking();
+        const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('trip-status-text').innerHTML = `Car <strong>arrived</strong> at ${now}`;
+        document.getElementById('cancel-ride-btn').style.display = 'none';
+        showFeedback();
+        return;
+      }
+
+      carStepIndex++;
+      const nextPos = carRouteCoords[carStepIndex];
+
+      // side-view car looks better flipped left/right than rotated —
+      // face right (default) when moving east, flip when moving west
+      const prevPos = carRouteCoords[carStepIndex - 1];
+      const dLon = nextPos[1] - prevPos[1];
+      const facingLeft = dLon < 0;
+
+      carMarker.setLatLng(nextPos);
+      const el = carMarker.getElement();
+      if (el) {
+        const inner = el.querySelector('.car-marker-inner');
+        if (inner) inner.style.transform = facingLeft ? 'scaleX(-1)' : 'scaleX(1)';
+      }
+      updateTripStatusText();
+    }
+
+    function updateTripStatusText() {
+      const remainingSteps = carRouteCoords.length - 1 - carStepIndex;
+      const remainingSeconds = remainingSteps * CAR_UPDATE_MS / 1000;
+      const mins = Math.floor(remainingSeconds / 60);
+      const secs = Math.round(remainingSeconds % 60);
+      const label = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+      document.getElementById('trip-eta').textContent = label;
+    }
+
+    // ---------------------------------------------------------
+    // Fuel cost estimate
+    // ---------------------------------------------------------
+    const mileageInput = document.getElementById('mileage');
+    const fuelPriceInput = document.getElementById('fuel-price');
+    const fuelCard = document.getElementById('fuel-card');
+
+    function updateFareDisplay() {
+      if (!lastFareParts) return;
+
+      const mileage = parseFloat(mileageInput.value) || 0;
+      const fuelPrice = parseFloat(fuelPriceInput.value) || 0;
+      const litresRequired = mileage > 0 ? lastFareParts.distanceKm / mileage : 0;
+      const fuelCost = litresRequired * fuelPrice;
+
+      // ride fare (base + distance + time) scales with cab type; fuel and the
+      // superfast surcharge are flat trip costs added on top
+      const rideBaseTotal = lastFareParts.base + lastFareParts.distanceCharge + lastFareParts.timeCharge;
+      const cabMultiplier = CAB_MULTIPLIERS[selectedCabType] || 1;
+      const cabTypeExtra = rideBaseTotal * (cabMultiplier - 1);
+      const superfastCharge = superfastSelected ? SUPERFAST_SURCHARGE : 0;
+
+      const total = rideBaseTotal + cabTypeExtra + fuelCost + superfastCharge;
+
+      document.getElementById('meter-fare').textContent = '$' + total.toFixed(2);
+      document.getElementById('bd-base').textContent = '$' + lastFareParts.base.toFixed(2);
+      document.getElementById('bd-distance').textContent = '$' + lastFareParts.distanceCharge.toFixed(2) + ' (' + lastFareParts.distanceKm.toFixed(2) + ' km × $' + FARE.perKm.toFixed(2) + ')';
+      document.getElementById('bd-time').textContent = '$' + lastFareParts.timeCharge.toFixed(2) + ' (' + Math.round(lastFareParts.durationMin) + ' min × $' + FARE.perMin.toFixed(2) + ')';
+      document.getElementById('bd-cabtype').textContent = selectedCabType === 'luxury'
+        ? '+$' + cabTypeExtra.toFixed(2) + ' (Luxury, +80%)'
+        : 'Included (Normal)';
+      document.getElementById('bd-fuel').textContent = mileage > 0
+        ? '$' + fuelCost.toFixed(2) + ' (' + litresRequired.toFixed(2) + ' L × $' + fuelPrice.toFixed(2) + ')'
+        : '$0.00';
+      document.getElementById('bd-superfast').textContent = superfastSelected
+        ? '$' + SUPERFAST_SURCHARGE.toFixed(2)
+        : 'Not selected';
+      document.getElementById('bd-total').textContent = '$' + total.toFixed(2);
+
+      document.getElementById('fuel-litres').textContent = mileage > 0 ? litresRequired.toFixed(2) + ' L' : '—';
+      document.getElementById('fuel-cost').textContent = mileage > 0 ? '$' + fuelCost.toFixed(2) : '—';
+      fuelCard.classList.add('visible');
+    }
+
+    // ---- Cab type selector ----
+    const cabTypeButtons = document.querySelectorAll('.cab-type-btn');
+    cabTypeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedCabType = btn.dataset.cab;
+        cabTypeButtons.forEach(b => b.classList.toggle('active', b === btn));
+        updateFareDisplay(); // live update if a route is already calculated
+      });
+    });
+
+    // ---- Superfast pickup toggle ----
+    const superfastToggle = document.getElementById('superfast-toggle');
+    superfastToggle.addEventListener('change', () => {
+      superfastSelected = superfastToggle.checked;
+      updateFareDisplay();
+    });
+
+    // recalculate the whole fare (including fuel) live if the user tweaks
+    // mileage or fuel price after a route already exists
+    mileageInput.addEventListener('input', updateFareDisplay);
+    fuelPriceInput.addEventListener('input', updateFareDisplay);
+
+    // ---------------------------------------------------------
+    // Cancel ride
+    // ---------------------------------------------------------
+    document.getElementById('cancel-ride-btn').addEventListener('click', cancelRide);
+
+    function cancelRide() {
+      stopCarTracking();
+      if (carMarker) {
+        map.removeLayer(carMarker);
+        carMarker = null;
+      }
+      document.getElementById('trip-status-text').textContent = 'Ride cancelled.';
+      document.getElementById('trip-status').classList.add('cancelled');
       document.getElementById('cancel-ride-btn').style.display = 'none';
-      showFeedback();
-      return;
     }
 
-    carStepIndex++;
-    const nextPos = carRouteCoords[carStepIndex];
+    // clears cancel/feedback state whenever a new search starts,
+    // so leftover UI from a previous trip doesn't linger
+    function resetTripUI() {
+      const tripStatus = document.getElementById('trip-status');
+      tripStatus.classList.remove('visible', 'cancelled');
+      document.getElementById('cancel-ride-btn').style.display = 'inline-block';
 
-    // side-view car looks better flipped left/right than rotated —
-    // face right (default) when moving east, flip when moving west
-    const prevPos = carRouteCoords[carStepIndex - 1];
-    const dLon = nextPos[1] - prevPos[1];
-    const facingLeft = dLon < 0;
+      const feedbackCard = document.getElementById('feedback-card');
+      feedbackCard.classList.remove('visible');
+      document.getElementById('star-rating').style.display = 'flex';
+      document.getElementById('feedback-comment').style.display = 'block';
+      document.getElementById('feedback-comment').value = '';
+      document.getElementById('submit-feedback-btn').style.display = 'inline-block';
+      document.getElementById('feedback-thanks').style.display = 'none';
 
-    carMarker.setLatLng(nextPos);
-    const el = carMarker.getElement();
-    if (el) {
-      const inner = el.querySelector('.car-marker-inner');
-      if (inner) inner.style.transform = facingLeft ? 'scaleX(-1)' : 'scaleX(1)';
-    }
-    updateTripStatusText();
-  }
-
-  function updateTripStatusText() {
-    const remainingSteps = carRouteCoords.length - 1 - carStepIndex;
-    const remainingSeconds = remainingSteps * CAR_UPDATE_MS / 1000;
-    const mins = Math.floor(remainingSeconds / 60);
-    const secs = Math.round(remainingSeconds % 60);
-    const label = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-    document.getElementById('trip-eta').textContent = label;
-  }
-
-  // ---------------------------------------------------------
-  // Fuel cost estimate
-  // ---------------------------------------------------------
-  const mileageInput = document.getElementById('mileage');
-  const fuelPriceInput = document.getElementById('fuel-price');
-  const fuelCard = document.getElementById('fuel-card');
-
-  function updateFareDisplay() {
-    if (!lastFareParts) return;
-
-    const mileage = parseFloat(mileageInput.value) || 0;
-    const fuelPrice = parseFloat(fuelPriceInput.value) || 0;
-    const litresRequired = mileage > 0 ? lastFareParts.distanceKm / mileage : 0;
-    const fuelCost = litresRequired * fuelPrice;
-
-    // ride fare (base + distance + time) scales with cab type; fuel and the
-    // superfast surcharge are flat trip costs added on top
-    const rideBaseTotal = lastFareParts.base + lastFareParts.distanceCharge + lastFareParts.timeCharge;
-    const cabMultiplier = CAB_MULTIPLIERS[selectedCabType] || 1;
-    const cabTypeExtra = rideBaseTotal * (cabMultiplier - 1);
-    const superfastCharge = superfastSelected ? SUPERFAST_SURCHARGE : 0;
-
-    const total = rideBaseTotal + cabTypeExtra + fuelCost + superfastCharge;
-
-    document.getElementById('meter-fare').textContent = '$' + total.toFixed(2);
-    document.getElementById('bd-base').textContent = '$' + lastFareParts.base.toFixed(2);
-    document.getElementById('bd-distance').textContent = '$' + lastFareParts.distanceCharge.toFixed(2) + ' (' + lastFareParts.distanceKm.toFixed(2) + ' km × $' + FARE.perKm.toFixed(2) + ')';
-    document.getElementById('bd-time').textContent = '$' + lastFareParts.timeCharge.toFixed(2) + ' (' + Math.round(lastFareParts.durationMin) + ' min × $' + FARE.perMin.toFixed(2) + ')';
-    document.getElementById('bd-cabtype').textContent = selectedCabType === 'luxury'
-      ? '+$' + cabTypeExtra.toFixed(2) + ' (Luxury, +80%)'
-      : 'Included (Normal)';
-    document.getElementById('bd-fuel').textContent = mileage > 0
-      ? '$' + fuelCost.toFixed(2) + ' (' + litresRequired.toFixed(2) + ' L × $' + fuelPrice.toFixed(2) + ')'
-      : '$0.00';
-    document.getElementById('bd-superfast').textContent = superfastSelected
-      ? '$' + SUPERFAST_SURCHARGE.toFixed(2)
-      : 'Not selected';
-    document.getElementById('bd-total').textContent = '$' + total.toFixed(2);
-
-    document.getElementById('fuel-litres').textContent = mileage > 0 ? litresRequired.toFixed(2) + ' L' : '—';
-    document.getElementById('fuel-cost').textContent = mileage > 0 ? '$' + fuelCost.toFixed(2) : '—';
-    fuelCard.classList.add('visible');
-  }
-
-  // ---- Cab type selector ----
-  const cabTypeButtons = document.querySelectorAll('.cab-type-btn');
-  cabTypeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectedCabType = btn.dataset.cab;
-      cabTypeButtons.forEach(b => b.classList.toggle('active', b === btn));
-      updateFareDisplay(); // live update if a route is already calculated
-    });
-  });
-
-  // ---- Superfast pickup toggle ----
-  const superfastToggle = document.getElementById('superfast-toggle');
-  superfastToggle.addEventListener('change', () => {
-    superfastSelected = superfastToggle.checked;
-    updateFareDisplay();
-  });
-
-  // recalculate the whole fare (including fuel) live if the user tweaks
-  // mileage or fuel price after a route already exists
-  mileageInput.addEventListener('input', updateFareDisplay);
-  fuelPriceInput.addEventListener('input', updateFareDisplay);
-
-  // ---------------------------------------------------------
-  // Cancel ride
-  // ---------------------------------------------------------
-  document.getElementById('cancel-ride-btn').addEventListener('click', cancelRide);
-
-  function cancelRide() {
-    stopCarTracking();
-    if (carMarker) {
-      map.removeLayer(carMarker);
-      carMarker = null;
-    }
-    document.getElementById('trip-status-text').textContent = 'Ride cancelled.';
-    document.getElementById('trip-status').classList.add('cancelled');
-    document.getElementById('cancel-ride-btn').style.display = 'none';
-  }
-
-  // clears cancel/feedback state whenever a new search starts,
-  // so leftover UI from a previous trip doesn't linger
-  function resetTripUI() {
-    const tripStatus = document.getElementById('trip-status');
-    tripStatus.classList.remove('visible', 'cancelled');
-    document.getElementById('cancel-ride-btn').style.display = 'inline-block';
-
-    const feedbackCard = document.getElementById('feedback-card');
-    feedbackCard.classList.remove('visible');
-    document.getElementById('star-rating').style.display = 'flex';
-    document.getElementById('feedback-comment').style.display = 'block';
-    document.getElementById('feedback-comment').value = '';
-    document.getElementById('submit-feedback-btn').style.display = 'inline-block';
-    document.getElementById('feedback-thanks').style.display = 'none';
-
-    selectedRating = 0;
-    updateStars();
-  }
-
-  // ---------------------------------------------------------
-  // Feedback / rating
-  // ---------------------------------------------------------
-  let selectedRating = 0;
-  const starButtons = document.querySelectorAll('.star-btn');
-
-  starButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectedRating = parseInt(btn.dataset.value, 10);
+      selectedRating = 0;
       updateStars();
-    });
-  });
-
-  function updateStars() {
-    starButtons.forEach(btn => {
-      btn.classList.toggle('active', parseInt(btn.dataset.value, 10) <= selectedRating);
-    });
-  }
-
-  function showFeedback() {
-    document.getElementById('feedback-card').classList.add('visible');
-  }
-
-  document.getElementById('submit-feedback-btn').addEventListener('click', () => {
-    if (selectedRating === 0) {
-      setStatus('Please select a star rating before submitting.', true);
-      return;
     }
 
-    // In production this would POST { rating: selectedRating, comment } to your backend.
-    console.log('Feedback submitted:', {
-      rating: selectedRating,
-      comment: document.getElementById('feedback-comment').value.trim()
+    // ---------------------------------------------------------
+    // Feedback / rating
+    // ---------------------------------------------------------
+    let selectedRating = 0;
+    const starButtons = document.querySelectorAll('.star-btn');
+
+    starButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        selectedRating = parseInt(btn.dataset.value, 10);
+        updateStars();
+      });
     });
 
-    document.getElementById('star-rating').style.display = 'none';
-    document.getElementById('feedback-comment').style.display = 'none';
-    document.getElementById('submit-feedback-btn').style.display = 'none';
-    document.getElementById('feedback-thanks').style.display = 'block';
-  });
+    function updateStars() {
+      starButtons.forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.value, 10) <= selectedRating);
+      });
+    }
+
+    function showFeedback() {
+      document.getElementById('feedback-card').classList.add('visible');
+    }
+
+    document.getElementById('submit-feedback-btn').addEventListener('click', () => {
+      if (selectedRating === 0) {
+        setStatus('Please select a star rating before submitting.', true);
+        return;
+      }
+
+      // In production this would POST { rating: selectedRating, comment } to your backend.
+      console.log('Feedback submitted:', {
+        rating: selectedRating,
+        comment: document.getElementById('feedback-comment').value.trim()
+      });
+
+      document.getElementById('star-rating').style.display = 'none';
+      document.getElementById('feedback-comment').style.display = 'none';
+      document.getElementById('submit-feedback-btn').style.display = 'none';
+      document.getElementById('feedback-thanks').style.display = 'block';
+    });
 
 
     // cleanup when the component unmounts, so a second mount (e.g. React
     // StrictMode double-invoke in dev) doesn't leave a duplicate map/interval
     return () => {
-      try { stopCarTracking(); } catch (e) {}
-      try { map.remove(); } catch (e) {}
+      try { stopCarTracking(); } catch (e) { }
+      try { map.remove(); } catch (e) { }
     };
   }, []);
 
@@ -1440,177 +1441,186 @@ export default function RideBooking() {
   }
 
       `}</style>
-<div className="app">
-  <div className="panel">
-    <div className="header-row">
-      <div>
-        <div className="eyebrow">Route Planner</div>
-        <h1><span className="title-badge">🚕</span> Plan your ride</h1>
-        <p className="subtext">Type an address, or use the pin to set a location by tapping the map.</p>
-      </div>
-      <button className="sos-btn" id="sos-btn" title="Emergency SOS">🆘 SOS</button>
-    </div>
+      <div className="app">
+        <div className="panel">
+          <div className="header-row">
+            <div>
+              <div className="eyebrow">Route Planner</div>
+              <h1><span className="title-badge">🚕</span> Plan your ride</h1>
+              <p className="subtext">Type an address, or use the pin to set a location by tapping the map.</p>
+            </div>
+            <button className="sos-btn" id="sos-btn" title="Emergency SOS">🆘 SOS</button>
+          </div>
 
-    <div className="sos-panel" id="sos-panel">
-      <p className="sos-title">Emergency options</p>
-      <a className="sos-action-btn" href="tel:911">📞 Call Emergency Services</a>
-      <button className="sos-action-btn" id="sos-share-btn" type="button">📍 Share My Trip Status</button>
-      <p className="sos-note" id="sos-note"></p>
-    </div>
+          <div className="sos-panel" id="sos-panel">
+            <p className="sos-title">Emergency options</p>
+            <a className="sos-action-btn" href="tel:911">📞 Call Emergency Services</a>
+            <button className="sos-action-btn" id="sos-share-btn" type="button">📍 Share My Trip Status</button>
+            <p className="sos-note" id="sos-note"></p>
+          </div>
 
-    <div className="field">
-      <label htmlFor="pickup">Pickup</label>
-      <div className="input-row" id="pickup-row">
-        <input type="text" id="pickup" placeholder="Enter pickup address" />
-        <button className="pin-btn" id="pickup-pin" title="Set pickup on map">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-        </button>
-      </div>
-    </div>
+          <div className="field">
+            <label htmlFor="pickup">Pickup</label>
+            <div className="input-row" id="pickup-row">
+              <input type="text" id="pickup" placeholder="Enter pickup address" />
+              <button className="pin-btn" id="pickup-pin" title="Set pickup on map">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              </button>
+            </div>
+          </div>
 
-    <div className="field">
-      <label htmlFor="drop">Drop</label>
-      <div className="input-row" id="drop-row">
-        <input type="text" id="drop" placeholder="Enter drop address" />
-        <button className="pin-btn" id="drop-pin" title="Set drop on map">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
-        </button>
-      </div>
-    </div>
+          <div className="field">
+            <label htmlFor="drop">Drop</label>
+            <div className="input-row" id="drop-row">
+              <input type="text" id="drop" placeholder="Enter drop address" />
+              <button className="pin-btn" id="drop-pin" title="Set drop on map">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 21s-7-6.1-7-11a7 7 0 0 1 14 0c0 4.9-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></svg>
+              </button>
+            </div>
+          </div>
 
-    <div id="stops-container"></div>
-    <button className="add-stop-btn" id="add-stop-btn">+ Add stop</button>
+          <div id="stops-container"></div>
+          <button className="add-stop-btn" id="add-stop-btn">+ Add stop</button>
 
-    <div className="field">
-      <label>Cab type</label>
-      <div className="cab-type-options">
-        <button type="button" className="cab-type-btn active" id="cab-type-normal" data-cab="normal">
-          <span className="cab-type-name">Normal</span>
-          <span className="cab-type-desc">Standard ride</span>
-        </button>
-        <button type="button" className="cab-type-btn" id="cab-type-luxury" data-cab="luxury">
-          <span className="cab-type-name">Luxury</span>
-          <span className="cab-type-desc">Premium cars, +80%</span>
-        </button>
-      </div>
-    </div>
+          <div className="field">
+            <label>Cab type</label>
+            <div className="cab-type-options">
+              <button type="button" className="cab-type-btn active" id="cab-type-normal" data-cab="normal">
+                <span className="cab-type-name">Normal</span>
+                <span className="cab-type-desc">Standard ride</span>
+              </button>
+              <button type="button" className="cab-type-btn" id="cab-type-luxury" data-cab="luxury">
+                <span className="cab-type-name">Luxury</span>
+                <span className="cab-type-desc">Premium cars, +80%</span>
+              </button>
+            </div>
+          </div>
 
-    <label className="toggle-row" htmlFor="superfast-toggle">
-      <input type="checkbox" id="superfast-toggle" />
-      <span>Priority Pickup <strong>(+$10.00 CAD)</strong></span>
-    </label>
+          <label className="toggle-row" htmlFor="superfast-toggle">
+            <input type="checkbox" id="superfast-toggle" />
+            <span>Priority Pickup <strong>(+$10.00 CAD)</strong></span>
+          </label>
 
-    <div className="map-hint" id="map-hint">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M2 12h20"/></svg>
-      <span id="map-hint-text">Tap the map to set pickup</span>
-    </div>
+          <div className="map-hint" id="map-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M2 12h20" /></svg>
+            <span id="map-hint-text">Tap the map to set pickup</span>
+          </div>
 
-    <button className="primary-btn" id="get-route-btn">Calculate route</button>
-    <div className="status" id="status"></div>
+          <button className="primary-btn" id="get-route-btn">
+            Calculate route
+          </button>
+          <button
+            className="primary-btn"
+            id="book-ride-btn"
+            style={{ display: "none", marginTop: "10px" }}
+          >
+            Book Ride
+          </button>
+          <div className="status" id="status"></div>
 
-    <div className="meter" id="meter">
-      <div className="meter-row-2col">
-        <div className="meter-item">
-          <div className="meter-label">Distance</div>
-          <div className="meter-value" id="meter-distance">—</div>
+          <div className="meter" id="meter">
+            <div className="meter-row-2col">
+              <div className="meter-item">
+                <div className="meter-label">Distance</div>
+                <div className="meter-value" id="meter-distance">—</div>
+              </div>
+              <div className="meter-item">
+                <div className="meter-label">Time</div>
+                <div className="meter-value" id="meter-time">—</div>
+              </div>
+            </div>
+            <div className="meter-item full">
+              <div className="meter-label">Estimated fare (CAD)</div>
+              <div className="meter-value" id="meter-fare">—</div>
+              <div className="fare-breakdown" id="fare-breakdown">
+                <div className="breakdown-row"><span>Base fare</span><span id="bd-base">—</span></div>
+                <div className="breakdown-row"><span>Distance charge</span><span id="bd-distance">—</span></div>
+                <div className="breakdown-row"><span>Time charge</span><span id="bd-time">—</span></div>
+                <div className="breakdown-row"><span>Cab type</span><span id="bd-cabtype">—</span></div>
+                <div className="breakdown-row"><span>Fuel cost</span><span id="bd-fuel">—</span></div>
+                <div className="breakdown-row"><span>Priority Pickup</span><span id="bd-superfast">—</span></div>
+                <div className="breakdown-row total"><span>Total</span><span id="bd-total">—</span></div>
+              </div>
+            </div>
+            <div className="meter-item full">
+              <div className="meter-label">Estimated arrival</div>
+              <div className="meter-value" id="meter-arrival">—</div>
+            </div>
+          </div>
+
+          <div className="subcard" id="weather-card">
+            <p className="card-title">Weather at pickup &amp; drop</p>
+            <div className="weather-grid">
+              <div className="weather-item">
+                <div className="meter-label">Pickup</div>
+                <div className="weather-info" id="weather-pickup">—</div>
+              </div>
+              <div className="weather-item">
+                <div className="meter-label">Drop</div>
+                <div className="weather-info" id="weather-drop">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="trip-status" id="trip-status">
+            <span className="trip-status-label">🔴 Live Tracking</span>
+            <div className="trip-status-row">
+              <div className="trip-dot"></div>
+              <div className="trip-status-text" id="trip-status-text">Car is on the way — <strong id="trip-eta">—</strong> remaining</div>
+              <button className="cancel-btn" id="cancel-ride-btn">Cancel</button>
+            </div>
+          </div>
+
+          <div className="subcard" id="feedback-card">
+            <p className="card-title">Rate your ride</p>
+            <div className="star-rating" id="star-rating">
+              <button className="star-btn" data-value="1">★</button>
+              <button className="star-btn" data-value="2">★</button>
+              <button className="star-btn" data-value="3">★</button>
+              <button className="star-btn" data-value="4">★</button>
+              <button className="star-btn" data-value="5">★</button>
+            </div>
+            <textarea id="feedback-comment" rows="3" placeholder="Optional comments about your ride..."></textarea>
+            <button className="primary-btn" id="submit-feedback-btn">Submit feedback</button>
+            <p className="feedback-thanks" id="feedback-thanks" style={{ display: 'none' }}>Thanks for your feedback!</p>
+          </div>
+
+          <div className="subcard" id="fuel-card">
+            <p className="card-title">Fuel cost estimate</p>
+            <div className="fuel-inputs">
+              <div className="mini-field">
+                <label htmlFor="mileage">Mileage (km/L)</label>
+                <input type="number" id="mileage" value="12" min="0.1" step="0.1" />
+              </div>
+              <div className="mini-field">
+                <label htmlFor="fuel-price">Fuel price (CAD/L)</label>
+                <input type="number" id="fuel-price" value="1.55" min="0" step="0.01" />
+              </div>
+            </div>
+            <div className="fuel-outputs">
+              <div className="meter-item">
+                <div className="meter-label">Fuel required</div>
+                <div className="meter-value" id="fuel-litres">—</div>
+              </div>
+              <div className="meter-item">
+                <div className="meter-label">Fuel cost</div>
+                <div className="meter-value" id="fuel-cost">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <p className="directions-title">Directions</p>
+            <ol className="directions-list" id="directions-list">
+              <li className="directions-empty" style={{ border: 'none' }}>Directions will appear here once a route is calculated.</li>
+            </ol>
+          </div>
         </div>
-        <div className="meter-item">
-          <div className="meter-label">Time</div>
-          <div className="meter-value" id="meter-time">—</div>
-        </div>
-      </div>
-      <div className="meter-item full">
-        <div className="meter-label">Estimated fare (CAD)</div>
-        <div className="meter-value" id="meter-fare">—</div>
-        <div className="fare-breakdown" id="fare-breakdown">
-          <div className="breakdown-row"><span>Base fare</span><span id="bd-base">—</span></div>
-          <div className="breakdown-row"><span>Distance charge</span><span id="bd-distance">—</span></div>
-          <div className="breakdown-row"><span>Time charge</span><span id="bd-time">—</span></div>
-          <div className="breakdown-row"><span>Cab type</span><span id="bd-cabtype">—</span></div>
-          <div className="breakdown-row"><span>Fuel cost</span><span id="bd-fuel">—</span></div>
-          <div className="breakdown-row"><span>Priority Pickup</span><span id="bd-superfast">—</span></div>
-          <div className="breakdown-row total"><span>Total</span><span id="bd-total">—</span></div>
-        </div>
-      </div>
-      <div className="meter-item full">
-        <div className="meter-label">Estimated arrival</div>
-        <div className="meter-value" id="meter-arrival">—</div>
-      </div>
-    </div>
 
-    <div className="subcard" id="weather-card">
-      <p className="card-title">Weather at pickup &amp; drop</p>
-      <div className="weather-grid">
-        <div className="weather-item">
-          <div className="meter-label">Pickup</div>
-          <div className="weather-info" id="weather-pickup">—</div>
-        </div>
-        <div className="weather-item">
-          <div className="meter-label">Drop</div>
-          <div className="weather-info" id="weather-drop">—</div>
+        <div className="map-wrap" id="map-wrap">
+          <div id="map"></div>
         </div>
       </div>
-    </div>
-
-    <div className="trip-status" id="trip-status">
-      <span className="trip-status-label">🔴 Live Tracking</span>
-      <div className="trip-status-row">
-        <div className="trip-dot"></div>
-        <div className="trip-status-text" id="trip-status-text">Car is on the way — <strong id="trip-eta">—</strong> remaining</div>
-        <button className="cancel-btn" id="cancel-ride-btn">Cancel</button>
-      </div>
-    </div>
-
-    <div className="subcard" id="feedback-card">
-      <p className="card-title">Rate your ride</p>
-      <div className="star-rating" id="star-rating">
-        <button className="star-btn" data-value="1">★</button>
-        <button className="star-btn" data-value="2">★</button>
-        <button className="star-btn" data-value="3">★</button>
-        <button className="star-btn" data-value="4">★</button>
-        <button className="star-btn" data-value="5">★</button>
-      </div>
-      <textarea id="feedback-comment" rows="3" placeholder="Optional comments about your ride..."></textarea>
-      <button className="primary-btn" id="submit-feedback-btn">Submit feedback</button>
-      <p className="feedback-thanks" id="feedback-thanks" style={{display:'none'}}>Thanks for your feedback!</p>
-    </div>
-
-    <div className="subcard" id="fuel-card">
-      <p className="card-title">Fuel cost estimate</p>
-      <div className="fuel-inputs">
-        <div className="mini-field">
-          <label htmlFor="mileage">Mileage (km/L)</label>
-          <input type="number" id="mileage" value="12" min="0.1" step="0.1" />
-        </div>
-        <div className="mini-field">
-          <label htmlFor="fuel-price">Fuel price (CAD/L)</label>
-          <input type="number" id="fuel-price" value="1.55" min="0" step="0.01" />
-        </div>
-      </div>
-      <div className="fuel-outputs">
-        <div className="meter-item">
-          <div className="meter-label">Fuel required</div>
-          <div className="meter-value" id="fuel-litres">—</div>
-        </div>
-        <div className="meter-item">
-          <div className="meter-label">Fuel cost</div>
-          <div className="meter-value" id="fuel-cost">—</div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <p className="directions-title">Directions</p>
-      <ol className="directions-list" id="directions-list">
-        <li className="directions-empty" style={{border:'none'}}>Directions will appear here once a route is calculated.</li>
-      </ol>
-    </div>
-  </div>
-
-  <div className="map-wrap" id="map-wrap">
-    <div id="map"></div>
-  </div>
-</div>
     </>
   );
 }
