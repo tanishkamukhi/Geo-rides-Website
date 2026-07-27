@@ -57,6 +57,14 @@ export async function runMigrations() {
     ALTER TABLE drivers ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
     ALTER TABLE drivers ADD COLUMN IF NOT EXISTS verification_status TEXT DEFAULT 'pending';
     ALTER TABLE drivers ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS selfie_photo TEXT;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS license_front TEXT;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS license_back TEXT;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS vehicle_registration TEXT;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS insurance_document TEXT;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS approved_at TIMESTAMPTZ;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS approved_by INTEGER;
+    ALTER TABLE drivers ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
   `);
   // Bookings table
   await pool.query(`

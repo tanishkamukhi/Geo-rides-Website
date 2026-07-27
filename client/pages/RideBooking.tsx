@@ -633,6 +633,41 @@ export default function RideBooking() {
     // ---------------------------------------------------------
     // Cancel ride
     // ---------------------------------------------------------
+    document
+      .getElementById("book-ride-btn")
+      ?.addEventListener("click", async () => {
+        console.log("Book Ride button clicked");
+        try {
+          const response = await fetch("/api/bookings", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId: localStorage.getItem("userId"),
+              pickupLocation: pickupInput.value,
+              dropLocation: dropInput.value,
+              vehicleType: selectedCabType,
+              estimatedFare: document
+                .getElementById("meter-fare")
+                ?.textContent?.replace("$", ""),
+              bookingType: "ride",
+              status: "pending",
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            alert("Ride booked successfully!");
+          } else {
+            alert(data.message || "Booking failed");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Server error");
+        }
+      });
     document.getElementById('cancel-ride-btn').addEventListener('click', cancelRide);
 
     function cancelRide() {

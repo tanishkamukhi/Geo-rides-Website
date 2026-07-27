@@ -80,6 +80,9 @@ export default function TripHistory() {
             .catch(e => { console.error(e); setError("Could not load trip history. Please try again."); })
             .finally(() => setLoading(false));
     }, []);
+    console.log("Trips:", trips);
+    console.log("Loading:", loading);
+    console.log("Error:", error);
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -127,11 +130,10 @@ export default function TripHistory() {
                                     </div>
                                     <div className="text-right">
                                         <p className="font-bold text-lg text-geo-dark">{fareDisplay(trip)}</p>
-                                        <span className={`text-[10px] font-bold py-1 px-2 rounded-full uppercase ${
-                                            (trip.status || "").toLowerCase() === "completed"
-                                                ? "bg-green-100 text-green-600"
-                                                : "bg-amber-100 text-amber-600"
-                                        }`}>{trip.status || "pending"}</span>
+                                        <span className={`text-[10px] font-bold py-1 px-2 rounded-full uppercase ${(trip.status || "").toLowerCase() === "completed"
+                                            ? "bg-green-100 text-green-600"
+                                            : "bg-amber-100 text-amber-600"
+                                            }`}>{trip.status || "pending"}</span>
                                     </div>
                                 </div>
 

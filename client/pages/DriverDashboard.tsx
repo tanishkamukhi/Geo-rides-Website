@@ -73,12 +73,23 @@ export default function DriverDashboard() {
     const fetchRequests = async () => {
         try {
             const token = localStorage.getItem("authToken");
-            const res = await fetch("/api/driver/requests", {
+            const res = await fetch("/api/driver/rides", {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
-                setRideRequests(data.requests);
+                setRideRequests(
+                    data.map((ride: any) => ({
+                        id: ride.id,
+                        userId: String(ride.userId),
+                        source: ride.pickupLocation,
+                        destination: ride.dropLocation,
+                        fare: Number(ride.fare || ride.estimatedFare || 0),
+                        status: ride.status,
+                        createdAt: ride.createdAt,
+                        userName: "GeoRides Customer"
+                    }))
+                );
             }
         } catch (err) {
             console.error(err);

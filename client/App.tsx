@@ -30,11 +30,16 @@ import Profile from "./pages/Profile";
 import PartnerWithUs from "./pages/PartnerWithUs";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminPanel from "./pages/AdminPanel";
+import AdminDriverVerification from "./pages/AdminDriverVerification";
+import AdminLayout from "./components/AdminLayout";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 import DownloadApp from "./pages/DownloadApp";
 import DataSecurity from "./pages/DataSecurity";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import InfoPage from "./pages/InfoPage";
+
 
 const queryClient = new QueryClient();
 
@@ -101,10 +106,14 @@ const App = () => (
                 path="/admin"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
-                    <AdminPanel />
+                    <AdminLayout />
                   </ProtectedRoute>
                 }
-              />
+              >
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="driver-verification" element={<AdminDriverVerification />} />
+              </Route>
+              <Route path="/admin/login" element={<AdminLogin />} />
               <Route
                 path="/dashboard"
                 element={
