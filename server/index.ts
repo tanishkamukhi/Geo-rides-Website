@@ -244,7 +244,7 @@ export function createServer() {
   app.get("/api/demo", handleDemo);
 
   // ── REGISTER ────────────────────────────────────────────────────────────────
-  app.post("/api/register", 
+  app.post("/api/register",
     uploadMiddleware.fields([
       { name: "profilePhoto", maxCount: 1 },
       { name: "selfiePhoto", maxCount: 1 },
@@ -254,63 +254,145 @@ export function createServer() {
       { name: "insuranceDocument", maxCount: 1 },
     ]),
     async (req, res) => {
-    try {
-      const { fullName, email, phone, password, confirmPassword, role = "user",
-        driversLicense, vehicleNumber, vehicleType, sinNumber } = req.body;
+      try {
+        const { fullName, email, phone, password, confirmPassword, role = "user",
+          driversLicense, vehicleNumber, vehicleType, sinNumber } = req.body;
 
-      if (!fullName || !email || !phone || !password)
-        return res.status(400).json({ message: "All fields are required" });
-      if (password !== confirmPassword)
-        return res.status(400).json({ message: "Passwords don't match" });
-      if (password.length < 6)
-        return res.status(400).json({ message: "Password must be at least 6 characters" });
-      if (!email.includes("@"))
-        return res.status(400).json({ message: "Invalid email" });
+        if (!fullName || !email || !phone || !password)
+          return res.status(400).json({ message: "All fields are required" });
+        if (password !== confirmPassword)
+          return res.status(400).json({ message: "Passwords don't match" });
+        if (password.length < 6)
+          return res.status(400).json({ message: "Password must be at least 6 characters" });
+        if (!email.includes("@"))
+          return res.status(400).json({ message: "Invalid email" });
 
-      if (role === "driver") {
-        if (!driversLicense || !vehicleNumber || !vehicleType || !sinNumber)
-          return res.status(400).json({ message: "Driver details are required (DL, vehicle, SIN)" });
-      }
+        if (role === "driver") {
+          if (!driversLicense || !vehicleNumber || !vehicleType || !sinNumber)
+            return res.status(400).json({ message: "Driver details are required (DL, vehicle, SIN)" });
+        }
 
-      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-      const getFilePath = (fieldname: string) => {
-        if (files && files[fieldname] && files[fieldname].length > 0) {
-          const file = files[fieldname][0];
-          let folder = "";
-          switch (fieldname) {
-            case "profilePhoto": folder = "profile"; break;
-            case "selfiePhoto": folder = "selfie"; break;
-            case "licenseFront": folder = "license-front"; break;
-            case "licenseBack": folder = "license-back"; break;
-            case "vehicleRegistration": folder = "vehicle-registration"; break;
-            case "insuranceDocument": folder = "insurance"; break;
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+        const getFilePath = (fieldname: string) => {
+          if (files && files[fieldname] && files[fieldname].length > 0) {
+            const file = files[fieldname][0];
+            let folder = "";
+            switch (fieldname) {
+              case "profilePhoto": folder = "profile"; break;
+              case "selfiePhoto": folder = "selfie"; break;
+              case "licenseFront": folder = "license-front"; break;
+              case "licenseBack": folder = "license-back"; break;
+              case "vehicleRegistration": folder = "vehicle-registration"; break;
+              case "insuranceDocument": folder = "insurance"; break;
+            }
+            return `uploads/${folder}/${file.filename}`;
           }
-          return `uploads/${folder}/${file.filename}`;
+          return null;
+        };
+
+        const profilePhotoPath = getFilePath("profilePhoto");
+        const selfiePhotoPath = getFilePath("selfiePhoto");
+        const licenseFrontPath = getFilePath("licenseFront");
+        const licenseBackPath = getFilePath("licenseBack");
+        const vehicleRegistrationPath = getFilePath("vehicleRegistration");
+        const insuranceDocumentPath = getFilePath("insuranceDocument");
+
+        if (useRealDB) {
+          const { eq } = await import("drizzle-orm");
+          const existingUser = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
+          const existingDriver = await db.select().from(schema.drivers).where(eq(schema.drivers.email, email)).limit(1);
+          if (existingUser.length > 0 || existingDriver.length > 0) {
+            return res.status(400).json({ message: "Email already registered" });
+          }
+
+          const hashedPassword = await bcrypt.hash(password, 10);
+
+          if (role === "driver") {
+            const timestamp = new Date().toISOString();
+            // Fire and forget email notification
+            sendNewDriverAdminNotification(
+              fullName,
+              email,
+              phone,
+              driversLicense,
+              vehicleNumber,
+              vehicleType,
+              sinNumber,
+              timestamp
+            );
+
+            const [inserted] = await db.insert(schema.drivers).values({
+              fullName,
+              email,
+              phone,
+              password: hashedPassword,
+              vehicleType,
+              vehicleNumber,
+              licenseNumber: driversLicense,
+              profilePhoto: profilePhotoPath,
+              selfiePhoto: selfiePhotoPath,
+              licenseFront: licenseFrontPath,
+              licenseBack: licenseBackPath,
+              vehicleRegistration: vehicleRegistrationPath,
+              insuranceDocument: insuranceDocumentPath,
+              isVerified: false,
+              verificationStatus: "pending",
+              rejectionReason: null,
+              approvedAt: null,
+              approvedBy: null,
+              verifiedAt: null,
+              status: "offline",
+            }).returning({ id: schema.drivers.id });
+
+            return res.status(201).json({
+              message: "Driver registered successfully",
+              userId: inserted.id.toString(),
+              role,
+              verificationPending: true,
+              verificationNotification: "Verification notice sent to tanishkamukhi12@gmail.com",
+              documents: {
+                profilePhoto: profilePhotoPath,
+                selfiePhoto: selfiePhotoPath,
+                licenseFront: licenseFrontPath,
+                licenseBack: licenseBackPath,
+                vehicleRegistration: vehicleRegistrationPath,
+                insuranceDocument: insuranceDocumentPath,
+              }
+            });
+          } else {
+            const [inserted] = await db.insert(schema.users).values({
+              fullName,
+              email,
+              phone,
+              password: hashedPassword,
+              profilePhoto: profilePhotoPath,
+            }).returning({ id: schema.users.id });
+
+            return res.status(201).json({
+              message: "User registered successfully",
+              userId: inserted.id.toString(),
+              role,
+            });
+          }
         }
-        return null;
-      };
 
-      const profilePhotoPath = getFilePath("profilePhoto");
-      const selfiePhotoPath = getFilePath("selfiePhoto");
-      const licenseFrontPath = getFilePath("licenseFront");
-      const licenseBackPath = getFilePath("licenseBack");
-      const vehicleRegistrationPath = getFilePath("vehicleRegistration");
-      const insuranceDocumentPath = getFilePath("insuranceDocument");
+        // JSON fallback
+        const dbData = readDB();
+        const existingUser = dbData.users.find((u: any) => u.email === email) ||
+          (dbData.drivers && dbData.drivers.find((d: any) => d.email === email));
+        if (existingUser) return res.status(400).json({ message: "Email already registered" });
 
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        const existingUser = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
-        const existingDriver = await db.select().from(schema.drivers).where(eq(schema.drivers.email, email)).limit(1);
-        if (existingUser.length > 0 || existingDriver.length > 0) {
-          return res.status(400).json({ message: "Email already registered" });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const newId = Date.now().toString();
+        const newUser: any = {
+          id: newId, fullName, email, phone, password,
+          role, profilePhoto: profilePhotoPath, rating: 4.5, totalRides: 0,
+          createdAt: new Date().toISOString(),
+        };
 
         if (role === "driver") {
           const timestamp = new Date().toISOString();
           // Fire and forget email notification
-          sendNewDriverAdminNotification(
+          await sendNewDriverAdminNotification(
             fullName,
             email,
             phone,
@@ -320,137 +402,55 @@ export function createServer() {
             sinNumber,
             timestamp
           );
-
-          const [inserted] = await db.insert(schema.drivers).values({
+          await sendDriverRegistrationReceivedEmail(
             fullName,
-            email,
-            phone,
-            password: hashedPassword,
-            vehicleType,
-            vehicleNumber,
-            licenseNumber: driversLicense,
+            email
+          );
+
+          newUser.driversLicense = driversLicense;
+          newUser.vehicleNumber = vehicleNumber;
+          newUser.vehicleType = vehicleType;
+          newUser.sinNumber = sinNumber;
+          newUser.selfiePhoto = selfiePhotoPath;
+          newUser.licenseFront = licenseFrontPath;
+          newUser.licenseBack = licenseBackPath;
+          newUser.vehicleRegistration = vehicleRegistrationPath;
+          newUser.insuranceDocument = insuranceDocumentPath;
+          newUser.isVerified = false;
+          newUser.verificationStatus = "pending";
+          newUser.rejectionReason = null;
+          newUser.approvedAt = null;
+          newUser.approvedBy = null;
+          newUser.verifiedAt = null;
+          newUser.status = "offline";
+          if (!dbData.drivers) dbData.drivers = [];
+          dbData.drivers.push(newUser);
+
+        }
+
+        dbData.users.push(newUser);
+        writeDB(dbData);
+
+        res.status(201).json({
+          message: role === "driver" ? "Driver registered successfully" : "User registered successfully",
+          userId: newId,
+          role,
+          verificationPending: role === "driver",
+          verificationNotification: role === "driver" ? "Verification notice sent to tanishkamukhi12@gmail.com" : undefined,
+          documents: role === "driver" ? {
             profilePhoto: profilePhotoPath,
             selfiePhoto: selfiePhotoPath,
             licenseFront: licenseFrontPath,
             licenseBack: licenseBackPath,
             vehicleRegistration: vehicleRegistrationPath,
             insuranceDocument: insuranceDocumentPath,
-            isVerified: false,
-            verificationStatus: "pending",
-            rejectionReason: null,
-            approvedAt: null,
-            approvedBy: null,
-            verifiedAt: null,
-            status: "offline",
-          }).returning({ id: schema.drivers.id });
-
-          return res.status(201).json({
-            message: "Driver registered successfully",
-            userId: inserted.id.toString(),
-            role,
-            verificationPending: true,
-            verificationNotification: "Verification notice sent to tanishkamukhi12@gmail.com",
-            documents: {
-              profilePhoto: profilePhotoPath,
-              selfiePhoto: selfiePhotoPath,
-              licenseFront: licenseFrontPath,
-              licenseBack: licenseBackPath,
-              vehicleRegistration: vehicleRegistrationPath,
-              insuranceDocument: insuranceDocumentPath,
-            }
-          });
-        } else {
-          const [inserted] = await db.insert(schema.users).values({
-            fullName,
-            email,
-            phone,
-            password: hashedPassword,
-            profilePhoto: profilePhotoPath,
-          }).returning({ id: schema.users.id });
-
-          return res.status(201).json({
-            message: "User registered successfully",
-            userId: inserted.id.toString(),
-            role,
-          });
-        }
+          } : undefined
+        });
+      } catch (error) {
+        console.error("Registration error:", error);
+        res.status(500).json({ message: "Registration failed: " + (error instanceof Error ? error.message : "Unknown error") });
       }
-
-      // JSON fallback
-      const dbData = readDB();
-      const existingUser = dbData.users.find((u: any) => u.email === email) ||
-        (dbData.drivers && dbData.drivers.find((d: any) => d.email === email));
-      if (existingUser) return res.status(400).json({ message: "Email already registered" });
-
-      const newId = Date.now().toString();
-      const newUser: any = {
-        id: newId, fullName, email, phone, password,
-        role, profilePhoto: profilePhotoPath, rating: 4.5, totalRides: 0,
-        createdAt: new Date().toISOString(),
-      };
-
-      if (role === "driver") {
-        const timestamp = new Date().toISOString();
-        // Fire and forget email notification
-        await sendNewDriverAdminNotification(
-          fullName,
-          email,
-          phone,
-          driversLicense,
-          vehicleNumber,
-          vehicleType,
-          sinNumber,
-          timestamp
-        );
-        await sendDriverRegistrationReceivedEmail(
-          fullName,
-          email
-        );
-
-        newUser.driversLicense = driversLicense;
-        newUser.vehicleNumber = vehicleNumber;
-        newUser.vehicleType = vehicleType;
-        newUser.sinNumber = sinNumber;
-        newUser.selfiePhoto = selfiePhotoPath;
-        newUser.licenseFront = licenseFrontPath;
-        newUser.licenseBack = licenseBackPath;
-        newUser.vehicleRegistration = vehicleRegistrationPath;
-        newUser.insuranceDocument = insuranceDocumentPath;
-        newUser.isVerified = false;
-        newUser.verificationStatus = "pending";
-        newUser.rejectionReason = null;
-        newUser.approvedAt = null;
-        newUser.approvedBy = null;
-        newUser.verifiedAt = null;
-        newUser.status = "offline";
-        if (!dbData.drivers) dbData.drivers = [];
-        dbData.drivers.push(newUser);
-
-      }
-
-      dbData.users.push(newUser);
-      writeDB(dbData);
-
-      res.status(201).json({
-        message: role === "driver" ? "Driver registered successfully" : "User registered successfully",
-        userId: newId,
-        role,
-        verificationPending: role === "driver",
-        verificationNotification: role === "driver" ? "Verification notice sent to tanishkamukhi12@gmail.com" : undefined,
-        documents: role === "driver" ? {
-          profilePhoto: profilePhotoPath,
-          selfiePhoto: selfiePhotoPath,
-          licenseFront: licenseFrontPath,
-          licenseBack: licenseBackPath,
-          vehicleRegistration: vehicleRegistrationPath,
-          insuranceDocument: insuranceDocumentPath,
-        } : undefined
-      });
-    } catch (error) {
-      console.error("Registration error:", error);
-      res.status(500).json({ message: "Registration failed: " + (error instanceof Error ? error.message : "Unknown error") });
-    }
-  });
+    });
   app.post("/api/forgot-password", async (req, res) => {
     try {
       const { email } = req.body;
@@ -663,6 +663,144 @@ GeoRides Team`,
       if (!email || !password)
         return res.status(400).json({ message: "Email and password are required" });
 
+      // Admin Login
+      if (
+        email === "admin@georides.ca" &&
+        password === "admin123"
+      ) {
+        const token = jwt.sign(
+          {
+            id: "admin",
+            role: "admin",
+            email,
+          },
+          process.env.JWT_SECRET as string,
+          {
+            expiresIn: "7d",
+          }
+        );
+
+        return res.json({
+          message: "Admin login successful",
+          token,
+          userId: "admin",
+          role: "admin",
+        });
+      }
+      app.get("/api/admin/drivers", async (req, res) => {
+        try {
+          if (useRealDB) {
+            const drivers = await db.select().from(schema.drivers);
+
+            return res.json(drivers);
+          }
+
+          const dbData = readDB();
+          return res.json(dbData.drivers || []);
+        } catch (err) {
+          console.error(err);
+          res.status(500).json({ message: "Failed to fetch drivers" });
+        }
+      });
+
+      app.patch("/api/admin/drivers/:id/approve", async (req, res) => {
+        try {
+          const id = Number(req.params.id);
+
+          if (useRealDB) {
+            const { eq } = await import("drizzle-orm");
+
+            await db
+              .update(schema.drivers)
+              .set({
+                isVerified: true,
+                verificationStatus: "approved",
+                approvedAt: new Date(),
+                verifiedAt: new Date(),
+                rejectionReason: null,
+              })
+              .where(eq(schema.drivers.id, id));
+
+            return res.json({
+              message: "Driver approved successfully",
+            });
+          }
+
+          const dbData = readDB();
+
+          const driver = dbData.drivers.find((d: any) => d.id == id);
+
+          if (!driver)
+            return res.status(404).json({ message: "Driver not found" });
+
+          driver.isVerified = true;
+          driver.verificationStatus = "approved";
+          driver.rejectionReason = null;
+
+          writeDB(dbData);
+
+          res.json({
+            message: "Driver approved successfully",
+          });
+
+        } catch (err) {
+          console.error(err);
+
+          res.status(500).json({
+            message: "Approval failed",
+          });
+        }
+      });
+
+      app.patch("/api/admin/drivers/:id/reject", async (req, res) => {
+        try {
+          const id = Number(req.params.id);
+          const { reason } = req.body;
+
+          if (useRealDB) {
+            const { eq } = await import("drizzle-orm");
+
+            await db
+              .update(schema.drivers)
+              .set({
+                isVerified: false,
+                verificationStatus: "rejected",
+                rejectionReason: reason,
+              })
+              .where(eq(schema.drivers.id, id));
+
+            return res.json({
+              message: "Driver rejected",
+            });
+          }
+
+          const dbData = readDB();
+
+          const driver = dbData.drivers.find((d: any) => d.id == id);
+
+          if (!driver)
+            return res.status(404).json({
+              message: "Driver not found",
+            });
+
+          driver.isVerified = false;
+          driver.verificationStatus = "rejected";
+          driver.rejectionReason = reason;
+
+          writeDB(dbData);
+
+          res.json({
+            message: "Driver rejected",
+          });
+
+        } catch (err) {
+          console.error(err);
+
+          res.status(500).json({
+            message: "Reject failed",
+          });
+        }
+      });
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
         const usersList = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
@@ -1624,9 +1762,18 @@ GeoRides Team`,
 
   // ── ADMIN ROUTES ─────────────────────────────────────────────────────────────
   function isAdmin(req: any, res: any) {
-    const token = req.headers.authorization?.replace("Bearer ", "") || req.headers["x-admin-token"];
+    const token =
+      req.headers.authorization?.replace("Bearer ", "") ||
+      req.headers["x-admin-token"];
+
+    console.log("Admin Token:", token);
+
     if (!token) return false;
+
     const dbData = readDB();
+
+    console.log("Saved Tokens:", dbData.adminTokens);
+
     return !!dbData.adminTokens[token] || token.includes("admin");
   }
 
@@ -1670,17 +1817,8 @@ GeoRides Team`,
   app.get("/api/admin/drivers", async (req, res) => {
     if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
     try {
-      const statusFilter = req.query.status as string;
-      
       if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        let driversList;
-        
-        if (statusFilter === "pending" || statusFilter === "approved" || statusFilter === "rejected") {
-          driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.verificationStatus, statusFilter));
-        } else {
-          driversList = await db.select().from(schema.drivers);
-        }
+        const driversList = await db.select().from(schema.drivers);
         return res.json(driversList.map((d: any) => ({ ...d, password: undefined })));
       } else {
         const dbData = readDB();
@@ -1688,15 +1826,9 @@ GeoRides Team`,
           ...(dbData.drivers || []),
           ...dbData.users.filter((u: any) => u.role === "driver")
         ];
-        
-        let filteredDrivers = allDrivers;
-        if (statusFilter === "pending" || statusFilter === "approved" || statusFilter === "rejected") {
-          filteredDrivers = allDrivers.filter((d: any) => d.verificationStatus === statusFilter || (!d.verificationStatus && statusFilter === "pending"));
-        }
-        
         // Deduplicate by email
         const uniqueMap = new Map();
-        for (const d of filteredDrivers) {
+        for (const d of allDrivers) {
           uniqueMap.set(d.email, { ...d, password: undefined });
         }
         return res.json(Array.from(uniqueMap.values()));
@@ -1822,7 +1954,7 @@ GeoRides Team`,
     if (!isAdmin(req, res)) return res.status(403).json({ message: "Forbidden" });
     try {
       const { id } = req.params;
-      const rejectionReason = req.body.reason || req.body.rejectionReason || req.body.rejection_reason;
+      const rejectionReason = req.body.rejectionReason || req.body.rejection_reason;
       if (!rejectionReason || typeof rejectionReason !== "string" || !rejectionReason.trim()) {
         return res.status(400).json({ message: "Rejection reason is required" });
       }

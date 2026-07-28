@@ -25,15 +25,21 @@ export default function AdminLogin() {
       });
 
       const data = await res.json();
-      if (res.ok && data.user.role === "admin") {
-        localStorage.setItem("adminToken", data.token);
-        localStorage.setItem("userRole", "admin");
+
+      if (res.ok && data.role === "admin") {
+        localStorage.setItem("authToken", data.token);
+        localStorage.setItem("userRole", data.role);
+        localStorage.setItem("userId", data.userId);
+
         toast.success("Welcome back, Admin!");
+        console.log("Token:", localStorage.getItem("authToken"));
+        console.log("Role:", localStorage.getItem("userRole"));
         navigate("/admin/dashboard");
       } else {
         setError(data.message || "Invalid admin credentials");
       }
     } catch (err) {
+      console.error(err);
       setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
