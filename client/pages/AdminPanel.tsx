@@ -131,7 +131,7 @@ export default function AdminPanel() {
         try {
             // 1. Fetch stats
             const statsRes = await fetch("/api/admin/stats", {
-                headers: { "X-Admin-Token": token }
+                headers: { Authorization: `Bearer ${token}` }
             });
             if (statsRes.ok) {
                 const statsData = await statsRes.json();
@@ -141,7 +141,7 @@ export default function AdminPanel() {
             // 2. Fetch specific tab data
             if (activeTab === "users") {
                 const res = await fetch("/api/admin/users", {
-                    headers: { "X-Admin-Token": token }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -149,7 +149,7 @@ export default function AdminPanel() {
                 }
             } else if (activeTab === "drivers") {
                 const res = await fetch("/api/admin/drivers", {
-                    headers: { "X-Admin-Token": token }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -157,7 +157,7 @@ export default function AdminPanel() {
                 }
             } else if (activeTab === "bookings") {
                 const res = await fetch("/api/admin/bookings", {
-                    headers: { "X-Admin-Token": token }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -165,7 +165,7 @@ export default function AdminPanel() {
                 }
             } else if (activeTab === "partners") {
                 const res = await fetch("/api/admin/partners", {
-                    headers: { "X-Admin-Token": token }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -173,7 +173,7 @@ export default function AdminPanel() {
                 }
             } else if (activeTab === "hotelBookings") {
                 const res = await fetch("/api/admin/hotel-bookings", {
-                    headers: { "X-Admin-Token": token }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -181,7 +181,7 @@ export default function AdminPanel() {
                 }
             } else if (activeTab === "parcelBookings") {
                 const res = await fetch("/api/admin/parcel-bookings", {
-                    headers: { "X-Admin-Token": token }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
                 if (res.ok) {
                     const data = await res.json();
@@ -223,7 +223,6 @@ export default function AdminPanel() {
                 method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`,
-                    "X-Admin-Token": token,
                     "Content-Type": "application/json"
                 }
             });
@@ -262,10 +261,9 @@ export default function AdminPanel() {
                 method: "PATCH",
                 headers: {
                     "Authorization": `Bearer ${token}`,
-                    "X-Admin-Token": token,
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ reason: rejectionReason.trim() })
+                body: JSON.stringify({ rejectionReason: rejectionReason.trim() })
             });
             if (res.ok) {
                 setDrivers(prev => prev.map(d => String(d.id) === String(rejectingDriverId) ? { ...d, isVerified: false, verificationStatus: "rejected", rejectionReason: rejectionReason.trim() } : d));

@@ -25,7 +25,7 @@ export default function DriverDashboard() {
     const [online, setOnline] = useState(false);
     const [driverProfile, setDriverProfile] = useState<any>(null);
     const [rideRequests, setRideRequests] = useState<RideRequest[]>([]);
-    const [earnings, setEarnings] = useState({ daily: 120, weekly: 640, monthly: 2450 });
+    const [earnings, setEarnings] = useState({ daily: 0, weekly: 0, monthly: 0 });
     const [loading, setLoading] = useState(true);
     const [actioning, setActioning] = useState<string | null>(null);
 
@@ -43,14 +43,15 @@ export default function DriverDashboard() {
     const fetchDriverStatus = async () => {
         try {
             const token = localStorage.getItem("authToken");
-            const res = await fetch("/api/driver/status", {
+            const res = await fetch("/api/driver/profile", {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
-                setDriverProfile(data.profile);
-                setOnline(data.profile?.status === "online");
+                setDriverProfile(data.driver);
+                setOnline(data.driver?.status === "online");
                 fetchRequests();
+                fetchEarnings();
             } else {
                 setDriverProfile({
                     fullName: "Alex Mercer",
@@ -73,13 +74,13 @@ export default function DriverDashboard() {
     const fetchRequests = async () => {
         try {
             const token = localStorage.getItem("authToken");
-            const res = await fetch("/api/driver/rides", {
+            const res = await fetch("/api/driver/requests", {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (res.ok) {
                 const data = await res.json();
                 setRideRequests(
-                    data.map((ride: any) => ({
+                    (data.requests || []).map((ride: any) => ({
                         id: ride.id,
                         userId: String(ride.userId),
                         source: ride.pickupLocation,
@@ -90,6 +91,26 @@ export default function DriverDashboard() {
                         userName: "GeoRides Customer"
                     }))
                 );
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchEarnings = async () => {
+        try {
+            const token = localStorage.getItem("authToken");
+            const res = await fetch("/api/driver/earnings", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                // Simple logic for the dashboard display
+                setEarnings({
+                    daily: data.totalEarnings, // Just putting total in daily for now
+                    weekly: data.totalEarnings,
+                    monthly: data.totalEarnings,
+                });
             }
         } catch (err) {
             console.error(err);
@@ -157,7 +178,20 @@ export default function DriverDashboard() {
     };
 
     const handleDecline = async (rideId: string) => {
-        setRideRequests(prev => prev.filter(r => r.id !== rideId));
+        try {
+            const token = localStorage.getItem("authToken");
+            await fetch("/api/driver/reject-ride", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ rideId })
+            });
+            setRideRequests(prev => prev.filter(r => r.id !== rideId));
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const VerificationBanner = () => {

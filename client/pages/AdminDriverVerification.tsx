@@ -112,7 +112,7 @@ export default function AdminDriverVerification() {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ reason: rejectionReason })
+                body: JSON.stringify({ rejectionReason })
             });
 
             if (res.ok) {

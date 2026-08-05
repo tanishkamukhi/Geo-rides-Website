@@ -687,120 +687,7 @@ GeoRides Team`,
           role: "admin",
         });
       }
-      app.get("/api/admin/drivers", async (req, res) => {
-        try {
-          if (useRealDB) {
-            const drivers = await db.select().from(schema.drivers);
 
-            return res.json(drivers);
-          }
-
-          const dbData = readDB();
-          return res.json(dbData.drivers || []);
-        } catch (err) {
-          console.error(err);
-          res.status(500).json({ message: "Failed to fetch drivers" });
-        }
-      });
-
-      app.patch("/api/admin/drivers/:id/approve", async (req, res) => {
-        try {
-          const id = Number(req.params.id);
-
-          if (useRealDB) {
-            const { eq } = await import("drizzle-orm");
-
-            await db
-              .update(schema.drivers)
-              .set({
-                isVerified: true,
-                verificationStatus: "approved",
-                approvedAt: new Date(),
-                verifiedAt: new Date(),
-                rejectionReason: null,
-              })
-              .where(eq(schema.drivers.id, id));
-
-            return res.json({
-              message: "Driver approved successfully",
-            });
-          }
-
-          const dbData = readDB();
-
-          const driver = dbData.drivers.find((d: any) => d.id == id);
-
-          if (!driver)
-            return res.status(404).json({ message: "Driver not found" });
-
-          driver.isVerified = true;
-          driver.verificationStatus = "approved";
-          driver.rejectionReason = null;
-
-          writeDB(dbData);
-
-          res.json({
-            message: "Driver approved successfully",
-          });
-
-        } catch (err) {
-          console.error(err);
-
-          res.status(500).json({
-            message: "Approval failed",
-          });
-        }
-      });
-
-      app.patch("/api/admin/drivers/:id/reject", async (req, res) => {
-        try {
-          const id = Number(req.params.id);
-          const { reason } = req.body;
-
-          if (useRealDB) {
-            const { eq } = await import("drizzle-orm");
-
-            await db
-              .update(schema.drivers)
-              .set({
-                isVerified: false,
-                verificationStatus: "rejected",
-                rejectionReason: reason,
-              })
-              .where(eq(schema.drivers.id, id));
-
-            return res.json({
-              message: "Driver rejected",
-            });
-          }
-
-          const dbData = readDB();
-
-          const driver = dbData.drivers.find((d: any) => d.id == id);
-
-          if (!driver)
-            return res.status(404).json({
-              message: "Driver not found",
-            });
-
-          driver.isVerified = false;
-          driver.verificationStatus = "rejected";
-          driver.rejectionReason = reason;
-
-          writeDB(dbData);
-
-          res.json({
-            message: "Driver rejected",
-          });
-
-        } catch (err) {
-          console.error(err);
-
-          res.status(500).json({
-            message: "Reject failed",
-          });
-        }
-      });
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
         const usersList = await db.select().from(schema.users).where(eq(schema.users.email, email)).limit(1);
@@ -1344,12 +1231,12 @@ GeoRides Team`,
     try {
       const token = req.headers.authorization?.replace("Bearer ", "");
       if (!token) return res.status(401).json({ message: "Unauthorized" });
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       if (useRealDB) {
         const { eq } = await import("drizzle-orm");
-        const driverId = driverTokens.get(token);
-        if (driverId) {
-          const driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
+        if (decoded.role === "driver") {
+          const driversList = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(decoded.id))).limit(1);
           const driver = driversList[0];
           if (driver) {
             return res.json({
@@ -1368,41 +1255,27 @@ GeoRides Team`,
               vehicleType: driver.vehicleType,
             });
           }
+        } else if (decoded.role === "admin") {
+          return res.json({ id: "admin", fullName: "Admin", email: "admin@georides.ca", role: "admin" });
+        } else {
+          const usersList = await db.select().from(schema.users).where(eq(schema.users.id, Number(decoded.id))).limit(1);
+          const user = usersList[0];
+          if (!user) return res.status(404).json({ message: "User not found" });
+          return res.json({
+            id: user.id.toString(), fullName: user.fullName, email: user.email,
+            phone: user.phone, joined: "Just now", trips: user.totalRides ?? 0,
+            rating: Number(user.rating ?? "5.0"), role: "user",
+          });
         }
-
-        const usersList = await db.select().from(schema.users).where(eq(schema.users.apiToken, token)).limit(1);
-        const user = usersList[0];
-        if (!user) return res.status(404).json({ message: "User not found" });
-        return res.json({
-          id: user.id.toString(), fullName: user.fullName, email: user.email,
-          phone: user.phone, joined: "Just now", trips: user.totalRides ?? 0,
-          rating: Number(user.rating ?? "5.0"), role: "user",
-        });
       }
-
-      const dbData = readDB();
-      if (dbData.adminTokens[token]) {
-        return res.json({ id: "admin", fullName: "Admin", email: "admin@georides.ca", role: "admin" });
-      }
-      const userId = dbData.tokens[token];
-      if (!userId) return res.status(404).json({ message: "User not found" });
-      const user = dbData.users.find((u: any) => u.id === userId);
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      res.json({
-        id: user.id, fullName: user.fullName, email: user.email, phone: user.phone,
-        role: user.role || "user", joined: new Date(user.createdAt).toLocaleDateString(),
-        trips: user.totalRides || 0, rating: user.rating || 4.5,
-        isVerified: user.isVerified, verificationStatus: user.verificationStatus,
-        driversLicense: user.driversLicense, vehicleNumber: user.vehicleNumber,
-        vehicleType: user.vehicleType,
-      });
+      res.status(500).json({ message: "Real DB not connected" });
     } catch (error) {
       res.status(500).json({ message: "Error fetching profile" });
     }
   });
 
   // ── BOOK RIDE ────────────────────────────────────────────────────────────────
+
   app.post("/api/book-ride", async (req, res) => {
     try {
       const token = req.headers.authorization?.replace("Bearer ", "");
@@ -1441,305 +1314,7 @@ GeoRides Team`,
   });
 
   // ── DRIVER: Get ride requests ─────────────────────────────────────────────
-  app.get("/api/driver/rides", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-      const dbData = readDB();
-      const userId = dbData.tokens[token];
-      const user = dbData.users.find((u: any) => u.id === userId && u.role === "driver");
-      if (!user) return res.status(403).json({ message: "Driver not found" });
-
-      const pending = dbData.bookings.filter((b: any) => b.status === "pending");
-      res.json(pending);
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching rides" });
-    }
-  });
-
-  // ── DRIVER: Accept/decline ride ─────────────────────────────────────────────
-  app.patch("/api/driver/rides/:id", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-      const { action } = req.body; // "accept" | "decline"
-      const dbData = readDB();
-      const userId = dbData.tokens[token];
-      const booking = dbData.bookings.find((b: any) => b.id === req.params.id);
-      if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-      booking.status = action === "accept" ? "accepted" : "declined";
-      if (action === "accept") booking.driverId = userId;
-      writeDB(dbData);
-      res.json({ message: `Ride ${action}ed`, booking });
-    } catch (error) {
-      res.status(500).json({ message: "Error updating ride" });
-    }
-  });
-
-  // ── DRIVER: Toggle online status ─────────────────────────────────────────────
-  app.patch("/api/driver/status", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-      const { status } = req.body;
-      const dbData = readDB();
-      const userId = dbData.tokens[token];
-      const user = dbData.users.find((u: any) => u.id === userId);
-      if (!user) return res.status(404).json({ message: "User not found" });
-      user.status = status;
-      writeDB(dbData);
-      res.json({ message: "Status updated", status });
-    } catch (error) {
-      res.status(500).json({ message: "Error" });
-    }
-  });
-
-  // ── GET DRIVER PROFILE ──────────────────────────────────────────
-  app.get("/api/driver/profile", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-      let driver: any = null;
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        const driverId = driverTokens.get(token);
-        if (driverId) {
-          const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
-          driver = results[0];
-        }
-      } else {
-        const dbData = readDB();
-        const driverId = dbData.tokens[token];
-        driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
-        if (!driver) {
-          driver = dbData.users.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
-        }
-      }
-
-      if (!driver) return res.status(404).json({ message: "Driver not found" });
-
-      const isVerified = Boolean(driver.isVerified);
-      const verificationStatus = driver.verificationStatus || (isVerified ? "approved" : "pending");
-
-      return res.json({
-        id: String(driver.id),
-        fullName: driver.fullName,
-        email: driver.email,
-        phone: driver.phone,
-        vehicleType: driver.vehicleType,
-        vehicleNumber: driver.vehicleNumber,
-        licenseNumber: driver.licenseNumber || driver.driversLicense,
-        driversLicense: driver.licenseNumber || driver.driversLicense,
-        isVerified,
-        verificationStatus,
-        rejectionReason: driver.rejectionReason || null,
-        status: driver.status || "offline",
-        rating: Number(driver.rating ?? "4.5"),
-        totalRides: driver.totalRides ?? 0,
-        createdAt: driver.createdAt,
-      });
-    } catch (error) {
-      console.error("Error fetching driver profile:", error);
-      return res.status(500).json({ message: "Failed to fetch driver profile" });
-    }
-  });
-
-  // ── NEW DRIVER DASHBOARD ENDPOINTS ───────────────────
-  app.get("/api/driver/status", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-      let driver: any = null;
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        const driverId = driverTokens.get(token);
-        if (driverId) {
-          const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
-          driver = results[0];
-        }
-      } else {
-        const dbData = readDB();
-        const driverId = dbData.tokens[token];
-        driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
-        if (!driver) {
-          driver = dbData.users.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
-        }
-      }
-
-      if (!driver) return res.status(404).json({ message: "Driver not found" });
-
-      const isVerified = Boolean(driver.isVerified);
-      const verificationStatus = driver.verificationStatus || (isVerified ? "approved" : "pending");
-
-      res.json({
-        profile: {
-          fullName: driver.fullName,
-          driversLicense: driver.driversLicense || driver.licenseNumber,
-          vehicleNumber: driver.vehicleNumber,
-          vehicleType: driver.vehicleType,
-          isVerified,
-          status: driver.status || "offline",
-          verificationStatus,
-          rejectionReason: driver.rejectionReason || null,
-        }
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Error fetching driver status" });
-    }
-  });
-
-  app.post("/api/driver/toggle-status", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-      const { status } = req.body;
-
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        const driverId = driverTokens.get(token);
-        if (!driverId) return res.status(401).json({ message: "Unauthorized" });
-
-        const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
-        const driver = results[0];
-        if (!driver) return res.status(404).json({ message: "Driver not found" });
-
-        if (status === "online" && (!driver.isVerified || driver.verificationStatus !== "approved")) {
-          return res.status(403).json({ message: "Unverified drivers cannot go online." });
-        }
-
-        await db.update(schema.drivers)
-          .set({ status })
-          .where(eq(schema.drivers.id, Number(driverId)));
-
-        return res.json({ message: "Status updated", status });
-      } else {
-        const dbData = readDB();
-        const driverId = dbData.tokens[token];
-        let driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
-        if (!driver) {
-          driver = dbData.users.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
-        }
-        if (!driver) return res.status(404).json({ message: "Driver not found" });
-
-        if (status === "online" && (!driver.isVerified || driver.verificationStatus !== "approved")) {
-          return res.status(403).json({ message: "Unverified drivers cannot go online." });
-        }
-
-        driver.status = status;
-        writeDB(dbData);
-        return res.json({ message: "Status updated", status });
-      }
-    } catch (error) {
-      res.status(500).json({ message: "Failed to update status" });
-    }
-  });
-
-  app.get("/api/driver/requests", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-      let driver: any = null;
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        const driverId = driverTokens.get(token);
-        if (driverId) {
-          const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
-          driver = results[0];
-        }
-      } else {
-        const dbData = readDB();
-        const driverId = dbData.tokens[token];
-        driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
-        if (!driver) {
-          driver = dbData.users?.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
-        }
-      }
-
-      if (!driver) return res.status(401).json({ message: "Unauthorized" });
-
-      if (!driver.isVerified || driver.verificationStatus !== "approved") {
-        return res.status(403).json({ message: "Unverified drivers cannot receive ride requests.", requests: [] });
-      }
-
-      let pendingBookings = [];
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        pendingBookings = await db.select().from(schema.bookings).where(eq(schema.bookings.status, "pending"));
-      } else {
-        const dbData = readDB();
-        pendingBookings = dbData.bookings.filter((b: any) => b.status === "pending");
-      }
-
-      const requests = pendingBookings.map((b: any) => ({
-        id: b.id.toString(),
-        userId: b.userId?.toString(),
-        source: b.pickupLocation,
-        destination: b.dropLocation,
-        fare: parseFloat(b.estimatedFare?.replace(/[^\d.]/g, "") || "0"),
-        status: b.status,
-        createdAt: b.createdAt,
-      }));
-
-      res.json({ requests });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch requests" });
-    }
-  });
-
-  app.post("/api/driver/accept-ride", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      if (!token) return res.status(401).json({ message: "Unauthorized" });
-
-      const { rideId } = req.body;
-      if (useRealDB) {
-        const { eq } = await import("drizzle-orm");
-        const driverId = driverTokens.get(token);
-        if (!driverId) return res.status(401).json({ message: "Unauthorized" });
-
-        const results = await db.select().from(schema.drivers).where(eq(schema.drivers.id, Number(driverId))).limit(1);
-        const driver = results[0];
-        if (!driver) return res.status(404).json({ message: "Driver not found" });
-
-        if (!driver.isVerified || driver.verificationStatus !== "approved") {
-          return res.status(403).json({ message: "Unverified drivers cannot accept rides." });
-        }
-
-        await db.update(schema.bookings)
-          .set({ status: "accepted", driverId: Number(driverId) })
-          .where(eq(schema.bookings.id, Number(rideId)));
-
-        return res.json({ message: "Ride accepted" });
-      } else {
-        const dbData = readDB();
-        const driverId = dbData.tokens[token];
-        let driver = dbData.drivers?.find((d: any) => String(d.id) === String(driverId));
-        if (!driver) {
-          driver = dbData.users?.find((u: any) => String(u.id) === String(driverId) && u.role === "driver");
-        }
-        if (!driver) return res.status(404).json({ message: "Driver not found" });
-
-        if (!driver.isVerified || driver.verificationStatus !== "approved") {
-          return res.status(403).json({ message: "Unverified drivers cannot accept rides." });
-        }
-
-        const booking = dbData.bookings.find((b: any) => String(b.id) === String(rideId));
-        if (!booking) return res.status(404).json({ message: "Booking not found" });
-
-        booking.status = "accepted";
-        booking.driverId = driverId;
-        writeDB(dbData);
-        return res.json({ message: "Ride accepted" });
-      }
-    } catch (error) {
-      res.status(500).json({ message: "Failed to accept ride" });
-    }
-  });
+  //app.use("/api/driver", driverRouter);
 
   // ── PARTNER APPLICATION ───────────────────────────────────────────────────
   app.post("/api/partner", async (req, res) => {

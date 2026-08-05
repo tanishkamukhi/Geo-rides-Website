@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
     if (!token) {
