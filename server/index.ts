@@ -9,6 +9,7 @@ import fs from "fs";
 import path from "path";
 import { handleDemo } from "./routes/demo";
 import { uploadMiddleware } from "./multer";
+import driverRouter from "./routes/driver";
 
 // ── JSON Fallback DB ─────────────────────────────────────────────────────────
 const DB_PATH = path.join(__dirname, "db.json");
@@ -1314,7 +1315,7 @@ GeoRides Team`,
   });
 
   // ── DRIVER: Get ride requests ─────────────────────────────────────────────
-  //app.use("/api/driver", driverRouter);
+  app.use("/api/driver", driverRouter);
 
   // ── PARTNER APPLICATION ───────────────────────────────────────────────────
   app.post("/api/partner", async (req, res) => {
@@ -1336,20 +1337,19 @@ GeoRides Team`,
   });
 
   // ── ADMIN ROUTES ─────────────────────────────────────────────────────────────
-  function isAdmin(req: any, res: any) {
+  function isAdmin(req: any) {
     const token =
       req.headers.authorization?.replace("Bearer ", "") ||
       req.headers["x-admin-token"];
 
-    console.log("Admin Token:", token);
-
     if (!token) return false;
 
-    const dbData = readDB();
-
-    console.log("Saved Tokens:", dbData.adminTokens);
-
-    return !!dbData.adminTokens[token] || token.includes("admin");
+    try {
+      const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+      return decoded.role === "admin";
+    } catch {
+      return false;
+    }
   }
 
   app.get("/api/admin/stats", (req, res) => {

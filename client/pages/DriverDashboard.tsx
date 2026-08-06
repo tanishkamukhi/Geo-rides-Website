@@ -5,7 +5,6 @@ import { Switch } from "@/components/ui/switch";
 import { Check, X, ShieldAlert, Award, DollarSign, MapPin, Navigation, Clock, User, Eye } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
 interface RideRequest {
     id: string;
     userId: string;
@@ -29,14 +28,26 @@ export default function DriverDashboard() {
     const [loading, setLoading] = useState(true);
     const [actioning, setActioning] = useState<string | null>(null);
 
+    const [currentRide, setCurrentRide] = useState<any>(null);
+    const [rideHistory, setRideHistory] = useState<any[]>([]);
+    const [wallet, setWallet] = useState(0);
     useEffect(() => {
         const token = localStorage.getItem("authToken");
         if (!token) {
             navigate("/login");
             return;
         }
+
         fetchDriverStatus();
-        const interval = setInterval(fetchRequests, 5000);
+        fetchRequests();
+        fetchCurrentRide();   // ✅ ADD THIS
+        fetchEarnings();
+
+        const interval = setInterval(() => {
+            fetchRequests();
+            fetchCurrentRide();   // ✅ ADD THIS
+        }, 5000);
+
         return () => clearInterval(interval);
     }, []);
 
@@ -79,16 +90,19 @@ export default function DriverDashboard() {
             });
             if (res.ok) {
                 const data = await res.json();
+                console.log("REQUEST API RESPONSE:", data);
                 setRideRequests(
                     (data.requests || []).map((ride: any) => ({
                         id: ride.id,
                         userId: String(ride.userId),
                         source: ride.pickupLocation,
                         destination: ride.dropLocation,
-                        fare: Number(ride.fare || ride.estimatedFare || 0),
+                        fare: parseFloat(
+                            String(ride.estimatedFare || ride.fare || "0").replace(/[^\d.]/g, "")
+                        ),
                         status: ride.status,
                         createdAt: ride.createdAt,
-                        userName: "GeoRides Customer"
+                        userName: "GeoRides Customer",
                     }))
                 );
             }
@@ -96,7 +110,20 @@ export default function DriverDashboard() {
             console.error(err);
         }
     };
+    const fetchRideHistory = async () => {
+        const token = localStorage.getItem("authToken");
 
+        const res = await fetch("/api/driver/rides", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            setRideHistory(data.rides || []);
+        }
+    };
     const fetchEarnings = async () => {
         try {
             const token = localStorage.getItem("authToken");
@@ -160,11 +187,10 @@ export default function DriverDashboard() {
             });
             if (res.ok) {
                 setRideRequests(prev => prev.filter(r => r.id !== rideId));
-                setEarnings(prev => ({
-                    ...prev,
-                    daily: prev.daily + 35,
-                    weekly: prev.weekly + 35
-                }));
+
+                await fetchCurrentRide();
+                await fetchEarnings();
+
                 alert("Ride accepted successfully! GPS route guided to pickup.");
             } else {
                 const errData = await res.json();
@@ -174,6 +200,87 @@ export default function DriverDashboard() {
             console.error(err);
         } finally {
             setActioning(null);
+        }
+    };
+    const handleStartRide = async () => {
+        if (!currentRide) return;
+
+        const token = localStorage.getItem("authToken");
+
+        try {
+            const res = await fetch(`/api/driver/rides/${currentRide.id}`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: "started",
+                }),
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                setCurrentRide(data.ride);
+                alert("Ride Started Successfully!");
+            } else {
+                const err = await res.json();
+                alert(err.message);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    const handleCompleteRide = async () => {
+        const token = localStorage.getItem("authToken");
+
+        try {
+            const res = await fetch(`/api/driver/rides/${currentRide.id}`, {
+                method: "PATCH",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    status: "completed",
+                }),
+            });
+
+            if (res.ok) {
+                alert("Ride Completed Successfully!");
+
+                setCurrentRide(null);
+
+                fetchRequests();
+                fetchEarnings();
+            }
+            if (res.ok) {
+                alert("Ride Completed Successfully!");
+
+                setCurrentRide(null);
+
+                await fetchCurrentRide();
+                await fetchRequests();
+                await fetchEarnings();
+
+                navigate("/driver/history"); // agar history page hai
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+    const fetchCurrentRide = async () => {
+        const token = localStorage.getItem("authToken");
+
+        const res = await fetch("/api/driver/current-ride", {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            setCurrentRide(data.ride);
         }
     };
 
@@ -329,6 +436,46 @@ export default function DriverDashboard() {
                     {/* Ride Offers panel */}
                     <div className="lg:col-span-8 space-y-6">
                         <div className="bg-white/[0.02] border border-white/[0.08] rounded-3xl p-8 backdrop-blur-xl">
+                            {currentRide && (
+                                <div className="mb-6 bg-white/5 border border-green-500/30 rounded-2xl p-5">
+                                    <h2 className="text-xl font-bold text-green-400 mb-4">
+                                        Current Ride
+                                    </h2>
+
+                                    <div className="space-y-2">
+                                        <p>
+                                            <strong>Pickup:</strong>{" "}
+                                            {currentRide.pickupLocation || currentRide.pickup}
+                                        </p>
+
+                                        <p>
+                                            <strong>Destination:</strong>{" "}
+                                            {currentRide.dropLocation || currentRide.drop}
+                                        </p>
+
+                                        <p>
+                                            <strong>Status:</strong>{" "}
+                                            {currentRide.status}
+                                        </p>
+                                    </div>
+
+                                    {currentRide?.status === "accepted" ? (
+                                        <button
+                                            onClick={handleStartRide}
+                                            className="mt-5 bg-green-600 hover:bg-green-700 px-5 py-2 rounded-xl font-bold"
+                                        >
+                                            Start Ride
+                                        </button>
+                                    ) : currentRide?.status === "started" ? (
+                                        <button
+                                            onClick={handleCompleteRide}
+                                            className="mt-5 bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-xl font-bold"
+                                        >
+                                            Complete Ride
+                                        </button>
+                                    ) : null}
+                                </div>
+                            )}
                             <div className="flex justify-between items-center mb-6">
                                 <div>
                                     <h2 className="text-xl font-black uppercase tracking-tight">Active Ride Requests</h2>
